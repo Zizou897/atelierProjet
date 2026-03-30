@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTAMS - Fiche client</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-1:#0f2027; --bg-2:#203a43; --bg-3:#2c5364; --surface:#fff; --text-1:#18212e; --text-2:#5a6678; --accent:#0b7fab; --accent-2:#1fa2ff; --line:#e8edf3; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; min-height:100vh; color:var(--text-1); background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 48%,var(--bg-3) 100%); }
+        .shell { max-width:1000px; margin:0 auto; padding:28px 18px 34px; }
+        .topbar { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); border-radius:14px; color:#fff; padding:16px 18px; display:flex; justify-content:space-between; gap:14px; align-items:center; backdrop-filter:blur(4px); margin-bottom:18px; flex-wrap:wrap; }
+        .title { font-size:24px; font-weight:700; margin-bottom:4px; }
+        .subtitle { font-size:14px; opacity:.9; }
+        .actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .btn { text-decoration:none; border-radius:8px; padding:9px 14px; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,.35); color:#fff; background:rgba(255,255,255,.1); }
+        .btn-primary { background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); border-color:transparent; }
+        .layout { background:var(--surface); border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.25); padding:20px; }
+        .card { border:1px solid var(--line); border-radius:12px; padding:16px; background:linear-gradient(180deg,#fff 0%,#f8fbff 100%); }
+        .card h2 { font-size:16px; margin-bottom:10px; color:#43526a; text-transform:uppercase; letter-spacing:.3px; }
+        .meta { display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; }
+        .meta dt { color:#64748b; font-size:12px; text-transform:uppercase; letter-spacing:.35px; }
+        .meta dd { margin-top:4px; font-size:14px; font-weight:600; }
+        .notes { margin-top:12px; color:var(--text-2); line-height:1.5; font-size:14px; }
+        .table-wrap { margin-top:14px; border:1px solid var(--line); border-radius:12px; overflow:auto; background:#fff; }
+        table { width:100%; border-collapse:collapse; min-width:620px; }
+        th, td { padding:11px 10px; border-bottom:1px solid #eff3f8; text-align:left; font-size:14px; }
+        th { background:#f8fbff; font-size:12px; text-transform:uppercase; letter-spacing:.35px; color:#52627b; }
+        .table-btn { border:1px solid var(--line); border-radius:8px; padding:6px 10px; text-decoration:none; color:var(--text-1); font-weight:600; }
+        @media (max-width: 760px) { .meta { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="topbar">
+            <div>
+                <h1 class="title">{{ customer.display_name }}</h1>
+                <p class="subtitle">{{ customer.get_customer_type_display }}</p>
+            </div>
+            <div class="actions">
+                <a class="btn" href="{% url 'customer_list' %}"><i class="fa-solid fa-list"></i> Liste</a>
+                <a class="btn btn-primary" href="{% url 'customer_update' customer.id %}"><i class="fa-solid fa-pen"></i> Modifier</a>
+            </div>
+        </section>
+
+        <main class="layout">
+            <article class="card">
+                <h2>Informations client</h2>
+                <dl class="meta">
+                    <div><dt>Type</dt><dd>{{ customer.get_customer_type_display }}</dd></div>
+                    <div><dt>Email</dt><dd>{{ customer.email|default:"-" }}</dd></div>
+                    <div><dt>Telephone</dt><dd>{{ customer.phone|default:"-" }}</dd></div>
+                    <div><dt>Adresse</dt><dd>{{ customer.address_line1|default:"-" }}</dd></div>
+                    <div><dt>Complement</dt><dd>{{ customer.address_line2|default:"-" }}</dd></div>
+                    <div><dt>Code postal</dt><dd>{{ customer.postal_code|default:"-" }}</dd></div>
+                    <div><dt>Ville</dt><dd>{{ customer.city|default:"-" }}</dd></div>
+                    <div><dt>Pays</dt><dd>{{ customer.country|default:"-" }}</dd></div>
+                    <div><dt>Etat</dt><dd>{% if customer.is_active %}Actif{% else %}Inactif{% endif %}</dd></div>
+                    <div><dt>Derniere MAJ</dt><dd>{{ customer.updated_at|date:"d/m/Y H:i" }}</dd></div>
+                </dl>
+                <p class="notes">{{ customer.notes|linebreaksbr|default:"Aucune note." }}</p>
+            </article>
+
+            <article class="card" style="margin-top:14px;">
+                <h2>Vehicules rattaches</h2>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Immatriculation</th>
+                                <th>Vehicule</th>
+                                <th>KM</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vehicle in vehicles %}
+                                <tr>
+                                    <td>{{ vehicle.registration_number }}</td>
+                                    <td>{{ vehicle.make }} {{ vehicle.model }}</td>
+                                    <td>{{ vehicle.mileage }} km</td>
+                                    <td><a class="table-btn" href="{% url 'vehicle_detail' vehicle.id %}">Ouvrir</a></td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="4">Aucun vehicule rattache.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTAMS - {{ page_title }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-1:#0f2027; --bg-2:#203a43; --bg-3:#2c5364; --surface:#fff; --text-1:#18212e; --text-2:#5a6678; --accent:#0b7fab; --accent-2:#1fa2ff; --line:#e8edf3; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; min-height:100vh; color:var(--text-1); background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 48%,var(--bg-3) 100%); }
+        .shell { max-width:1160px; margin:0 auto; padding:28px 18px 34px; }
+        .topbar { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); border-radius:14px; color:#fff; padding:16px 18px; display:flex; justify-content:space-between; gap:14px; align-items:center; backdrop-filter:blur(4px); margin-bottom:18px; flex-wrap:wrap; }
+        .title { font-size:24px; font-weight:700; margin-bottom:4px; }
+        .subtitle { font-size:14px; opacity:.9; }
+        .btn { text-decoration:none; border-radius:8px; padding:9px 14px; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,.35); color:#fff; background:rgba(255,255,255,.1); cursor:pointer; }
+        .layout { background:var(--surface); border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.25); padding:20px; }
+        .messages { margin-bottom:12px; }
+        .alert { border-radius:8px; padding:10px 12px; margin-bottom:8px; font-size:13px; background:#e8f7ee; border:1px solid #c2e9d1; color:#1c6b3f; }
+        .grid { display:grid; grid-template-columns:repeat(2,minmax(260px,1fr)); gap:12px; }
+        .field { display:flex; flex-direction:column; gap:6px; }
+        .full { grid-column:1 / -1; }
+        .field label { font-size:12px; text-transform:uppercase; letter-spacing:.3px; color:#4f607a; font-weight:700; }
+        .field input, .field select, .field textarea { border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:14px; color:var(--text-1); background:#fff; }
+        .field select[multiple] { min-height:160px; }
+        .field small { color:#b42323; }
+        .help { color:var(--text-2); font-size:12px; }
+        .actions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+        .btn-primary { background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); border:0; color:#fff; }
+        .btn-ghost { text-decoration:none; border-radius:8px; padding:9px 14px; font-weight:700; font-size:13px; border:1px solid var(--line); color:var(--text-1); background:#fff; }
+        @media (max-width: 840px) { .grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="topbar">
+            <div>
+                <h1 class="title">{{ page_title }}</h1>
+                <p class="subtitle">Configurer identite, role, activation portail et permissions.</p>
+            </div>
+            <a class="btn" href="{% url 'user_list' %}"><i class="fa-solid fa-arrow-left"></i> Retour liste</a>
+        </section>
+
+        <main class="layout">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="grid">
+                    {% for field in form %}
+                        <div class="field {% if field.name == 'groups' or field.name == 'user_permissions' %}full{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <span class="help">{{ field.help_text|safe }}</span>
+                            {% endif %}
+                            {% if field.errors %}
+                                <small>{{ field.errors|striptags }}</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+                    <a class="btn-ghost" href="{% url 'user_list' %}">Annuler</a>
+                </div>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

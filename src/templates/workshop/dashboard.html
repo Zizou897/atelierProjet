@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTAMS - Dashboard Atelier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg-1:#0f2027; --bg-2:#203a43; --bg-3:#2c5364; --surface:#fff; --text-1:#18212e; --text-2:#5a6678; --accent:#0b7fab; --accent-2:#1fa2ff; --line:#e8edf3; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; min-height:100vh; color:var(--text-1); background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 48%,var(--bg-3) 100%); }
+        .shell { max-width:1200px; margin:0 auto; padding:28px 18px 34px; }
+        .topbar { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); border-radius:14px; color:#fff; padding:16px 18px; display:flex; justify-content:space-between; gap:14px; align-items:center; backdrop-filter:blur(4px); margin-bottom:18px; flex-wrap:wrap; }
+        .title { font-size:24px; font-weight:700; margin-bottom:4px; }
+        .subtitle { font-size:14px; opacity:.9; }
+        .actions { display:flex; gap:10px; flex-wrap:wrap; }
+        .btn { text-decoration:none; border-radius:8px; padding:9px 14px; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,.35); color:#fff; background:rgba(255,255,255,.1); }
+        .btn-primary { background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); border-color:transparent; }
+        .period-form { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+        .period-form select { border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px; }
+        .period-form button { border:0; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:700; color:#fff; cursor:pointer; background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); }
+        .period-label { color:var(--text-2); font-size:13px; font-weight:700; }
+        .layout { background:var(--surface); border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.25); padding:18px; }
+        .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:14px; }
+        .kpi { border:1px solid var(--line); border-radius:12px; padding:14px; background:linear-gradient(180deg,#fff 0%,#f8fbff 100%); }
+        .kpi .head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:var(--text-2); font-size:13px; font-weight:700; }
+        .kpi .value { font-size:28px; line-height:1; font-weight:800; color:#143d5d; margin-bottom:6px; }
+        .kpi .detail { color:var(--text-2); font-size:13px; }
+        .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .card { border:1px solid var(--line); border-radius:12px; padding:14px; background:#fff; }
+        .card h3 { font-size:16px; margin-bottom:10px; color:#42526a; text-transform:uppercase; letter-spacing:.3px; }
+        .list { list-style:none; display:grid; gap:8px; }
+        .list li { display:flex; justify-content:space-between; gap:10px; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px; }
+        .tag { border-radius:999px; padding:4px 8px; font-size:12px; font-weight:700; background:#ecf5ff; color:#0d6da6; }
+        .table-wrap { border:1px solid var(--line); border-radius:10px; overflow:auto; }
+        table { width:100%; border-collapse:collapse; min-width:520px; }
+        th, td { padding:10px 9px; border-bottom:1px solid #eff3f8; text-align:left; font-size:14px; }
+        th { background:#f8fbff; font-size:12px; text-transform:uppercase; letter-spacing:.35px; color:#52627b; }
+        .muted { color:var(--text-2); }
+        .alerts { margin-bottom:12px; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; }
+        .alerts h3 { font-size:14px; margin-bottom:8px; color:#42526a; text-transform:uppercase; letter-spacing:.3px; }
+        .alerts ul { list-style:none; display:grid; gap:7px; }
+        .alerts li { border-radius:8px; padding:8px 10px; font-size:13px; }
+        .alert-warning { background:#fff4e6; border:1px solid #ffd7a8; color:#915605; }
+        .alert-info { background:#edf7ff; border:1px solid #cfe8ff; color:#1f5a8b; }
+        .alert-ok { background:#eaf8ef; border:1px solid #cbe9d8; color:#1f6f46; }
+        .card.form-card { padding-bottom: 16px; }
+        .dashboard-form { display: flex; flex-direction: column; gap: 12px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .dashboard-field { display: flex; flex-direction: column; gap: 4px; }
+        .dashboard-field label { text-transform: uppercase; font-size: 11px; letter-spacing: 0.3px; color: #4f607a; font-weight: 700; }
+        .dashboard-field input { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--text-1); background: #fff; }
+        .dashboard-field small { color: #b42323; font-size: 12px; }
+        .form-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .messages { margin-bottom: 14px; border-radius: 10px; padding: 12px 14px; background: #e6f4ff; border: 1px solid #c3e0ff; }
+        .messages ul { list-style: none; margin: 0; padding: 0; }
+        .messages li { font-size: 14px; line-height: 1.4; }
+        @media (max-width: 900px) { .grid { grid-template-columns:1fr; } }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="topbar">
+            <div>
+                <h1 class="title">Dashboard Atelier</h1>
+                <p class="subtitle">Statistiques dynamiques au {{ today|date:"d/m/Y" }}</p>
+            </div>
+            <div class="actions">
+                <a class="btn" href="{% url 'dashboard' %}"><i class="fa-solid fa-table-columns"></i> Dashboard global</a>
+                <a class="btn" href="{% url 'workshop_technician_list' %}"><i class="fa-solid fa-user-wrench"></i> Techniciens</a>
+                <a class="btn btn-primary" href="{% url 'workshop_visit_list' %}"><i class="fa-solid fa-list-check"></i> Passages atelier</a>
+            </div>
+        </section>
+
+        <main class="layout">
+            {% if messages %}
+                <div class="messages">
+                    <ul>
+                        {% for message in messages %}
+                            <li class="message-{{ message.tags }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <form method="get" class="period-form">
+                <label for="period" class="period-label">Periode:</label>
+                <select id="period" name="period">
+                    <option value="7" {% if selected_period == "7" %}selected{% endif %}>7 jours</option>
+                    <option value="30" {% if selected_period == "30" %}selected{% endif %}>30 jours</option>
+                    <option value="90" {% if selected_period == "90" %}selected{% endif %}>90 jours</option>
+                    <option value="all" {% if selected_period == "all" %}selected{% endif %}>Tout</option>
+                </select>
+                <button type="submit"><i class="fa-solid fa-filter"></i> Appliquer</button>
+                <span class="period-label">{{ period_label }}</span>
+            </form>
+
+            <section class="kpis">
+                <article class="kpi">
+                    <div class="head"><span>Passages</span><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                    <div class="value">{{ total_visits }}</div>
+                    <p class="detail">Total sur la periode</p>
+                </article>
+                <article class="kpi">
+                    <div class="head"><span>Ouverts</span><i class="fa-solid fa-folder-open"></i></div>
+                    <div class="value">{{ open_visits }}</div>
+                    <p class="detail">Interventions non demarrees</p>
+                </article>
+                <article class="kpi">
+                    <div class="head"><span>En cours</span><i class="fa-solid fa-gears"></i></div>
+                    <div class="value">{{ in_progress_visits }}</div>
+                    <p class="detail">Interventions actives</p>
+                </article>
+                <article class="kpi">
+                    <div class="head"><span>Termines</span><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="value">{{ done_visits }}</div>
+                    <p class="detail">Interventions finalisees</p>
+                </article>
+                <article class="kpi">
+                    <div class="head"><span>Techniciens</span><i class="fa-solid fa-user-wrench"></i></div>
+                    <div class="value">{{ technician_count }}</div>
+                    <p class="detail">Techniciens enregistres</p>
+                </article>
+            </section>
+
+            <section class="alerts">
+                <h3>Alertes</h3>
+                <ul>
+                    {% for alert in alerts %}
+                        <li class="alert-{% if alert.level == 'warning' %}warning{% elif alert.level == 'info' %}info{% else %}ok{% endif %}">
+                            {{ alert.text }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="grid">
+                <article class="card">
+                    <h3>Top techniciens</h3>
+                    <ul class="list">
+                        {% for row in top_technicians %}
+                            <li>
+                                <span>{{ row.technician_name }}</span>
+                                <span class="tag">{{ row.total }}</span>
+                            </li>
+                        {% empty %}
+                            <li><span class="muted">Aucune donnee technicien</span></li>
+                        {% endfor %}
+                    </ul>
+                </article>
+
+                <article class="card">
+                    <h3>Passages recents</h3>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Vehicule</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for visit in recent_visits %}
+                                    <tr>
+                                        <td>{{ visit.visit_date|date:"d/m/Y" }}</td>
+                                        <td>{{ visit.vehicle.registration_number }}</td>
+                                        <td><span class="tag">{{ visit.get_status_display }}</span></td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="3" class="muted">Aucun passage.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

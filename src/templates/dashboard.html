@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CTAMS - Dashboard principal">
+    <title>CTAMS - Dashboard Principal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-1: #0f2027;
+            --bg-2: #203a43;
+            --bg-3: #2c5364;
+            --surface: #ffffff;
+            --text-1: #18212e;
+            --text-2: #5a6678;
+            --accent: #0b7fab;
+            --accent-2: #1fa2ff;
+            --line: #e8edf3;
+            --ok: #1f8f58;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--text-1);
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+        }
+
+        .shell {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 18px 34px;
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 14px;
+            color: #fff;
+            padding: 16px 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            margin-bottom: 18px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .user-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .chip {
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .layout {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+            padding: 22px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 180px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #cbd9e6;
+            box-shadow: 0 10px 22px rgba(18, 56, 88, 0.12);
+        }
+
+        .card .icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: var(--text-2);
+            line-height: 1.45;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .card .open {
+            margin-top: 13px;
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .footer {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-2);
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-weight: 700;
+            font-size: 13px;
+            border: 1px solid var(--line);
+            color: var(--text-1);
+            background: #fff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .badge-ok {
+            color: var(--ok);
+            font-weight: 700;
+        }
+
+        @media (max-width: 700px) {
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .user-meta {
+                justify-content: flex-start;
+            }
+
+            .layout {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="topbar">
+            <div>
+                <h1 class="title">Dashboard Principal CTAMS</h1>
+                <p class="subtitle">Espace central accessible a tous les roles</p>
+            </div>
+            <div class="user-meta">
+                <span class="chip"><i class="fa-solid fa-user"></i> {{ user.username }}</span>
+                <span class="chip"><i class="fa-solid fa-id-badge"></i> Role: {{ role }}</span>
+                <span class="chip badge-ok"><i class="fa-solid fa-circle-check"></i> Connecte</span>
+            </div>
+        </section>
+
+        <main class="layout">
+            <section class="cards">
+                {% for module in modules %}
+                    <a class="card" href="{{ module.url }}">
+                        <span class="icon"><i class="fa-solid {{ module.icon }}"></i></span>
+                        <h3>{{ module.name }}</h3>
+                        <p>{{ module.description }}</p>
+                        <span class="open">Voir le module <i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                {% endfor %}
+            </section>
+
+            <section class="footer">
+                <p>Grand modules presentes sous forme de cartes pour un acces rapide.</p>
+                <div class="actions">
+                    <a class="btn btn-primary" href="/admin/"><i class="fa-solid fa-gear"></i> Administration</a>
+                    <a class="btn" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Deconnexion</a>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

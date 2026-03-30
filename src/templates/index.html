@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CTAMS - Outil de gestion atelier mecanique auto">
+    <title>CTAMS - Accueil</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-1: #0f2027;
+            --bg-2: #203a43;
+            --bg-3: #2c5364;
+            --surface: #ffffff;
+            --text-1: #18212e;
+            --text-2: #5a6678;
+            --accent: #0b7fab;
+            --accent-2: #1fa2ff;
+            --line: #e8edf3;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--text-1);
+            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
+        }
+
+        .shell {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px 18px 34px;
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 14px;
+            color: #fff;
+            padding: 16px 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .layout {
+            background: var(--surface);
+            border-radius: 16px;
+            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+            padding: 22px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .hero-main {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px;
+            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+        }
+
+        .logo {
+            width: 58px;
+            height: 58px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+            margin-bottom: 12px;
+        }
+
+        .hero-main h2 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .hero-main p {
+            color: var(--text-2);
+            font-size: 15px;
+            line-height: 1.55;
+            margin-bottom: 14px;
+            max-width: 720px;
+        }
+
+        .cta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-weight: 700;
+            font-size: 13px;
+            border: 1px solid var(--line);
+            color: var(--text-1);
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .hero-side {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 18px;
+            background: #fff;
+        }
+
+        .hero-side h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #43526a;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .hero-side ul {
+            list-style: none;
+            display: grid;
+            gap: 9px;
+            color: #2f3f57;
+            font-size: 14px;
+        }
+
+        .hero-side li i {
+            color: var(--accent);
+            width: 16px;
+            margin-right: 8px;
+            text-align: center;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+        }
+
+        .card .icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 17px;
+            margin-bottom: 7px;
+        }
+
+        .card p {
+            color: var(--text-2);
+            line-height: 1.45;
+            font-size: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="topbar">
+            <div>
+                <h1 class="title">CTAMS</h1>
+                <p class="subtitle">Outil de gestion atelier mecanique auto</p>
+            </div>
+            <div class="chips">
+                <span class="chip"><i class="fa-solid fa-shield-halved"></i> Securise</span>
+                <span class="chip"><i class="fa-solid fa-chart-line"></i> Pilotage KPI</span>
+                <span class="chip"><i class="fa-solid fa-screwdriver-wrench"></i> Metier atelier</span>
+            </div>
+        </section>
+
+        <main class="layout">
+            <section class="hero">
+                <article class="hero-main">
+                    <div class="logo"><i class="fa-solid fa-tools"></i></div>
+                    <h2>Centralisez votre atelier auto</h2>
+                    <p>
+                        CTAMS permet de suivre vos clients, vehicules, interventions, devis et factures
+                        depuis un espace unique, avec une experience claire pour chaque role.
+                    </p>
+                    <div class="cta">
+                        <a href="/auth/login/" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Se connecter</a>
+                        <a href="/auth/contact-admin/" class="btn"><i class="fa-solid fa-user-plus"></i> Demander un acces</a>
+                    </div>
+                </article>
+
+                <aside class="hero-side">
+                    <h3>Points forts</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> Gestion clients et historique</li>
+                        <li><i class="fa-solid fa-check"></i> Fiches techniques vehicules</li>
+                        <li><i class="fa-solid fa-check"></i> Suivi des passages atelier</li>
+                        <li><i class="fa-solid fa-check"></i> Devis, factures et reporting</li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section class="cards">
+                <article class="card">
+                    <span class="icon"><i class="fa-solid fa-users"></i></span>
+                    <h3>Gestion clients</h3>
+                    <p>Suivi complet des particuliers et entreprises, avec historique centralise.</p>
+                </article>
+                <article class="card">
+                    <span class="icon"><i class="fa-solid fa-car-side"></i></span>
+                    <h3>Vehicules</h3>
+                    <p>Creation, fiche technique detaillee et tracabilite des interventions.</p>
+                </article>
+                <article class="card">
+                    <span class="icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+                    <h3>Devis et factures</h3>
+                    <p>Production rapide des documents et suivi des reglements clients.</p>
+                </article>
+                <article class="card">
+                    <span class="icon"><i class="fa-solid fa-chart-column"></i></span>
+                    <h3>Dashboard</h3>
+                    <p>Visualisation des KPI clefs pour piloter performance et activite atelier.</p>
+                </article>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
