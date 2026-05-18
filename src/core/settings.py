@@ -24,14 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-5hep=i&i9$!3&u*ac)6xk5vuputl*+7951qzly(pvj(51bq!$s')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = True
 
-#ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "f6b6-2001-42d8-4c91-6c00-d167-1f7e-cd35-fb74.ngrok-free.app"]
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://f6b6-2001-42d8-4c91-6c00-d167-1f7e-cd35-fb74.ngrok-free.app",
-]
+#ALLOWED_HOSTS = ["187.124.222.161","ctams.net", "www.ctams.net"]
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -99,26 +95,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-if config('USE_POSTGRES', default=False, cast=bool):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='ctams'),
-            'USER': config('DB_USER', default='postgres'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
-            'ATOMIC_REQUESTS': True,
-            'CONN_MAX_AGE': 600,
-        }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation
@@ -160,11 +143,12 @@ DATETIME_FORMAT = 'd/m/Y H:i'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static_cdn'
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "static_cdn"
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media_cdn'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media_cdn"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -196,18 +180,17 @@ REST_FRAMEWORK = {
     }
 }
 
-# CORS Configuration
-CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='http://localhost:3000,http://localhost:5173', cast=lambda v: [s.strip() for s in v.split(',')])
-
-# JWT Configuration
-from datetime import timedelta
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-}
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+   
 
 # Logging configuration
 LOGGING = {

@@ -46,20 +46,6 @@ def login_view(request):
                     status=403,
                 )
 
-            if user.is_superuser or user.is_staff:
-                logger.warning("Tentative connexion compte admin Django via portail: %s", username)
-                return render(
-                    request,
-                    "login/index.html",
-                    {
-                        "error": (
-                            "Les comptes administration Django ne sont pas autorises "
-                            "sur ce portail."
-                        )
-                    },
-                    status=403,
-                )
-
             profile, _ = UserProfile.objects.get_or_create(user=user)
             if not profile.portal_active:
                 logger.warning("Tentative connexion compte portail desactive: %s", username)
