@@ -2,6 +2,9 @@
 Django==6
 python-decouple==3.8
 
+# Admin
+django-jazzmin
+
 # REST API
 djangorestframework==3.17.1
 django-filter==25.2
