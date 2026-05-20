@@ -13,7 +13,6 @@ djangorestframework-simplejwt==5.5.1
 drf-spectacular==0.29.0
 
 # Database
-psycopg2-binary==2.9.10
 django-simple-history==3.11.0
 
 # Production
