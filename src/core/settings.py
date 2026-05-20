@@ -8,6 +8,7 @@ SECRET_KEY = 'django-insecure-change-me-in-production'
 DEBUG = False
 #ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = ['187.124.222.161', 'ctams.online', 'www.ctams.online']
+CSRF_TRUSTED_ORIGINS = ['https://ctams.online','https://www.ctams.online']
 
 # ---------------------------------------------------------------------------
 # Applications
@@ -141,16 +142,6 @@ if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-
-# ---------------------------------------------------------------------------
-# CORS
-# ---------------------------------------------------------------------------
-
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://ctams.online',
-    'https://www.ctams.online',
-]
 
 # ---------------------------------------------------------------------------
 # Email
