@@ -1,150 +1,133 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CTAMS - Dashboard Vehicules</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --bg-1:#0f2027; --bg-2:#203a43; --bg-3:#2c5364; --surface:#fff; --text-1:#18212e; --text-2:#5a6678; --accent:#0b7fab; --accent-2:#1fa2ff; --line:#e8edf3; }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; min-height:100vh; color:var(--text-1); background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 48%,var(--bg-3) 100%); }
-        .shell { max-width:1200px; margin:0 auto; padding:28px 18px 34px; }
-        .topbar { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); border-radius:14px; color:#fff; padding:16px 18px; display:flex; justify-content:space-between; gap:14px; align-items:center; backdrop-filter:blur(4px); margin-bottom:18px; flex-wrap:wrap; }
-        .title { font-size:24px; font-weight:700; margin-bottom:4px; }
-        .subtitle { font-size:14px; opacity:.9; }
-        .actions { display:flex; gap:10px; flex-wrap:wrap; }
-        .btn { text-decoration:none; border-radius:8px; padding:9px 14px; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,.35); color:#fff; background:rgba(255,255,255,.1); }
-        .btn-primary { background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); border-color:transparent; }
-        .period-form { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
-        .period-form select { border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:13px; }
-        .period-form button { border:0; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:700; color:#fff; cursor:pointer; background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); }
-        .period-label { color:var(--text-2); font-size:13px; font-weight:700; }
-        .layout { background:var(--surface); border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.25); padding:18px; }
-        .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:14px; }
-        .kpi { border:1px solid var(--line); border-radius:12px; padding:14px; background:linear-gradient(180deg,#fff 0%,#f8fbff 100%); }
-        .kpi .head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; color:var(--text-2); font-size:13px; font-weight:700; }
-        .kpi .value { font-size:28px; line-height:1; font-weight:800; color:#143d5d; margin-bottom:6px; }
-        .kpi .detail { color:var(--text-2); font-size:13px; }
-        .grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-        .card { border:1px solid var(--line); border-radius:12px; padding:14px; background:#fff; }
-        .card h3 { font-size:16px; margin-bottom:10px; color:#42526a; text-transform:uppercase; letter-spacing:.3px; }
-        .list { list-style:none; display:grid; gap:8px; }
-        .list li { display:flex; justify-content:space-between; gap:10px; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px; }
-        .tag { border-radius:999px; padding:4px 8px; font-size:12px; font-weight:700; background:#ecf5ff; color:#0d6da6; }
-        .table-wrap { border:1px solid var(--line); border-radius:10px; overflow:auto; }
-        table { width:100%; border-collapse:collapse; min-width:470px; }
-        th, td { padding:10px 9px; border-bottom:1px solid #eff3f8; text-align:left; font-size:14px; }
-        th { background:#f8fbff; font-size:12px; text-transform:uppercase; letter-spacing:.35px; color:#52627b; }
-        .muted { color:var(--text-2); }
-        .alerts { margin-bottom:12px; border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; }
-        .alerts h3 { font-size:14px; margin-bottom:8px; color:#42526a; text-transform:uppercase; letter-spacing:.3px; }
-        .alerts ul { list-style:none; display:grid; gap:7px; }
-        .alerts li { border-radius:8px; padding:8px 10px; font-size:13px; }
-        .alert-warning { background:#fff4e6; border:1px solid #ffd7a8; color:#915605; }
-        .alert-info { background:#edf7ff; border:1px solid #cfe8ff; color:#1f5a8b; }
-        .alert-ok { background:#eaf8ef; border:1px solid #cbe9d8; color:#1f6f46; }
-        @media (max-width: 900px) { .grid { grid-template-columns:1fr; } }
-    </style>
-</head>
-<body>
-    <div class="shell">
-        <section class="topbar">
-            <div>
-                <h1 class="title">Dashboard Vehicules</h1>
-                <p class="subtitle">Statistiques dynamiques au {{ today|date:"d/m/Y" }}</p>
-            </div>
-            <div class="actions">
-                <a class="btn" href="{% url 'dashboard' %}"><i class="fa-solid fa-table-columns"></i> Dashboard global</a>
-                <a class="btn" href="{% url 'vehicle_list' %}"><i class="fa-solid fa-list"></i> Liste vehicules</a>
-                <a class="btn btn-primary" href="{% url 'vehicle_create' %}"><i class="fa-solid fa-plus"></i> Nouveau vehicule</a>
-            </div>
-        </section>
+{% extends 'base.html' %}
+{% load static %}
 
-        <main class="layout">
-            <form method="get" class="period-form">
-                <label for="period" class="period-label">Periode:</label>
-                <select id="period" name="period">
-                    <option value="7" {% if selected_period == "7" %}selected{% endif %}>7 jours</option>
-                    <option value="30" {% if selected_period == "30" %}selected{% endif %}>30 jours</option>
-                    <option value="90" {% if selected_period == "90" %}selected{% endif %}>90 jours</option>
-                    <option value="all" {% if selected_period == "all" %}selected{% endif %}>Tout</option>
-                </select>
-                <button type="submit"><i class="fa-solid fa-filter"></i> Appliquer</button>
-                <span class="period-label">{{ period_label }}</span>
-            </form>
+{% block page_title %}Dashboard Véhicules{% endblock %}
+{% block topbar_title %}Dashboard Véhicules{% endblock %}
 
-            <section class="kpis">
-                <article class="kpi">
-                    <div class="head"><span>Vehicules</span><i class="fa-solid fa-car-side"></i></div>
-                    <div class="value">{{ total_vehicles }}</div>
-                    <p class="detail">Sur la periode selectionnee</p>
-                </article>
-                <article class="kpi">
-                    <div class="head"><span>Rattaches client</span><i class="fa-solid fa-link"></i></div>
-                    <div class="value">{{ linked_customer_count }}</div>
-                    <p class="detail">Vehicules relies a un client</p>
-                </article>
-                <article class="kpi">
-                    <div class="head"><span>Sans client</span><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <div class="value">{{ unlinked_count }}</div>
-                    <p class="detail">A completer pour la qualite data</p>
-                </article>
-            </section>
+{% block content %}
 
-            <section class="alerts">
-                <h3>Alertes</h3>
-                <ul>
-                    {% for alert in alerts %}
-                        <li class="alert-{% if alert.level == 'warning' %}warning{% elif alert.level == 'info' %}info{% else %}ok{% endif %}">
-                            {{ alert.text }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </section>
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Dashboard Véhicules</h1>
+    <p class="page-subtitle">Statistiques dynamiques au {{ today|date:"d/m/Y" }}</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'vehicle_list' %}" class="btn"><i class="fa-solid fa-list"></i> Liste</a>
+    <a href="{% url 'vehicle_create' %}" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i> Nouveau véhicule
+    </a>
+  </div>
+</div>
 
-            <section class="grid">
-                <article class="card">
-                    <h3>Repartition carburant</h3>
-                    <ul class="list">
-                        {% for row in by_fuel %}
-                            <li>
-                                <span>{{ row.fuel_type }}</span>
-                                <span class="tag">{{ row.total }}</span>
-                            </li>
-                        {% empty %}
-                            <li><span class="muted">Aucune donnee</span></li>
-                        {% endfor %}
-                    </ul>
-                </article>
+<!-- Period -->
+<form method="get" class="period-bar">
+  <span class="period-label">Période :</span>
+  <select name="period" class="filter-select" style="min-width:120px" onchange="this.form.submit()">
+    <option value="7"   {% if selected_period == "7"   %}selected{% endif %}>7 jours</option>
+    <option value="30"  {% if selected_period == "30"  %}selected{% endif %}>30 jours</option>
+    <option value="90"  {% if selected_period == "90"  %}selected{% endif %}>90 jours</option>
+    <option value="all" {% if selected_period == "all" %}selected{% endif %}>Tout</option>
+  </select>
+  <span class="period-label">{{ period_label }}</span>
+</form>
 
-                <article class="card">
-                    <h3>Derniers vehicules ajoutes</h3>
-                    <div class="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Immatriculation</th>
-                                    <th>Vehicule</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for vehicle in recent_vehicles %}
-                                    <tr>
-                                        <td><a href="{% url 'vehicle_detail' vehicle.id %}">{{ vehicle.registration_number }}</a></td>
-                                        <td>{{ vehicle.make }} {{ vehicle.model }}</td>
-                                        <td>{{ vehicle.created_at|date:"d/m/Y" }}</td>
-                                    </tr>
-                                {% empty %}
-                                    <tr><td colspan="3" class="muted">Aucun vehicule.</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </article>
-            </section>
-        </main>
+<!-- KPIs -->
+<div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+  <div class="kpi-card kpi-card--blue">
+    <div class="kpi-header">
+      <span class="kpi-label">Véhicules totaux</span>
+      <div class="kpi-icon kpi-icon--blue"><i class="fa-solid fa-car-side"></i></div>
     </div>
-</body>
-</html>
+    <div class="kpi-value">{{ total_vehicles }}</div>
+    <div class="kpi-detail">Sur la période sélectionnée</div>
+  </div>
+
+  <div class="kpi-card kpi-card--green">
+    <div class="kpi-header">
+      <span class="kpi-label">Rattachés client</span>
+      <div class="kpi-icon kpi-icon--green"><i class="fa-solid fa-link"></i></div>
+    </div>
+    <div class="kpi-value">{{ linked_customer_count }}</div>
+    <div class="kpi-detail">Véhicules liés à un client</div>
+  </div>
+
+  <div class="kpi-card kpi-card--red">
+    <div class="kpi-header">
+      <span class="kpi-label">Sans client</span>
+      <div class="kpi-icon kpi-icon--red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    </div>
+    <div class="kpi-value">{{ unlinked_count }}</div>
+    <div class="kpi-detail">À compléter pour la qualité data</div>
+  </div>
+</div>
+
+<!-- Alertes -->
+{% if alerts %}
+<div class="card mb-20">
+  <div class="card-header"><div class="card-title">Alertes</div></div>
+  <div class="card-body">
+    {% for alert in alerts %}
+      <div class="alert alert-{% if alert.level == 'warning' %}warning{% elif alert.level == 'ok' %}success{% else %}info{% endif %}">
+        <i class="fa-solid fa-{% if alert.level == 'warning' %}triangle-exclamation{% elif alert.level == 'ok' %}circle-check{% else %}circle-info{% endif %}"></i>
+        {{ alert.text }}
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Bottom grid -->
+<div class="content-grid-2">
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Répartition carburant</div></div>
+    <div class="card-body">
+      <div class="stats-list">
+        {% for row in by_fuel %}
+          <div class="stats-list-item">
+            <span class="stats-list-label">
+              <i class="fa-solid fa-gas-pump" style="color:var(--c-blue-700);margin-right:6px"></i>
+              {{ row.fuel_type }}
+            </span>
+            <span class="badge badge-blue">{{ row.total }}</span>
+          </div>
+        {% empty %}
+          <div class="muted text-sm">Aucune donnée.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Derniers véhicules ajoutés</div></div>
+    <div class="card-body" style="padding:0">
+      <table class="ctams-table">
+        <thead>
+          <tr>
+            <th>Immatriculation</th>
+            <th>Véhicule</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vehicle in recent_vehicles %}
+            <tr>
+              <td>
+                <a href="{% url 'vehicle_detail' vehicle.id %}">
+                  <span class="plate">{{ vehicle.registration_number }}</span>
+                </a>
+              </td>
+              <td>{{ vehicle.make }} {{ vehicle.model }}</td>
+              <td class="muted text-sm">{{ vehicle.created_at|date:"d/m/Y" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="3" class="table-empty">Aucun véhicule.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

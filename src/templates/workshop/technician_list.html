@@ -1,185 +1,85 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CTAMS - Liste des techniciens">
-    <title>CTAMS - Techniciens</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-1: #0f2027;
-            --bg-2: #203a43;
-            --bg-3: #2c5364;
-            --surface: #ffffff;
-            --text-1: #18212e;
-            --text-2: #5a6678;
-            --accent: #0b7fab;
-            --accent-2: #1fa2ff;
-            --line: #e8edf3;
-        }
+{% extends 'base.html' %}
+{% load static %}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+{% block page_title %}Techniciens{% endblock %}
+{% block topbar_title %}Techniciens Atelier{% endblock %}
 
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            color: var(--text-1);
-            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
-        }
+{% block content %}
 
-        .shell { max-width: 1200px; margin: 0 auto; padding: 28px 18px 34px; }
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Techniciens</h1>
+    <p class="page-subtitle">Gestion de l'équipe, postes, contacts et ateliers.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'workshop_visit_list' %}" class="btn"><i class="fa-solid fa-list-check"></i> Passages</a>
+    <a href="{% url 'workshop_technician_create' %}" class="btn btn-primary">
+      <i class="fa-solid fa-user-plus"></i> Nouveau technicien
+    </a>
+  </div>
+</div>
 
-        .topbar {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 14px;
-            color: #fff;
-            padding: 16px 18px;
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: center;
-            backdrop-filter: blur(4px);
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
+<!-- Search -->
+<form method="get" class="filter-bar">
+  <div class="search-wrap">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input
+      type="text"
+      name="q"
+      value="{{ query }}"
+      placeholder="Rechercher nom, poste, contact ou atelier…"
+      class="search-input"
+    >
+  </div>
+  <button type="submit" class="btn btn-primary">
+    <i class="fa-solid fa-filter"></i> Filtrer
+  </button>
+</form>
 
-        .title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-        .subtitle { font-size: 14px; opacity: 0.9; }
-        .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-        .btn {
-            text-decoration: none;
-            border-radius: 8px;
-            padding: 9px 14px;
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid rgba(255,255,255,0.35);
-            color: #fff;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-            color: #fff;
-            border-color: transparent;
-        }
-
-        .layout {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
-            padding: 18px;
-        }
-
-        .searchbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-
-        .searchbar input {
-            flex: 1;
-            min-width: 220px;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 11px 12px;
-            font-size: 14px;
-        }
-
-        .table-wrap {
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            overflow: auto;
-            background: #fff;
-        }
-
-        table { width: 100%; border-collapse: collapse; min-width: 960px; }
-        th, td { padding: 12px 10px; border-bottom: 1px solid #eff3f8; text-align: left; font-size: 14px; vertical-align: top; }
-        th { background: #f8fbff; font-size: 12px; text-transform: uppercase; letter-spacing: 0.35px; color: #52627b; }
-
-        .muted { color: var(--text-2); }
-
-        .messages {
-            margin-bottom: 14px;
-            border-radius: 10px;
-            padding: 12px 14px;
-            background: #e6f4ff;
-            border: 1px solid #c3e0ff;
-        }
-
-        .messages ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .messages li {
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .message-success { color: #0f5132; }
-        .message-error { color: #842029; }
-        .message-warning { color: #663c00; }
-    </style>
-</head>
-<body>
-    <div class="shell">
-        <section class="topbar">
-            <div>
-                <h1 class="title">Techniciens Atelier</h1>
-                <p class="subtitle">Garder une trace des techniciens, leurs postes et ateliers.</p>
+<!-- Table -->
+<div class="table-wrap">
+  <table class="ctams-table" style="min-width:860px">
+    <thead>
+      <tr>
+        <th>Technicien</th>
+        <th>Poste</th>
+        <th>Contact</th>
+        <th>N° Identification</th>
+        <th>Atelier</th>
+        <th>Ajouté le</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for technician in technicians %}
+        <tr>
+          <td>
+            <div class="table-cell-user">
+              <div class="avatar-initials" style="background:var(--c-red-100);color:var(--c-red-700)">
+                {{ technician.full_name|slice:":2"|upper }}
+              </div>
+              <div class="table-cell-main">{{ technician.full_name }}</div>
             </div>
-            <div class="actions">
-                <a class="btn" href="{% url 'dashboard' %}"><i class="fa-solid fa-table-columns"></i> Dashboard</a>
-                <a class="btn" href="{% url 'workshop_visit_list' %}"><i class="fa-solid fa-list-check"></i> Passages</a>
-                <a class="btn btn-primary" href="{% url 'workshop_technician_create' %}"><i class="fa-solid fa-user-plus"></i> Nouveau</a>
-            </div>
-        </section>
+          </td>
+          <td>{{ technician.position }}</td>
+          <td>{{ technician.contact }}</td>
+          <td>
+            {% if technician.identification_number %}
+              <span class="cell-mono">{{ technician.identification_number }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ technician.atelier|default:"—" }}</td>
+          <td class="muted text-sm">{{ technician.created_at|date:"d/m/Y" }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6" class="table-empty">
+            <i class="fa-solid fa-user-wrench" style="font-size:28px;display:block;margin-bottom:8px;opacity:.3"></i>
+            Aucun technicien enregistré.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
-        <main class="layout">
-            {% if messages %}
-                <div class="messages">
-                    <ul>
-                        {% for message in messages %}
-                            <li class="message-{{ message.tags }}">{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-
-            <form method="get" class="searchbar">
-                <input type="text" name="q" value="{{ query }}" placeholder="Rechercher nom, poste, contact ou atelier">
-                <button class="btn btn-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Rechercher</button>
-            </form>
-
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nom complet</th>
-                            <th>Poste</th>
-                            <th>Contact</th>
-                            <th>N° identification</th>
-                            <th>Atelier</th>
-                            <th>Ajouté le</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for technician in technicians %}
-                            <tr>
-                                <td>{{ technician.full_name }}</td>
-                                <td>{{ technician.position }}</td>
-                                <td>{{ technician.contact }}</td>
-                                <td>{{ technician.identification_number }}</td>
-                                <td>{{ technician.atelier|default:"-" }}</td>
-                                <td>{{ technician.created_at|date:"d/m/Y" }}</td>
-                            </tr>
-                        {% empty %}
-                            <tr><td colspan="6" class="muted">Aucun technicien enregistre.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </main>
-    </div>
-</body>
-</html>
+{% endblock %}

@@ -93,6 +93,9 @@ def logout_view(request):
 def dashboard(request):
     """Dashboard principal commun a tous les roles."""
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    profile.login_count += 1
+    profile.save(update_fields=["login_count"])
+    is_first_login = profile.login_count == 1
     user_role = profile.role.code if profile.role else "STANDARD"
     modules = [
         {
@@ -153,6 +156,7 @@ def dashboard(request):
         "user": request.user,
         "role": user_role,
         "modules": modules,
+        "is_first_login": is_first_login,
     }
     return render(request, "dashboard.html", context)
 

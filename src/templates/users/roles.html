@@ -1,99 +1,108 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CTAMS - Roles</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --bg-1:#0f2027; --bg-2:#203a43; --bg-3:#2c5364; --surface:#fff; --text-1:#18212e; --text-2:#5a6678; --accent:#0b7fab; --accent-2:#1fa2ff; --line:#e8edf3; }
-        * { box-sizing:border-box; margin:0; padding:0; }
-        body { font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif; min-height:100vh; color:var(--text-1); background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 48%,var(--bg-3) 100%); }
-        .shell { max-width:1100px; margin:0 auto; padding:28px 18px 34px; }
-        .topbar { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); border-radius:14px; color:#fff; padding:16px 18px; display:flex; justify-content:space-between; gap:14px; align-items:center; backdrop-filter:blur(4px); margin-bottom:18px; flex-wrap:wrap; }
-        .title { font-size:24px; font-weight:700; margin-bottom:4px; }
-        .subtitle { font-size:14px; opacity:.9; }
-        .btn { text-decoration:none; border-radius:8px; padding:9px 14px; font-weight:700; font-size:13px; border:1px solid rgba(255,255,255,.35); color:#fff; background:rgba(255,255,255,.1); }
-        .layout { background:var(--surface); border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.25); padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-        .card { border:1px solid var(--line); border-radius:12px; padding:14px; background:linear-gradient(180deg,#fff 0%,#f8fbff 100%); }
-        .card h3 { margin-bottom:10px; color:#42526a; font-size:16px; text-transform:uppercase; letter-spacing:.3px; }
-        .field { margin-bottom:10px; }
-        .field label { display:block; margin-bottom:6px; font-size:12px; text-transform:uppercase; letter-spacing:.3px; color:#4f607a; font-weight:700; }
-        .field input, .field textarea { width:100%; border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:14px; }
-        .field textarea { min-height:100px; resize:vertical; }
-        .check { display:flex; align-items:center; gap:8px; font-size:14px; color:#334763; margin-bottom:10px; }
-        .check input { width:16px; height:16px; accent-color:var(--accent); }
-        .btn-primary { background:linear-gradient(135deg,var(--accent) 0%,var(--accent-2) 100%); border:0; color:#fff; border-radius:8px; padding:9px 14px; font-size:13px; font-weight:700; cursor:pointer; }
-        table { width:100%; border-collapse:collapse; }
-        th, td { padding:10px 8px; border-bottom:1px solid #eff3f8; text-align:left; font-size:14px; }
-        th { background:#f8fbff; font-size:12px; text-transform:uppercase; letter-spacing:.35px; color:#52627b; }
-        .tag { border-radius:999px; padding:4px 8px; font-size:12px; font-weight:700; background:#ecf5ff; color:#0d6da6; }
-        .muted { color:var(--text-2); }
-        @media (max-width: 900px) { .layout { grid-template-columns:1fr; } }
-    </style>
-</head>
-<body>
-    <div class="shell">
-        <section class="topbar">
-            <div>
-                <h1 class="title">Gestion des roles</h1>
-                <p class="subtitle">Definir les roles metier pour les utilisateurs du portail.</p>
-            </div>
-            <a class="btn" href="{% url 'user_list' %}"><i class="fa-solid fa-users"></i> Utilisateurs</a>
-        </section>
+{% extends 'base.html' %}
+{% load static %}
 
-        <main class="layout">
-            <section class="card">
-                <h3>Nouveau role</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="field">
-                        <label for="{{ form.code.id_for_label }}">Code</label>
-                        {{ form.code }}
-                    </div>
-                    <div class="field">
-                        <label for="{{ form.name.id_for_label }}">Nom</label>
-                        {{ form.name }}
-                    </div>
-                    <div class="field">
-                        <label for="{{ form.description.id_for_label }}">Description</label>
-                        {{ form.description }}
-                    </div>
-                    <label class="check">
-                        {{ form.is_active }}
-                        <span>Role actif</span>
-                    </label>
-                    <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
-                </form>
-            </section>
+{% block page_title %}Gestion des rôles{% endblock %}
+{% block topbar_title %}Rôles & Permissions{% endblock %}
 
-            <section class="card">
-                <h3>Roles existants</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Nom</th>
-                            <th>Etat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for role in roles %}
-                            <tr>
-                                <td><span class="tag">{{ role.code }}</span></td>
-                                <td>
-                                    <strong>{{ role.name }}</strong><br>
-                                    <span class="muted">{{ role.description|default:"-" }}</span>
-                                </td>
-                                <td>{% if role.is_active %}Actif{% else %}<span class="muted">Inactif</span>{% endif %}</td>
-                            </tr>
-                        {% empty %}
-                            <tr><td colspan="3" class="muted">Aucun role configure.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </section>
-        </main>
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Rôles & Permissions</h1>
+    <p class="page-subtitle">Définir les rôles métier pour les utilisateurs du portail.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'user_list' %}" class="btn">
+      <i class="fa-solid fa-users"></i> Utilisateurs
+    </a>
+  </div>
+</div>
+
+<div class="content-grid-2">
+
+  <!-- Formulaire nouveau rôle -->
+  <div class="form-card">
+    <div class="form-section-header">Créer un nouveau rôle</div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-body">
+        <div class="field" style="margin-bottom:14px">
+          <label for="{{ form.code.id_for_label }}">Code</label>
+          {{ form.code }}
+          {% if form.code.errors %}
+            <span class="field-error">{{ form.code.errors|striptags }}</span>
+          {% endif %}
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label for="{{ form.name.id_for_label }}">Nom</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <span class="field-error">{{ form.name.errors|striptags }}</span>
+          {% endif %}
+        </div>
+        <div class="field" style="margin-bottom:14px">
+          <label for="{{ form.description.id_for_label }}">Description</label>
+          {{ form.description }}
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--c-gray-700);margin-bottom:16px;cursor:pointer">
+          {{ form.is_active }}
+          Rôle actif
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-floppy-disk"></i> Enregistrer le rôle
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Liste des rôles existants -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Rôles existants</div>
+      <span class="badge badge-blue">{{ roles|length }} rôle{{ roles|length|pluralize }}</span>
     </div>
-</body>
-</html>
+    <div class="card-body" style="padding:0">
+      <table class="ctams-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Nom & Description</th>
+            <th>État</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for role in roles %}
+            <tr>
+              <td><span class="cell-mono">{{ role.code }}</span></td>
+              <td>
+                <div class="table-cell-main">{{ role.name }}</div>
+                {% if role.description %}
+                  <div class="table-cell-sub">{{ role.description }}</div>
+                {% endif %}
+              </td>
+              <td>
+                {% if role.is_active %}
+                  <span class="badge status-active"><i class="fa-solid fa-circle" style="font-size:6px"></i> Actif</span>
+                {% else %}
+                  <span class="badge status-inactive">Inactif</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3" class="table-empty">
+                <i class="fa-solid fa-id-badge" style="font-size:28px;display:block;margin-bottom:8px;opacity:.3"></i>
+                Aucun rôle configuré.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

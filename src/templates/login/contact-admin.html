@@ -1,216 +1,116 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CTAMS - Demande d'acces">
-    <title>CTAMS - Contact Administrateur</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-1: #0f2027;
-            --bg-2: #203a43;
-            --bg-3: #2c5364;
-            --surface: #ffffff;
-            --text-1: #18212e;
-            --text-2: #5a6678;
-            --accent: #0b7fab;
-            --accent-2: #1fa2ff;
-            --line: #e8edf3;
-            --danger-bg: #fee;
-            --danger-line: #fcc;
-            --danger-text: #a12828;
-            --ok-bg: #e8f7ee;
-            --ok-line: #bde7cc;
-            --ok-text: #1f6d3f;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            color: var(--text-1);
-            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
-        }
-
-        .shell {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 28px 18px 34px;
-        }
-
-        .topbar {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 14px;
-            color: #fff;
-            padding: 16px 18px;
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: center;
-            backdrop-filter: blur(4px);
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-
-        .title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-        .subtitle { font-size: 14px; opacity: 0.9; }
-
-        .btn {
-            text-decoration: none;
-            border-radius: 8px;
-            padding: 9px 14px;
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid rgba(255,255,255,0.35);
-            color: #fff;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .layout {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
-            padding: 20px;
-        }
-
-        .alert {
-            border-radius: 8px;
-            padding: 11px 12px;
-            margin-bottom: 12px;
-            font-size: 13px;
-            line-height: 1.45;
-        }
-
-        .alert-error {
-            background: var(--danger-bg);
-            border: 1px solid var(--danger-line);
-            color: var(--danger-text);
-        }
-
-        .alert-success {
-            background: var(--ok-bg);
-            border: 1px solid var(--ok-line);
-            color: var(--ok-text);
-        }
-
-        .grid { display: grid; gap: 12px; }
-
-        .field label {
-            display: block;
-            margin-bottom: 7px;
-            font-size: 12px;
-            color: #4f607a;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-
-        .field input, .field textarea {
-            width: 100%;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 11px 12px;
-            font-size: 14px;
-            color: var(--text-1);
-            background: #fff;
-            outline: none;
-        }
-
-        .field input:focus, .field textarea:focus {
-            border-color: #7eb7d6;
-            box-shadow: 0 0 0 3px rgba(31, 162, 255, 0.15);
-        }
-
-        .field textarea { min-height: 135px; resize: vertical; }
-
-        .actions {
-            margin-top: 14px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-            color: #fff;
-            border: 0;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .btn-secondary {
-            text-decoration: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid var(--line);
-            color: var(--text-1);
-            background: #fff;
-        }
-
-        .help {
-            margin-top: 12px;
-            color: var(--text-2);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CTAMS — Contacter l'administrateur</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'app/css/ctams.css' %}">
+  <script>(function(){var t=localStorage.getItem('ctams-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
-    <div class="shell">
-        <section class="topbar">
-            <div>
-                <h1 class="title">Demande d'acces</h1>
-                <p class="subtitle">Transmettez votre besoin pour ouverture de compte CTAMS.</p>
-            </div>
-            <a class="btn" href="{% url 'login' %}"><i class="fa-solid fa-arrow-left"></i> Retour connexion</a>
-        </section>
 
-        <main class="layout">
-            {% if error %}
-                <div class="alert alert-error">{{ error }}</div>
-            {% endif %}
-            {% if success %}
-                <div class="alert alert-success">{{ success }}</div>
-            {% endif %}
+<div class="login-page">
 
-            <form method="post" action="{% url 'contact_admin' %}">
-                {% csrf_token %}
-                <div class="grid">
-                    <div class="field">
-                        <label for="name">Nom complet</label>
-                        <input type="text" id="name" name="name" placeholder="Ex: Jean Dupont" required maxlength="120" value="{{ request.POST.name|default:'' }}">
-                    </div>
-
-                    <div class="field">
-                        <label for="email">Email professionnel</label>
-                        <input type="email" id="email" name="email" placeholder="vous@entreprise.fr" required maxlength="180" value="{{ request.POST.email|default:'' }}">
-                    </div>
-
-                    <div class="field">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" placeholder="Precisez votre role, votre site et le niveau d'acces souhaite." required maxlength="1500">{{ request.POST.message|default:'' }}</textarea>
-                    </div>
-                </div>
-
-                <div class="actions">
-                    <button type="submit" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> Envoyer la demande</button>
-                    <a href="{% url 'login' %}" class="btn-secondary">Annuler</a>
-                </div>
-            </form>
-
-            <p class="help">
-                <i class="fa-solid fa-circle-info"></i>
-                Les demandes sont traitees manuellement. Delai habituel: moins de 24h ouvrees.
-            </p>
-        </main>
+  <aside class="login-brand">
+    <div class="login-brand-content">
+      <div class="login-logo-wrap">
+        <img src="{% static 'app/assets/img/ctams-logo.jpg' %}" alt="CTAMS Logo">
+      </div>
+      <div class="login-brand-name">CTAMS</div>
+      <div class="login-brand-sub">Centre Technique Auto & Multiservices</div>
+      <div class="login-brand-divider"></div>
+      <div class="login-brand-pitch">Demandez un accès<br>à la plateforme.</div>
+      <div class="login-feature-list">
+        <div class="login-feature">
+          <i class="fa-solid fa-user-shield"></i>
+          Accès géré par l'administrateur
+        </div>
+        <div class="login-feature">
+          <i class="fa-solid fa-clock"></i>
+          Réponse sous 24h ouvrées
+        </div>
+        <div class="login-feature">
+          <i class="fa-solid fa-shield-halved"></i>
+          Accès sécurisé par rôle
+        </div>
+      </div>
     </div>
+  </aside>
+
+  <div class="login-form-panel">
+    <div class="login-form-box">
+
+      <div class="login-form-header">
+        <div class="login-form-title">Contacter l'admin</div>
+        <div class="login-form-sub">
+          Remplissez ce formulaire pour demander un accès à la plateforme CTAMS.
+        </div>
+      </div>
+
+      {% if error %}
+        <div class="alert alert-danger" style="margin-bottom:20px">
+          <i class="fa-solid fa-circle-xmark"></i> {{ error }}
+        </div>
+      {% endif %}
+      {% if success %}
+        <div class="alert alert-success" style="margin-bottom:20px">
+          <i class="fa-solid fa-circle-check"></i> {{ success }}
+        </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+
+        {% if form %}
+          {% for field in form %}
+            <div class="login-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              <div class="login-field-wrap">
+                {{ field }}
+              </div>
+              {% if field.errors %}
+                <span style="font-size:12px;color:var(--c-red-600)">{{ field.errors|striptags }}</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="login-field">
+            <label for="name">Nom complet</label>
+            <div class="login-field-wrap">
+              <input type="text" id="name" name="name" placeholder="Votre nom" required>
+              <span class="login-field-icon"><i class="fa-solid fa-user"></i></span>
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="email">Email professionnel</label>
+            <div class="login-field-wrap">
+              <input type="email" id="email" name="email" placeholder="votre@email.fr" required>
+              <span class="login-field-icon"><i class="fa-solid fa-envelope"></i></span>
+            </div>
+          </div>
+          <div class="login-field">
+            <label for="message">Message</label>
+            <div class="login-field-wrap">
+              <textarea id="message" name="message" rows="4" placeholder="Décrivez votre besoin d'accès…" style="width:100%;border:1.5px solid var(--c-gray-200);border-radius:var(--r-md);padding:12px 14px;font-size:14px;resize:vertical;outline:none;transition:all var(--ease)" required></textarea>
+            </div>
+          </div>
+        {% endif %}
+
+        <button type="submit" class="btn-login">
+          <i class="fa-solid fa-paper-plane"></i> Envoyer la demande
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p><a href="{% url 'login' %}"><i class="fa-solid fa-arrow-left"></i> Retour à la connexion</a></p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
 </body>
 </html>

@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CTAMS - Centre Technique Auto & Multiservices">
+  <title>CTAMS — {% block page_title %}Tableau de bord{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'app/css/ctams.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  {% block extra_head %}{% endblock %}
+  <script>(function(){var t=localStorage.getItem('ctams-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+
+<div class="ctams-shell">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="ctams-sidebar" id="ctamsSidebar">
+
+    <div class="sidebar-brand">
+      <img src="{% static 'app/assets/img/ctams-logo.jpg' %}" alt="CTAMS" class="sidebar-brand-logo">
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">CTAMS</div>
+        <div class="sidebar-brand-tagline">Atelier Auto</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <div class="sidebar-section-label">Principal</div>
+      <a href="{% url 'dashboard' %}"
+         class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-table-columns"></i>
+        <span>Tableau de bord</span>
+      </a>
+
+      <div class="sidebar-section-label">Gestion</div>
+      <a href="{% url 'customer_dashboard' %}"
+         class="sidebar-link {% if 'customer' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-users"></i>
+        <span>Clients</span>
+      </a>
+      <a href="{% url 'vehicle_dashboard' %}"
+         class="sidebar-link {% if 'vehicle' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-car-side"></i>
+        <span>Véhicules</span>
+      </a>
+
+      <div class="sidebar-section-label">Atelier</div>
+      <a href="{% url 'workshop_dashboard' %}"
+         class="sidebar-link {% if request.resolver_match.url_name == 'workshop_dashboard' %}active{% endif %}">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <span>Dashboard Atelier</span>
+      </a>
+      <a href="{% url 'workshop_visit_list' %}"
+         class="sidebar-link {% if request.resolver_match.url_name == 'workshop_visit_list' %}active{% endif %}">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Passages</span>
+      </a>
+      <a href="{% url 'workshop_technician_list' %}"
+         class="sidebar-link {% if 'technician' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-helmet-safety"></i>
+        <span>Techniciens</span>
+      </a>
+
+      {% if user.is_staff or user.profile.role.code == 'admin' %}
+      <div class="sidebar-section-label">Administration</div>
+      <a href="{% url 'user_list' %}"
+         class="sidebar-link {% if 'user' in request.resolver_match.url_name|default:'' and 'technician' not in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-user-gear"></i>
+        <span>Utilisateurs</span>
+      </a>
+      <a href="{% url 'role_list' %}"
+         class="sidebar-link {% if request.resolver_match.url_name == 'role_list' %}active{% endif %}">
+        <i class="fa-solid fa-id-badge"></i>
+        <span>Rôles</span>
+      </a>
+      {% endif %}
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-version">v2.0 — 2025</div>
+    </div>
+
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="ctams-main">
+
+    <!-- ── Topbar ── -->
+    <header class="ctams-topbar">
+      <button class="btn btn-sm btn-icon" id="sidebarToggle" title="Menu" aria-label="Toggle menu" style="display:none">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="topbar-page-title">{% block topbar_title %}{% endblock %}</div>
+
+      <div class="topbar-user">
+        <div class="topbar-avatar">{{ user.username|slice:":2"|upper }}</div>
+        <div class="topbar-user-info">
+          <span class="topbar-username">{{ user.get_full_name|default:user.username }}</span>
+          <span class="topbar-role">
+            {% if user.profile.role %}{{ user.profile.role.name }}{% elif user.is_superuser %}Administrateur{% else %}Utilisateur{% endif %}
+          </span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Changer le thème" aria-label="Basculer thème clair/sombre">
+          <i class="fa-solid fa-sun icon-sun"></i>
+          <i class="fa-solid fa-moon icon-moon"></i>
+        </button>
+        <div class="topbar-divider"></div>
+        <a href="{% url 'logout' %}" class="topbar-logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Déconnexion</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- ── Content ── -->
+    <main class="ctams-content">
+
+      {% if messages %}
+      <script id="ctams-messages" type="application/json">
+        [{% for message in messages %}{"icon":"{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}","text":"{{ message|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+      </script>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+
+    </main>
+
+  </div><!-- .ctams-main -->
+
+</div><!-- .ctams-shell -->
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script>
+  (function () {
+    var msgEl = document.getElementById('ctams-messages');
+    if (msgEl) {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var msgs = JSON.parse(msgEl.textContent);
+      msgs.forEach(function (m, i) {
+        setTimeout(function () {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: m.icon,
+            title: m.text,
+            showConfirmButton: false,
+            timer: 4500,
+            timerProgressBar: true,
+            background: isDark ? '#162032' : '#ffffff',
+            color: isDark ? '#E2EAF5' : '#111827',
+          });
+        }, i * 450);
+      });
+    }
+  })();
+
+  (function() {
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('ctamsSidebar');
+    if (window.innerWidth <= 768 && sidebarToggle) sidebarToggle.style.display = 'flex';
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    const themeBtn = document.getElementById('themeToggle');
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('ctams-theme', t);
+    }
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+      });
+    }
+  })();
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

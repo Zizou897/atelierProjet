@@ -1,368 +1,183 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrftoken" content="{{ csrf_token }}">
-    <meta name="description" content="CTAMS - Connexion">
-    <title>CTAMS - Connexion</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-1: #0f2027;
-            --bg-2: #203a43;
-            --bg-3: #2c5364;
-            --surface: #ffffff;
-            --text-1: #18212e;
-            --text-2: #5a6678;
-            --accent: #0b7fab;
-            --accent-2: #1fa2ff;
-            --line: #e8edf3;
-            --danger-bg: #fee;
-            --danger-line: #fcc;
-            --danger-text: #a12828;
-            --ok-bg: #e8f7ee;
-            --ok-line: #bde7cc;
-            --ok-text: #1f6d3f;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            color: var(--text-1);
-            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
-        }
-
-        .shell {
-            max-width: 1080px;
-            margin: 0 auto;
-            padding: 28px 18px 34px;
-        }
-
-        .topbar {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 14px;
-            color: #fff;
-            padding: 16px 18px;
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: center;
-            backdrop-filter: blur(4px);
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-
-        .title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-        .subtitle { font-size: 14px; opacity: 0.9; }
-        .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-        .chip {
-            padding: 7px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .layout {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
-            padding: 22px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1.05fr;
-            gap: 18px;
-        }
-
-        .info-card {
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 18px;
-            background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
-        }
-
-        .info-card .logo {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            color: #fff;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-            margin-bottom: 12px;
-        }
-
-        .info-card h2 { font-size: 22px; margin-bottom: 8px; }
-        .info-card p { color: var(--text-2); font-size: 14px; line-height: 1.55; margin-bottom: 14px; }
-
-        .feature-list {
-            list-style: none;
-            display: grid;
-            gap: 9px;
-            color: #2f3f57;
-            font-size: 14px;
-        }
-
-        .feature-list li i {
-            color: var(--accent);
-            margin-right: 8px;
-            width: 16px;
-            text-align: center;
-        }
-
-        .form-card {
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 18px;
-            background: #fff;
-        }
-
-        .form-head h3 { font-size: 20px; margin-bottom: 6px; }
-        .form-head p { color: var(--text-2); font-size: 14px; margin-bottom: 14px; }
-
-        .alert {
-            border-radius: 8px;
-            padding: 11px 12px;
-            margin-bottom: 12px;
-            font-size: 13px;
-            line-height: 1.45;
-        }
-
-        .alert-error {
-            background: var(--danger-bg);
-            border: 1px solid var(--danger-line);
-            color: var(--danger-text);
-        }
-
-        .alert-success {
-            background: var(--ok-bg);
-            border: 1px solid var(--ok-line);
-            color: var(--ok-text);
-        }
-
-        .field { margin-bottom: 12px; }
-        .field label {
-            display: block;
-            margin-bottom: 7px;
-            font-size: 12px;
-            color: #4f607a;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
-        }
-
-        .field-wrap { position: relative; }
-
-        .field input {
-            width: 100%;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 11px 40px 11px 12px;
-            font-size: 14px;
-            color: var(--text-1);
-            background: #fff;
-            outline: none;
-        }
-
-        .field input:focus {
-            border-color: #7eb7d6;
-            box-shadow: 0 0 0 3px rgba(31, 162, 255, 0.15);
-        }
-
-        .field-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c7f96;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c7f96;
-            cursor: pointer;
-            background: none;
-            border: 0;
-            padding: 0;
-        }
-
-        .meta {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-            font-size: 13px;
-        }
-
-        .meta a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        .meta a:hover { text-decoration: underline; }
-
-        .check { display: flex; align-items: center; gap: 8px; color: #334763; }
-        .check input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
-
-        .btn-submit {
-            width: 100%;
-            border: 0;
-            border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 14px;
-            font-weight: 700;
-            color: #fff;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-            box-shadow: 0 8px 20px rgba(11, 127, 171, 0.32);
-        }
-
-        .footer {
-            margin-top: 14px;
-            text-align: center;
-            color: var(--text-2);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .footer a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        .footer a:hover { text-decoration: underline; }
-
-        @media (max-width: 900px) {
-            .grid { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrftoken" content="{{ csrf_token }}">
+  <meta name="description" content="CTAMS - Connexion sécurisée">
+  <title>CTAMS — Connexion</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'app/css/ctams.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script>(function(){var t=localStorage.getItem('ctams-theme');if(t)document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
-    <div class="shell">
-        <section class="topbar">
-            <div>
-                <h1 class="title">Connexion CTAMS</h1>
-                <p class="subtitle">Plateforme atelier auto - acces securise</p>
-            </div>
-            <div class="chips">
-                <span class="chip"><i class="fa-solid fa-shield-halved"></i> Securise</span>
-                <span class="chip"><i class="fa-solid fa-clock"></i> Support 24h</span>
-            </div>
-        </section>
 
-        <main class="layout">
-            <section class="grid">
-                <article class="info-card">
-                    <div class="logo"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                    <h2>Bienvenue sur CTAMS</h2>
-                    <p>
-                        Pilotez les operations atelier depuis un espace unique:
-                        clients, vehicules, devis, factures et suivi des interventions.
-                    </p>
-                    <ul class="feature-list">
-                        <li><i class="fa-solid fa-check"></i> Suivi complet vehicules et passages</li>
-                        <li><i class="fa-solid fa-check"></i> Historique des actions et tracabilite</li>
-                        <li><i class="fa-solid fa-check"></i> Acces par role et securite renforcee</li>
-                    </ul>
-                </article>
+<div class="login-page">
 
-                <article class="form-card">
-                    <header class="form-head">
-                        <h3>Se connecter</h3>
-                        <p>Entrez vos identifiants pour acceder a votre espace.</p>
-                    </header>
+  <!-- ═══ BRAND PANEL (gauche) ═══ -->
+  <aside class="login-brand">
+    <div class="login-brand-content">
 
-                    {% if error %}
-                        <div class="alert alert-error">{{ error }}</div>
-                    {% endif %}
-                    {% if success %}
-                        <div class="alert alert-success">{{ success }}</div>
-                    {% endif %}
+      <div class="login-logo-wrap">
+        <img src="{% static 'app/assets/img/ctams-logo.jpg' %}" alt="CTAMS Logo">
+      </div>
 
-                    <form method="post" action="{% url 'login' %}">
-                        {% csrf_token %}
+      <div class="login-brand-name">CTAMS</div>
+      <div class="login-brand-sub">Centre Technique Auto & Multiservices</div>
+      <div class="login-brand-divider"></div>
 
-                        <div class="field">
-                            <label for="username">Identifiant ou email</label>
-                            <div class="field-wrap">
-                                <input
-                                    type="text"
-                                    id="username"
-                                    name="username"
-                                    placeholder="exemple@ctams.fr"
-                                    autocomplete="username"
-                                    required
-                                >
-                                <span class="field-icon"><i class="fa-solid fa-user"></i></span>
-                            </div>
-                        </div>
+      <div class="login-brand-pitch">
+        Pilotez votre atelier.<br>Centralisez chaque opération.
+      </div>
 
-                        <div class="field">
-                            <label for="password">Mot de passe</label>
-                            <div class="field-wrap">
-                                <input
-                                    type="password"
-                                    id="password"
-                                    name="password"
-                                    placeholder="Votre mot de passe"
-                                    autocomplete="current-password"
-                                    required
-                                >
-                                <button type="button" class="password-toggle" id="togglePassword" aria-label="Afficher ou masquer le mot de passe">
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
+      <div class="login-feature-list">
+        <div class="login-feature">
+          <i class="fa-solid fa-users"></i>
+          Gestion clients & historique complet
+        </div>
+        <div class="login-feature">
+          <i class="fa-solid fa-car-side"></i>
+          Fiches techniques véhicules
+        </div>
+        <div class="login-feature">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+          Suivi des passages atelier
+        </div>
+        <div class="login-feature">
+          <i class="fa-solid fa-chart-column"></i>
+          Tableaux de bord KPI temps réel
+        </div>
+        <div class="login-feature">
+          <i class="fa-solid fa-shield-halved"></i>
+          Accès sécurisé par rôle
+        </div>
+      </div>
 
-                        <div class="meta">
-                            <label class="check">
-                                <input type="checkbox" name="remember_me" id="rememberMe">
-                                <span>Se souvenir de moi</span>
-                            </label>
-                            <a href="{% url 'forgot_password' %}">Mot de passe oublie ?</a>
-                        </div>
-
-                        <button type="submit" class="btn-submit">
-                            <i class="fa-solid fa-right-to-bracket"></i> Se connecter
-                        </button>
-                    </form>
-
-                    <div class="footer">
-                        <p>Vous n'avez pas de compte ? <a href="{% url 'contact_admin' %}">Contacter l'administrateur</a></p>
-                    </div>
-                </article>
-            </section>
-        </main>
     </div>
+  </aside>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggle = document.getElementById("togglePassword");
-            const password = document.getElementById("password");
-            const icon = toggle.querySelector("i");
+  <!-- ═══ FORM PANEL (droite) ═══ -->
+  <div class="login-form-panel">
+    <div class="login-form-box">
 
-            toggle.addEventListener("click", function () {
-                const hidden = password.type === "password";
-                password.type = hidden ? "text" : "password";
-                icon.className = hidden ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
-            });
-        });
-    </script>
+      <div class="login-form-header">
+        <div class="login-form-title">Connexion</div>
+        <div class="login-form-sub">Entrez vos identifiants pour accéder à votre espace.</div>
+      </div>
+
+      {% if error %}
+        <div class="alert alert-danger" style="margin-bottom:20px">
+          <i class="fa-solid fa-circle-xmark"></i>
+          {{ error }}
+        </div>
+      {% endif %}
+      {% if success %}
+        <div class="alert alert-success" style="margin-bottom:20px">
+          <i class="fa-solid fa-circle-check"></i>
+          {{ success }}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div class="login-field">
+          <label for="username">Identifiant ou email</label>
+          <div class="login-field-wrap">
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="exemple@ctams.fr"
+              autocomplete="username"
+              required
+            >
+            <span class="login-field-icon"><i class="fa-solid fa-user"></i></span>
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label for="password">Mot de passe</label>
+          <div class="login-field-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Votre mot de passe"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="login-toggle" id="togglePwd" aria-label="Afficher/masquer">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="login-meta">
+          <label class="login-remember">
+            <input type="checkbox" name="remember_me" id="rememberMe">
+            Se souvenir de moi
+          </label>
+          <a href="{% url 'forgot_password' %}" class="login-forgot">Mot de passe oublié ?</a>
+        </div>
+
+        <button type="submit" class="btn-login">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          Se connecter
+        </button>
+
+      </form>
+
+      <div class="login-footer">
+        <p>Pas de compte ? <a href="{% url 'contact_admin' %}">Contacter l'administrateur</a></p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% if messages %}
+<script id="ctams-messages" type="application/json">
+  [{% for message in messages %}{"icon":"{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}","text":"{{ message|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+</script>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    var msgEl = document.getElementById('ctams-messages');
+    if (msgEl) {
+      JSON.parse(msgEl.textContent).forEach(function (m, i) {
+        setTimeout(function () {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: m.icon,
+            title: m.text,
+            showConfirmButton: false,
+            timer: 4500,
+            timerProgressBar: true,
+            background: isDark ? '#162032' : '#ffffff',
+            color: isDark ? '#E2EAF5' : '#111827',
+          });
+        }, i * 450);
+      });
+    }
+
+    var btn = document.getElementById('togglePwd');
+    var inp = document.getElementById('password');
+    btn.addEventListener('click', function () {
+      var show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      btn.querySelector('i').className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+    });
+  });
+</script>
+
 </body>
 </html>

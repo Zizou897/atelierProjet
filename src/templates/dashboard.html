@@ -1,241 +1,162 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CTAMS - Dashboard principal">
-    <title>CTAMS - Dashboard Principal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-1: #0f2027;
-            --bg-2: #203a43;
-            --bg-3: #2c5364;
-            --surface: #ffffff;
-            --text-1: #18212e;
-            --text-2: #5a6678;
-            --accent: #0b7fab;
-            --accent-2: #1fa2ff;
-            --line: #e8edf3;
-            --ok: #1f8f58;
-        }
+{% extends 'base.html' %}
+{% load static %}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+{% block page_title %}Tableau de bord{% endblock %}
+{% block topbar_title %}Tableau de bord{% endblock %}
 
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            color: var(--text-1);
-            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
-        }
+{% block content %}
 
-        .shell {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 28px 18px 34px;
-        }
-
-        .topbar {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 14px;
-            color: #fff;
-            padding: 16px 18px;
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: center;
-            backdrop-filter: blur(4px);
-            margin-bottom: 18px;
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .user-meta {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-
-        .chip {
-            padding: 7px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid rgba(255, 255, 255, 0.28);
-            background: rgba(255, 255, 255, 0.12);
-        }
-
-        .layout {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
-            padding: 22px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-        }
-
-        .card {
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 16px;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-            display: flex;
-            flex-direction: column;
-            min-height: 180px;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            border-color: #cbd9e6;
-            box-shadow: 0 10px 22px rgba(18, 56, 88, 0.12);
-        }
-
-        .card .icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: #fff;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-            margin-bottom: 12px;
-        }
-
-        .card h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .card p {
-            color: var(--text-2);
-            line-height: 1.45;
-            font-size: 14px;
-            flex: 1;
-        }
-
-        .card .open {
-            margin-top: 13px;
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .footer {
-            margin-top: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-2);
-            font-size: 13px;
-            flex-wrap: wrap;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            text-decoration: none;
-            border-radius: 8px;
-            padding: 9px 14px;
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid var(--line);
-            color: var(--text-1);
-            background: #fff;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-            color: #fff;
-            border-color: transparent;
-        }
-
-        .badge-ok {
-            color: var(--ok);
-            font-weight: 700;
-        }
-
-        @media (max-width: 700px) {
-            .topbar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .user-meta {
-                justify-content: flex-start;
-            }
-
-            .layout {
-                padding: 16px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="shell">
-        <section class="topbar">
-            <div>
-                <h1 class="title">Dashboard Principal CTAMS</h1>
-                <p class="subtitle">Espace central accessible a tous les roles</p>
-            </div>
-            <div class="user-meta">
-                <span class="chip"><i class="fa-solid fa-user"></i> {{ user.username }}</span>
-                <span class="chip"><i class="fa-solid fa-id-badge"></i> Role: {{ role }}</span>
-                <span class="chip badge-ok"><i class="fa-solid fa-circle-check"></i> Connecte</span>
-            </div>
-        </section>
-
-        <main class="layout">
-            <section class="cards">
-                {% for module in modules %}
-                    <a class="card" href="{{ module.url }}">
-                        <span class="icon"><i class="fa-solid {{ module.icon }}"></i></span>
-                        <h3>{{ module.name }}</h3>
-                        <p>{{ module.description }}</p>
-                        <span class="open">Voir le module <i class="fa-solid fa-arrow-right"></i></span>
-                    </a>
-                {% endfor %}
-            </section>
-
-            <section class="footer">
-                <p>Grand modules presentes sous forme de cartes pour un acces rapide.</p>
-                <div class="actions">
-                    <a class="btn btn-primary" href="/admin/"><i class="fa-solid fa-gear"></i> Administration</a>
-                    <a class="btn" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Deconnexion</a>
-                </div>
-            </section>
-        </main>
+<!-- KPI Row -->
+<div class="kpi-grid">
+  <div class="kpi-card kpi-card--blue">
+    <div class="kpi-header">
+      <span class="kpi-label">Clients</span>
+      <div class="kpi-icon kpi-icon--blue"><i class="fa-solid fa-users"></i></div>
     </div>
-</body>
-</html>
+    <div class="kpi-value">—</div>
+    <div class="kpi-detail">Base clients active</div>
+  </div>
+
+  <div class="kpi-card kpi-card--amber">
+    <div class="kpi-header">
+      <span class="kpi-label">Véhicules</span>
+      <div class="kpi-icon kpi-icon--amber"><i class="fa-solid fa-car-side"></i></div>
+    </div>
+    <div class="kpi-value">—</div>
+    <div class="kpi-detail">Parc enregistré</div>
+  </div>
+
+  <div class="kpi-card kpi-card--red">
+    <div class="kpi-header">
+      <span class="kpi-label">Passages</span>
+      <div class="kpi-icon kpi-icon--red"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+    </div>
+    <div class="kpi-value">—</div>
+    <div class="kpi-detail">Interventions atelier</div>
+  </div>
+
+  <div class="kpi-card kpi-card--green">
+    <div class="kpi-header">
+      <span class="kpi-label">Techniciens</span>
+      <div class="kpi-icon kpi-icon--green"><i class="fa-solid fa-helmet-safety"></i></div>
+    </div>
+    <div class="kpi-value">—</div>
+    <div class="kpi-detail">Équipe atelier</div>
+  </div>
+</div>
+
+<!-- Welcome banner -->
+<div class="card mb-24" style="background:linear-gradient(135deg,#080F3A 0%,#111C5C 100%);border:none;color:white;overflow:hidden;position:relative;">
+  <div style="position:absolute;right:-20px;top:-20px;width:150px;height:150px;background:rgba(27,45,168,.25);border-radius:50%;"></div>
+  <div style="position:absolute;right:60px;bottom:-30px;width:100px;height:100px;background:rgba(204,17,17,.15);border-radius:50%;"></div>
+  <div class="card-body" style="position:relative;z-index:1;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:6px;" id="greeting-eyebrow">
+          &mdash;
+        </div>
+        <div style="font-family:var(--font-display);font-size:26px;font-weight:700;margin-bottom:8px;">
+          <span id="greeting-text">Bonjour</span>, {{ user.get_full_name|default:user.username }}
+        </div>
+        <div style="font-size:14px;color:rgba(255,255,255,.6);">
+          Connecté en tant que
+          <strong style="color:rgba(255,255,255,.85);">
+            {% if user.profile.role %}{{ user.profile.role.name }}{% elif user.is_superuser %}Administrateur{% else %}Utilisateur{% endif %}
+          </strong>
+        </div>
+        {% if is_first_login %}
+        <div style="margin-top:14px;display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:rgba(255,255,255,.9);">
+          <i class="fa-solid fa-star" style="color:#FBBF24;"></i>
+          Première connexion &mdash; bienvenue sur la plateforme CTAMS !
+        </div>
+        {% endif %}
+      </div>
+      <div style="opacity:.25;line-height:1;" id="greeting-icon-wrap">
+        <i id="greeting-icon" class="fa-solid fa-sun" style="font-size:56px;"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Module cards -->
+<div style="margin-bottom:16px;">
+  <div class="section-title">Accès rapide aux modules</div>
+</div>
+
+<div class="module-grid">
+  {% for module in modules %}
+    <a class="module-card" href="{{ module.url }}">
+      <div class="module-icon">
+        <i class="fa-solid {{ module.icon }}"></i>
+      </div>
+      <div class="module-name">{{ module.name }}</div>
+      <div class="module-desc">{{ module.description }}</div>
+      <div class="module-link">
+        Ouvrir <i class="fa-solid fa-arrow-right"></i>
+      </div>
+    </a>
+  {% empty %}
+    <!-- Fallback static modules -->
+    <a class="module-card" href="{% url 'customer_list' %}">
+      <div class="module-icon"><i class="fa-solid fa-users"></i></div>
+      <div class="module-name">Clients</div>
+      <div class="module-desc">Gestion des clients particuliers et entreprises.</div>
+      <div class="module-link">Ouvrir <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    <a class="module-card" href="{% url 'vehicle_list' %}">
+      <div class="module-icon"><i class="fa-solid fa-car-side"></i></div>
+      <div class="module-name">Véhicules</div>
+      <div class="module-desc">Fiches techniques et suivi du parc automobile.</div>
+      <div class="module-link">Ouvrir <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    <a class="module-card" href="{% url 'workshop_visit_list' %}">
+      <div class="module-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+      <div class="module-name">Atelier</div>
+      <div class="module-desc">Passages, interventions et techniciens.</div>
+      <div class="module-link">Ouvrir <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    <a class="module-card" href="{% url 'workshop_dashboard' %}">
+      <div class="module-icon"><i class="fa-solid fa-chart-column"></i></div>
+      <div class="module-name">Dashboard Atelier</div>
+      <div class="module-desc">KPIs et statistiques de l'atelier.</div>
+      <div class="module-link">Ouvrir <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    {% if user.is_staff %}
+    <a class="module-card" href="{% url 'user_list' %}">
+      <div class="module-icon"><i class="fa-solid fa-user-gear"></i></div>
+      <div class="module-name">Utilisateurs</div>
+      <div class="module-desc">Administration des accès et rôles.</div>
+      <div class="module-link">Ouvrir <i class="fa-solid fa-arrow-right"></i></div>
+    </a>
+    {% endif %}
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var h = new Date().getHours();
+  var greeting, eyebrow, icon;
+
+  if (h >= 5 && h < 12) {
+    greeting = 'Bonjour';        eyebrow = 'Bonne matinée';   icon = 'fa-sun';
+  } else if (h >= 12 && h < 18) {
+    greeting = 'Bon après-midi'; eyebrow = 'Bel après-midi';  icon = 'fa-cloud-sun';
+  } else if (h >= 18 && h < 22) {
+    greeting = 'Bonsoir';        eyebrow = 'Bonne soirée';    icon = 'fa-moon';
+  } else {
+    greeting = 'Bonne nuit';     eyebrow = 'Nuit calme';      icon = 'fa-star';
+  }
+
+  var tEl = document.getElementById('greeting-text');
+  var eEl = document.getElementById('greeting-eyebrow');
+  var iEl = document.getElementById('greeting-icon');
+
+  if (tEl) tEl.textContent = greeting;
+  if (eEl) eEl.textContent = eyebrow;
+  if (iEl) iEl.className = 'fa-solid ' + icon;
+})();
+</script>
+{% endblock %}

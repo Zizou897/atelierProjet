@@ -35,6 +35,7 @@ class UserProfile(models.Model):
     )
     phone = models.CharField(max_length=30, blank=True)
     portal_active = models.BooleanField(default=True)
+    login_count = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

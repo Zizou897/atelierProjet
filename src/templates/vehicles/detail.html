@@ -1,236 +1,193 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="CTAMS - Fiche technique vehicule">
-    <title>CTAMS - Fiche technique {{ vehicle.registration_number }}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-1: #0f2027;
-            --bg-2: #203a43;
-            --bg-3: #2c5364;
-            --surface: #ffffff;
-            --text-1: #18212e;
-            --text-2: #5a6678;
-            --accent: #0b7fab;
-            --accent-2: #1fa2ff;
-            --line: #e8edf3;
-            --ok: #1f8f58;
-        }
+{% extends 'base.html' %}
+{% load static %}
+{% load workshop_currency %}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+{% block page_title %}{{ vehicle.registration_number }}{% endblock %}
+{% block topbar_title %}Fiche Véhicule{% endblock %}
 
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            color: var(--text-1);
-            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
-        }
+{% block content %}
 
-        .shell { max-width: 1200px; margin: 0 auto; padding: 28px 18px 34px; }
-
-        .topbar {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            border-radius: 14px;
-            color: #fff;
-            padding: 16px 18px;
-            display: flex;
-            justify-content: space-between;
-            gap: 14px;
-            align-items: center;
-            backdrop-filter: blur(4px);
-            margin-bottom: 18px;
-            flex-wrap: wrap;
-        }
-
-        .title { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
-        .subtitle { font-size: 14px; opacity: 0.9; }
-        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-        .btn {
-            text-decoration: none;
-            border-radius: 8px;
-            padding: 9px 14px;
-            font-weight: 700;
-            font-size: 13px;
-            border: 1px solid rgba(255,255,255,0.35);
-            color: #fff;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-            color: #fff;
-            border-color: transparent;
-        }
-
-        .layout {
-            background: var(--surface);
-            border-radius: 16px;
-            box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
-            padding: 20px;
-        }
-
-        .alerts { margin-bottom: 12px; }
-        .alert {
-            background: #e8f7ee;
-            border: 1px solid #c2e9d1;
-            color: #1c6b3f;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 14px;
-        }
-
-        .card {
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 16px;
-            background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-        }
-
-        .card h2 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #43526a;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; }
-        .meta dt { color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.35px; }
-        .meta dd { margin-top: 4px; font-size: 14px; font-weight: 600; }
-
-        .table-wrap { border: 1px solid var(--line); border-radius: 12px; overflow: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 920px; }
-        th, td { padding: 12px 10px; border-bottom: 1px solid #eff3f8; text-align: left; font-size: 14px; vertical-align: top; }
-        th { background: #f8fbff; font-size: 12px; text-transform: uppercase; letter-spacing: 0.35px; color: #52627b; }
-
-        .muted { color: var(--text-2); }
-        .pill { border-radius: 999px; padding: 4px 8px; font-size: 12px; background: #ecf5ff; color: #0d6da6; font-weight: 700; }
-        .amount { font-weight: 700; color: #1c3658; white-space: nowrap; }
-        .notes { margin-top: 8px; color: var(--text-2); font-size: 14px; line-height: 1.45; }
-        .table-btn { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; text-decoration: none; color: var(--text-1); font-weight: 600; }
-
-        @media (max-width: 900px) {
-            .cards { grid-template-columns: 1fr; }
-            .meta { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
-    {% load workshop_currency %}
-    <div class="shell">
-        <section class="topbar">
-            <div>
-                <h1 class="title">Fiche technique - {{ vehicle.registration_number }}</h1>
-                <p class="subtitle">{{ vehicle.make }} {{ vehicle.model }} {{ vehicle.trim }}</p>
-            </div>
-            <div class="actions">
-                <a class="btn" href="{% url 'vehicle_list' %}"><i class="fa-solid fa-list"></i> Liste</a>
-                <a class="btn" href="{% url 'vehicle_update' vehicle.id %}"><i class="fa-solid fa-pen"></i> Modifier</a>
-                <a class="btn btn-primary" href="{% url 'vehicle_visit_create' vehicle.id %}"><i class="fa-solid fa-plus"></i> Passage atelier</a>
-            </div>
-        </section>
-
-        <main class="layout">
-            {% if messages %}
-                <div class="alerts">
-                    {% for message in messages %}
-                        <div class="alert">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <section class="cards">
-                <article class="card">
-                    <h2>Informations vehicule</h2>
-                    <dl class="meta">
-                        <div>
-                            <dt>Client rattache</dt>
-                            <dd>
-                                {% if vehicle.customer %}
-                                    <a href="{% url 'customer_detail' vehicle.customer.id %}">{{ vehicle.customer.display_name }}</a>
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div><dt>Immatriculation</dt><dd>{{ vehicle.registration_number }}</dd></div>
-                        <div><dt>VIN</dt><dd>{{ vehicle.vin|default:"-" }}</dd></div>
-                        <div><dt>Marque / Modele</dt><dd>{{ vehicle.make }} {{ vehicle.model }}</dd></div>
-                        <div><dt>Finition</dt><dd>{{ vehicle.trim|default:"-" }}</dd></div>
-                        <div><dt>Mise en circulation</dt><dd>{{ vehicle.first_registration_date|date:"d/m/Y"|default:"-" }}</dd></div>
-                        <div><dt>Kilometrage</dt><dd>{{ vehicle.mileage }} km</dd></div>
-                        <div><dt>Carburant</dt><dd>{{ vehicle.get_fuel_type_display }}</dd></div>
-                        <div><dt>Transmission</dt><dd>{{ vehicle.get_transmission_display }}</dd></div>
-                        <div><dt>Couleur</dt><dd>{{ vehicle.color|default:"-" }}</dd></div>
-                    </dl>
-                </article>
-
-                <article class="card">
-                    <h2>Proprietaire et suivi</h2>
-                    <dl class="meta">
-                        <div><dt>Nom</dt><dd>{{ vehicle.owner_name }}</dd></div>
-                        <div><dt>Telephone</dt><dd>{{ vehicle.owner_phone|default:"-" }}</dd></div>
-                        <div><dt>Email</dt><dd>{{ vehicle.owner_email|default:"-" }}</dd></div>
-                        <div><dt>Derniere MAJ</dt><dd>{{ vehicle.updated_at|date:"d/m/Y H:i" }}</dd></div>
-                    </dl>
-                    <div class="notes">{{ vehicle.notes|linebreaksbr|default:"Aucune note technique." }}</div>
-                </article>
-            </section>
-
-            <section class="card">
-                <h2>Suivi des passages atelier</h2>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Date passage</th>
-                                <th>Service</th>
-                                <th>KM</th>
-                                <th>Motif</th>
-                                <th>Technicien</th>
-                                <th>Statut</th>
-                                <th>Cout reel</th>
-                                <th>Prochain passage</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for visit in visits %}
-                                <tr>
-                                    <td>{{ visit.visit_date|date:"d/m/Y" }}</td>
-                                    <td class="amount">{{ visit.get_service_display }}</td>
-                                    <td class="amount">{{ visit.mileage_at_visit }} km</td>
-                                    <td>
-                                        {{ visit.concern }}
-                                        {% if visit.diagnosis %}<br><span class="muted">Diag: {{ visit.diagnosis }}</span>{% endif %}
-                                    </td>
-                                    <td>{{ visit.technician_name|default:"-" }}</td>
-                                    <td><span class="pill">{{ visit.get_status_display }}</span></td>
-                                    <td class="amount">{% if visit.actual_cost %}{{ visit.actual_cost|cfa_thousands }} cfa{% else %}-{% endif %}</td>
-                                    <td>{{ visit.next_visit_date|date:"d/m/Y"|default:"-" }}</td>
-                                    <td><a class="table-btn" href="{% url 'vehicle_visit_update' vehicle.id visit.id %}">Modifier</a></td>
-                                </tr>
-                            {% empty %}
-                                <tr><td colspan="11" class="muted">Aucun passage atelier enregistre.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+<!-- Hero -->
+<div class="detail-hero">
+  <div class="detail-avatar" style="background:linear-gradient(135deg,var(--c-navy-700),var(--c-blue-700))">
+    <i class="fa-solid fa-car-side" style="font-size:22px"></i>
+  </div>
+  <div class="detail-hero-info">
+    <div class="detail-hero-name">
+      <span class="plate" style="font-size:22px;padding:5px 14px">{{ vehicle.registration_number }}</span>
     </div>
-</body>
-</html>
+    <div class="detail-hero-meta" style="margin-top:10px">
+      <span><i class="fa-solid fa-car" style="margin-right:5px"></i>{{ vehicle.make }} {{ vehicle.model }}{% if vehicle.trim %} — {{ vehicle.trim }}{% endif %}</span>
+      <span><i class="fa-solid fa-gauge-high" style="margin-right:5px"></i>{{ vehicle.mileage }} km</span>
+      <span><i class="fa-solid fa-gas-pump" style="margin-right:5px"></i>{{ vehicle.get_fuel_type_display }}</span>
+    </div>
+  </div>
+  <div class="detail-hero-actions">
+    <a href="{% url 'vehicle_list' %}" class="btn"><i class="fa-solid fa-list"></i> Liste</a>
+    <a href="{% url 'vehicle_update' vehicle.id %}" class="btn"><i class="fa-solid fa-pen"></i> Modifier</a>
+    <a href="{% url 'vehicle_visit_create' vehicle.id %}" class="btn btn-primary">
+      <i class="fa-solid fa-plus"></i> Passage atelier
+    </a>
+  </div>
+</div>
+
+<!-- Info cards -->
+<div class="content-grid-2 mb-20">
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Informations véhicule</div></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Client rattaché</div>
+          <div class="info-value">
+            {% if vehicle.customer %}
+              <a href="{% url 'customer_detail' vehicle.customer.id %}" style="color:var(--c-blue-700)">
+                {{ vehicle.customer.display_name }}
+              </a>
+            {% else %}—{% endif %}
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">VIN</div>
+          <div class="info-value">
+            {% if vehicle.vin %}<span class="cell-mono">{{ vehicle.vin }}</span>{% else %}—{% endif %}
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Marque / Modèle</div>
+          <div class="info-value">{{ vehicle.make }} {{ vehicle.model }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Finition</div>
+          <div class="info-value">{{ vehicle.trim|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Mise en circulation</div>
+          <div class="info-value">{{ vehicle.first_registration_date|date:"d/m/Y"|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Kilométrage</div>
+          <div class="info-value">{{ vehicle.mileage }} km</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Carburant</div>
+          <div class="info-value">{{ vehicle.get_fuel_type_display }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Transmission</div>
+          <div class="info-value">{{ vehicle.get_transmission_display }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Couleur</div>
+          <div class="info-value">{{ vehicle.color|default:"—" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-title">Propriétaire & suivi</div></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Nom</div>
+          <div class="info-value">{{ vehicle.owner_name }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Téléphone</div>
+          <div class="info-value">{{ vehicle.owner_phone|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Email</div>
+          <div class="info-value">{{ vehicle.owner_email|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Dernière MAJ</div>
+          <div class="info-value">{{ vehicle.updated_at|date:"d/m/Y H:i" }}</div>
+        </div>
+      </div>
+      {% if vehicle.notes %}
+        <div style="margin-top:16px">
+          <div class="info-label" style="margin-bottom:8px">Notes techniques</div>
+          <div class="notes-text">{{ vehicle.notes|linebreaksbr }}</div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Passages atelier -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Suivi des passages atelier</div>
+    <a href="{% url 'vehicle_visit_create' vehicle.id %}" class="btn btn-sm btn-primary">
+      <i class="fa-solid fa-plus"></i> Nouveau passage
+    </a>
+  </div>
+  <div class="card-body" style="padding:0">
+    <div style="overflow:auto">
+      <table class="ctams-table" style="min-width:960px">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Service</th>
+            <th>KM</th>
+            <th>Motif / Diagnostic</th>
+            <th>Technicien</th>
+            <th>Statut</th>
+            <th>Coût réel</th>
+            <th>Prochain</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for visit in visits %}
+            <tr>
+              <td class="fw-600">{{ visit.visit_date|date:"d/m/Y" }}</td>
+              <td>
+                <span class="badge badge-blue">{{ visit.get_service_display }}</span>
+              </td>
+              <td>{{ visit.mileage_at_visit }} km</td>
+              <td>
+                <div class="table-cell-main" style="font-weight:400">{{ visit.concern }}</div>
+                {% if visit.diagnosis %}
+                  <div class="table-cell-sub">Diag : {{ visit.diagnosis }}</div>
+                {% endif %}
+              </td>
+              <td>{{ visit.technician_name|default:"—" }}</td>
+              <td>
+                <span class="badge
+                  {% if visit.status == 'done' %}status-done
+                  {% elif visit.status == 'in_progress' %}status-in-progress
+                  {% elif visit.status == 'cancelled' %}status-cancelled
+                  {% else %}status-open{% endif %}">
+                  {{ visit.get_status_display }}
+                </span>
+              </td>
+              <td class="fw-600">
+                {% if visit.actual_cost %}{{ visit.actual_cost|cfa_thousands }} FCFA{% else %}—{% endif %}
+              </td>
+              <td class="muted text-sm">{{ visit.next_visit_date|date:"d/m/Y"|default:"—" }}</td>
+              <td>
+                <a href="{% url 'vehicle_visit_update' vehicle.id visit.id %}" class="btn btn-sm">
+                  <i class="fa-solid fa-pen"></i>
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="9" class="table-empty">
+                <i class="fa-solid fa-wrench" style="font-size:28px;display:block;margin-bottom:8px;opacity:.3"></i>
+                Aucun passage atelier enregistré.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
