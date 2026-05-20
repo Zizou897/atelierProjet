@@ -181,13 +181,15 @@ SIMPLE_JWT = {
 # CORS
 # ---------------------------------------------------------------------------
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://localhost:5173',
-]
+
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://ctams.online',
+    'https://www.ctams.online',
+]
 
 # ---------------------------------------------------------------------------
 # Email
@@ -261,6 +263,7 @@ LOGGING = {
 # ---------------------------------------------------------------------------
 
 if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
