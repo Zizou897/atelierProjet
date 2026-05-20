@@ -140,51 +140,12 @@ MEDIA_ROOT = BASE_DIR / 'media_cdn'
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ---------------------------------------------------------------------------
-# Django REST Framework
-# ---------------------------------------------------------------------------
 
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 25,
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.OrderingFilter',
-        'rest_framework.filters.SearchFilter',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour',
-    },
-}
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-}
 
 # ---------------------------------------------------------------------------
 # CORS
 # ---------------------------------------------------------------------------
 
-
-
-if DEBUG:
-    CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://ctams.online',
