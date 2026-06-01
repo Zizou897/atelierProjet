@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_head %}
+<style>
+/* ── Invoice module shared styles (CSS-variable based → dark mode automatic) ── */
+
+/* Sections */
+.inv-section {
+  background: var(--c-white);
+  border: 1px solid var(--c-gray-200);
+  border-radius: var(--r-xl);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+.inv-section-title {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--c-blue-700);
+  margin-bottom: 1rem;
+  padding-bottom: .5rem;
+  border-bottom: 2px solid var(--c-blue-700);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Form */
+.inv-form-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.inv-field { display: flex; flex-direction: column; gap: .3rem; }
+.inv-field label { font-size: .8rem; font-weight: 600; color: var(--c-gray-500); }
+.inv-field input,
+.inv-field select,
+.inv-field textarea {
+  border: 1px solid var(--c-gray-200);
+  border-radius: var(--r-md);
+  padding: .5rem .75rem;
+  font-size: .95rem;
+  background: var(--c-white);
+  color: var(--c-gray-900);
+  width: 100%;
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+.inv-field input:focus,
+.inv-field select:focus,
+.inv-field textarea:focus {
+  outline: none;
+  border-color: var(--c-blue-700);
+  box-shadow: 0 0 0 3px var(--c-blue-50);
+}
+
+/* Status badges */
+.inv-badge {
+  display: inline-block;
+  padding: .2rem .65rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.inv-badge--draft     { background: var(--c-gray-100);   color: var(--c-gray-600); }
+.inv-badge--sent      { background: var(--c-info-bg);    color: var(--c-info); }
+.inv-badge--accepted  { background: var(--c-success-bg); color: var(--c-success); }
+.inv-badge--rejected  { background: var(--c-danger-bg);  color: var(--c-danger); }
+.inv-badge--converted { background: var(--c-blue-100);   color: var(--c-blue-700); }
+.inv-badge--paid      { background: var(--c-success-bg); color: var(--c-success); }
+.inv-badge--partial   { background: var(--c-warning-bg); color: var(--c-warning); }
+.inv-badge--overdue   { background: var(--c-danger-bg);  color: var(--c-danger); }
+.inv-badge--cancelled { background: var(--c-gray-100);   color: var(--c-gray-500); text-decoration: line-through; }
+
+/* Lines table */
+.inv-lines-wrap { overflow-x: auto; }
+.inv-lines-table { width: 100%; border-collapse: collapse; }
+.inv-lines-table th {
+  padding: .6rem .75rem;
+  text-align: left;
+  font-size: .73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--c-gray-500);
+  background: var(--c-gray-50);
+  border-bottom: 2px solid var(--c-gray-200);
+  white-space: nowrap;
+}
+.inv-lines-table td {
+  padding: .45rem .45rem;
+  border-bottom: 1px solid var(--c-gray-150);
+  vertical-align: middle;
+}
+.inv-lines-table td input {
+  border: 1px solid var(--c-gray-200);
+  border-radius: var(--r-sm);
+  padding: .4rem .5rem;
+  font-size: .88rem;
+  width: 100%;
+  min-width: 0;
+  background: var(--c-white);
+  color: var(--c-gray-900);
+  transition: border-color var(--ease);
+}
+.inv-lines-table td input:focus {
+  outline: none;
+  border-color: var(--c-blue-700);
+  box-shadow: 0 0 0 2px var(--c-blue-50);
+}
+.inv-col-num   { width: 40px; text-align: center; color: var(--c-gray-500); font-size: .85rem; }
+.inv-col-amt   { width: 130px; text-align: right; font-weight: 600; font-size: .9rem; padding-right: .75rem !important; color: var(--c-gray-900); }
+.inv-col-del   { width: 38px; text-align: center; }
+.inv-del-btn   { color: var(--c-red-600); background: none; border: none; cursor: pointer; padding: .25rem .4rem; border-radius: var(--r-sm); transition: background var(--ease); }
+.inv-del-btn:hover { background: var(--c-red-50); }
+
+/* Totals block */
+.inv-totals { margin-left: auto; min-width: 300px; }
+.inv-totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .35rem 0;
+  font-size: .95rem;
+  color: var(--c-gray-900);
+  gap: 2rem;
+}
+.inv-totals-row.muted  { color: var(--c-gray-500); font-size: .88rem; }
+.inv-totals-row.strong {
+  border-top: 2px solid var(--c-blue-700);
+  margin-top: .5rem;
+  padding-top: .75rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--c-blue-700);
+}
+.inv-totals-row.net-payer {
+  border-top: 1px solid var(--c-gray-200);
+  margin-top: .25rem;
+  padding-top: .5rem;
+  font-weight: 700;
+  color: var(--c-red-600);
+}
+
+/* Detail meta grid */
+.inv-meta-grid  { display: grid; grid-template-columns: auto 1fr; gap: .4rem .75rem; font-size: .9rem; }
+.inv-meta-label { color: var(--c-gray-500); white-space: nowrap; }
+.inv-meta-value { font-weight: 500; color: var(--c-gray-900); }
+
+/* Page header */
+.inv-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.inv-page-title { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--c-navy-700); margin: 0; }
+.inv-page-sub   { margin: .25rem 0 0; color: var(--c-gray-500); font-size: .9rem; }
+
+/* Filters bar */
+.inv-filters {
+  background: var(--c-white);
+  border: 1px solid var(--c-gray-200);
+  border-radius: var(--r-xl);
+  padding: .875rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  box-shadow: var(--shadow-sm);
+}
+.inv-filters input,
+.inv-filters select {
+  border: 1px solid var(--c-gray-200);
+  border-radius: var(--r-md);
+  padding: .5rem .75rem;
+  font-size: .9rem;
+  background: var(--c-white);
+  color: var(--c-gray-900);
+}
+.inv-filters input:focus,
+.inv-filters select:focus { outline: none; border-color: var(--c-blue-700); }
+
+/* Action buttons row */
+.inv-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+
+/* Customer select pill */
+.inv-customer-select {
+  border: 1px solid var(--c-gray-200);
+  border-radius: var(--r-md);
+  padding: .5rem .75rem;
+  font-size: .95rem;
+  background: var(--c-white);
+  color: var(--c-gray-900);
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════════
+   DARK MODE OVERRIDES
+   --c-blue-700 (#1B2DA8) n'est PAS remappé en dark
+   → les titres et bordures bleus doivent être
+     surcolorisés avec --c-blue-500 (#3A58E8)
+   ═══════════════════════════════════════════════ */
+
+/* Titres de section : passer au bleu clair */
+[data-theme="dark"] .inv-section-title {
+  color: var(--c-blue-500);
+  border-bottom-color: var(--c-blue-500);
+}
+
+/* Ligne TOTAL TTC (forte) */
+[data-theme="dark"] .inv-totals-row.strong {
+  color: var(--c-blue-500);
+  border-top-color: var(--c-blue-500);
+}
+
+/* Badge "Converti" : bleu lisible */
+[data-theme="dark"] .inv-badge--converted {
+  background: #1B2A5C;
+  color: #7BA7F7;
+}
+
+/* ── Inputs, selects, textareas dans les formulaires ── */
+[data-theme="dark"] .inv-field input,
+[data-theme="dark"] .inv-field select,
+[data-theme="dark"] .inv-field textarea,
+[data-theme="dark"] .inv-customer-select,
+[data-theme="dark"] .inv-filters input,
+[data-theme="dark"] .inv-filters select {
+  background: #1C2A44;
+  color: #E2EAF5;
+  border-color: #374D72;
+}
+[data-theme="dark"] .inv-field input:focus,
+[data-theme="dark"] .inv-field select:focus,
+[data-theme="dark"] .inv-field textarea:focus,
+[data-theme="dark"] .inv-customer-select:focus {
+  border-color: var(--c-blue-500);
+  box-shadow: 0 0 0 3px rgba(58, 88, 232, .18);
+}
+
+/* Placeholder text */
+[data-theme="dark"] .inv-field input::placeholder,
+[data-theme="dark"] .inv-field textarea::placeholder,
+[data-theme="dark"] .inv-filters input::placeholder {
+  color: #516088;
+}
+
+/* ── Inputs dans le tableau de lignes ── */
+[data-theme="dark"] .inv-lines-table td input {
+  background: #1C2A44;
+  color: #E2EAF5;
+  border-color: #374D72;
+}
+[data-theme="dark"] .inv-lines-table td input:focus {
+  border-color: var(--c-blue-500);
+  box-shadow: 0 0 0 2px rgba(58, 88, 232, .18);
+}
+[data-theme="dark"] .inv-lines-table td input::placeholder {
+  color: #516088;
+}
+
+/* En-têtes et cellules du tableau de lignes */
+[data-theme="dark"] .inv-lines-table th {
+  background: #111A2D;
+  color: #6B84A8;
+  border-bottom-color: #243252;
+}
+[data-theme="dark"] .inv-lines-table td {
+  border-bottom-color: #1C2A44;
+  color: #E2EAF5;
+}
+[data-theme="dark"] .inv-col-num {
+  color: #6B84A8;
+}
+[data-theme="dark"] .inv-col-amt {
+  color: #E2EAF5;
+}
+
+/* Bouton supprimer ligne */
+[data-theme="dark"] .inv-del-btn {
+  color: #F87171;
+}
+[data-theme="dark"] .inv-del-btn:hover {
+  background: #1F0606;
+}
+
+/* Focus ring sur date input (navigateurs Webkit) */
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="number"] {
+  color-scheme: dark;
+}
+</style>
+{% block inv_extra_head %}{% endblock %}
+{% endblock %}

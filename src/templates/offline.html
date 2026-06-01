@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CTAMS — Hors ligne</title>
+  <style>
+    :root {
+      --blue: #1B2DA8;
+      --red: #CC1111;
+      --surface: #F4F6FB;
+      --text: #111827;
+      --muted: #6B7280;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: var(--surface);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 3rem 2.5rem;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(27,45,168,.08);
+    }
+    .icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(27,45,168,.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+    .icon svg { width: 36px; height: 36px; stroke: var(--blue); fill: none; stroke-width: 2; }
+    h1 { font-size: 1.5rem; font-weight: 700; color: var(--blue); margin-bottom: .5rem; }
+    p { color: var(--muted); font-size: .95rem; line-height: 1.6; margin-bottom: 2rem; }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .75rem;
+      margin-bottom: 2rem;
+    }
+    .brand-name { font-size: 1.25rem; font-weight: 800; color: var(--blue); letter-spacing: .04em; }
+    .brand-bar { width: 4px; height: 24px; background: var(--red); border-radius: 2px; }
+    .brand-tag { font-size: .75rem; color: var(--muted); }
+    button {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: .75rem 2rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+      width: 100%;
+    }
+    button:hover { opacity: .85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="brand-bar"></div>
+      <div class="brand-name">CTAMS</div>
+      <div class="brand-tag">Atelier Auto</div>
+    </div>
+    <div class="icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z"/>
+      </svg>
+    </div>
+    <h1>Vous êtes hors ligne</h1>
+    <p>Impossible de se connecter au serveur CTAMS.<br>Vérifiez votre connexion internet et réessayez.</p>
+    <button onclick="window.location.reload()">Réessayer</button>
+  </div>
+</body>
+</html>

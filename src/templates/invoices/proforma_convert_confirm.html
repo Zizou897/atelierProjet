@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block page_title %}Convertir en facture{% endblock %}
+{% block topbar_title %}Convertir {{ proforma.numero }} en facture{% endblock %}
+{% block content %}
+<div class="card" style="max-width:520px;margin:2rem auto;padding:2rem;">
+  <div style="font-size:1.1rem;font-weight:700;color:var(--primary,#1B2DA8);margin-bottom:.75rem;">
+    <i class="fa-solid fa-file-invoice"></i> Convertir en facture
+  </div>
+  <p style="color:var(--text-muted,#6B7280);font-size:.95rem;margin-bottom:1.5rem;">
+    Vous allez créer une <strong>facture officielle</strong> à partir du proforma <strong>{{ proforma.numero }}</strong>
+    ({{ proforma.destinataire_nom }}, {{ proforma.total_ttc|floatformat:0 }} FCFA TTC).<br><br>
+    Le proforma sera marqué <em>« Converti en facture »</em> et ne pourra plus être modifié.
+  </p>
+  <form method="post" style="display:flex;gap:.75rem;justify-content:flex-end;">
+    {% csrf_token %}
+    <a href="{% url 'proforma_detail' proforma.pk %}" class="btn btn-outline">Annuler</a>
+    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Confirmer la conversion</button>
+  </form>
+</div>
+{% endblock %}

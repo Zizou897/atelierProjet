@@ -1,0 +1,205 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Proforma {{ proforma.numero }} — CTAMS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',system-ui,sans-serif;font-size:10.5pt;color:#111827;background:#f5f5f5;}
+    .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;padding:16mm 14mm 14mm;}
+
+    /* Header */
+    .doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10mm;}
+    .brand{display:flex;align-items:center;gap:8px;}
+    .brand img{width:52px;height:52px;object-fit:contain;border-radius:6px;}
+    .brand-text .name{font-family:'Rajdhani',sans-serif;font-size:18pt;font-weight:700;color:#1B2DA8;line-height:1;}
+    .brand-text .tag{font-size:7.5pt;color:#6B7280;margin-top:2px;}
+    .brand-text .addr{font-size:8pt;color:#374151;margin-top:4px;line-height:1.5;}
+    .doc-id{text-align:right;}
+    .doc-type{font-family:'Rajdhani',sans-serif;font-size:22pt;font-weight:700;color:#1B2DA8;letter-spacing:.05em;}
+    .doc-num{font-size:13pt;font-weight:700;color:#CC1111;margin-top:2px;}
+    .doc-dates{font-size:8.5pt;color:#6B7280;margin-top:6px;line-height:1.7;}
+    .doc-dates b{color:#111827;}
+
+    /* Warning banner */
+    .proforma-banner{background:#FFF8E1;border:1.5px solid #F59E0B;border-radius:5px;padding:5px 10px;font-size:8pt;color:#92400E;text-align:center;margin-bottom:7mm;font-weight:600;}
+
+    /* Parties */
+    .parties{display:grid;grid-template-columns:1fr 1fr;gap:8mm;margin-bottom:8mm;}
+    .party-box{border:1px solid #E5E7EB;border-radius:6px;padding:7px 10px;}
+    .party-label{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#1B2DA8;margin-bottom:5px;padding-bottom:3px;border-bottom:1.5px solid #1B2DA8;}
+    .party-name{font-weight:700;font-size:10.5pt;margin-bottom:2px;}
+    .party-info{font-size:8.5pt;color:#374151;line-height:1.6;}
+    .party-info span{color:#6B7280;margin-right:4px;}
+
+    /* Meta row */
+    .meta-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm;margin-bottom:8mm;}
+    .meta-item{font-size:8.5pt;}
+    .meta-item .lbl{color:#6B7280;font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+    .meta-item .val{font-weight:600;color:#111827;}
+
+    /* Table */
+    table{width:100%;border-collapse:collapse;margin-bottom:6mm;}
+    thead tr{background:#1B2DA8;color:#fff;}
+    thead th{padding:6px 8px;font-size:8pt;font-weight:600;text-transform:uppercase;letter-spacing:.06em;text-align:left;}
+    thead th.r{text-align:right;}
+    tbody tr:nth-child(even){background:#F9FAFB;}
+    tbody td{padding:5.5px 8px;font-size:9.5pt;border-bottom:1px solid #F3F4F6;vertical-align:top;}
+    tbody td.r{text-align:right;}
+    tbody td.c{text-align:center;color:#6B7280;}
+    tfoot tr{background:#F4F6FB;}
+    tfoot td{padding:5px 8px;font-size:9pt;border-top:1px solid #E5E7EB;}
+    tfoot td.lbl{color:#6B7280;text-align:right;padding-right:16px;}
+    tfoot td.val{text-align:right;font-weight:600;min-width:110px;}
+    .total-row td{border-top:2px solid #1B2DA8;font-size:11pt;font-weight:700;color:#1B2DA8;padding-top:7px;}
+
+    /* Signature */
+    .footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10mm;padding-top:6mm;border-top:1px solid #E5E7EB;}
+    .sig-block{text-align:center;width:160px;}
+    .sig-line{border-top:1.5px solid #374151;margin-top:20mm;padding-top:4px;font-size:8.5pt;color:#374151;font-weight:600;}
+    .sig-sub{font-size:7.5pt;color:#6B7280;}
+
+    @media print{
+      body{background:#fff;}
+      .page{margin:0;padding:12mm 11mm;box-shadow:none;}
+      .no-print{display:none!important;}
+    }
+  </style>
+</head>
+<body>
+<div class="no-print" style="padding:12px;background:#1B2DA8;color:#fff;text-align:center;font-family:sans-serif;font-size:13px;display:flex;gap:12px;justify-content:center;">
+  <button onclick="window.print()" style="background:#fff;color:#1B2DA8;border:none;padding:7px 20px;border-radius:5px;font-weight:700;cursor:pointer;">🖨 Imprimer / PDF</button>
+  <button onclick="window.close()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);padding:7px 16px;border-radius:5px;cursor:pointer;">Fermer</button>
+</div>
+
+<div class="page">
+  <!-- En-tête -->
+  <div class="doc-header">
+    <div class="brand">
+      <img src="{% static 'app/assets/img/ctams-logo.jpg' %}" alt="CTAMS">
+      <div class="brand-text">
+        <div class="name">CTAMS</div>
+        <div class="tag">Centre Technique Auto & Multi-Services</div>
+        <div class="addr">
+          Angré Nouveau CHU, Abidjan – Côte d'Ivoire<br>
+          Tél : 07 77 90 68 45 / 05 05 21 67 92<br>
+          Email : Sasava221@gmail.com
+        </div>
+      </div>
+    </div>
+    <div class="doc-id">
+      <div class="doc-type">FACTURE PROFORMA</div>
+      <div class="doc-num">{{ proforma.numero }}</div>
+      <div class="doc-dates">
+        Date d'émission : <b>{{ proforma.date_emission|date:"d/m/Y" }}</b><br>
+        {% if proforma.date_validite %}Valide jusqu'au : <b>{{ proforma.date_validite|date:"d/m/Y" }}</b><br>{% endif %}
+        {% if proforma.reference_client %}Réf. client : <b>{{ proforma.reference_client }}</b><br>{% endif %}
+        {% if proforma.bon_de_commande %}Bon de commande : <b>{{ proforma.bon_de_commande }}</b>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="proforma-banner">⚠ Ce document est une estimation tarifaire — Il ne constitue pas une pièce comptable.</div>
+
+  <!-- Parties -->
+  <div class="parties">
+    <div class="party-box">
+      <div class="party-label">Émetteur</div>
+      <div class="party-name">CENTRE TECHNIQUE AUTO & MULTI-SERVICES (CTAMS)</div>
+      <div class="party-info">
+        Angré Nouveau CHU, Abidjan – Côte d'Ivoire<br>
+        Tél : 07 77 90 68 45 / 05 05 21 67 92<br>
+        Email : Sasava221@gmail.com
+      </div>
+    </div>
+    <div class="party-box">
+      <div class="party-label">Destinataire</div>
+      <div class="party-name">{{ proforma.destinataire_nom|default:"—" }}</div>
+      <div class="party-info">
+        {% if proforma.destinataire_adresse %}{{ proforma.destinataire_adresse }}<br>{% endif %}
+        {% if proforma.destinataire_tel %}<span>Tél :</span>{{ proforma.destinataire_tel }}<br>{% endif %}
+        {% if proforma.destinataire_email %}<span>Email :</span>{{ proforma.destinataire_email }}<br>{% endif %}
+        {% if proforma.destinataire_rccm_ncc %}<span>RCCM/NCC :</span>{{ proforma.destinataire_rccm_ncc }}{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if proforma.objet %}
+  <div style="margin-bottom:6mm;font-size:9.5pt;"><b>Objet :</b> {{ proforma.objet }}</div>
+  {% endif %}
+
+  <!-- Lignes -->
+  <table>
+    <thead>
+      <tr>
+        <th style="width:32px;text-align:center;">N°</th>
+        <th>Désignation / Description des prestations</th>
+        <th style="width:55px;text-align:right;">Qté</th>
+        <th class="r" style="width:130px;">Prix unitaire (FCFA)</th>
+        <th class="r" style="width:130px;">Montant (FCFA)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in proforma.lines.all %}
+      <tr>
+        <td class="c">{{ line.ordre }}</td>
+        <td>{{ line.designation }}</td>
+        <td class="r">{{ line.quantite|floatformat:"-2" }}</td>
+        <td class="r">{{ line.prix_unitaire|floatformat:0 }}</td>
+        <td class="r" style="font-weight:600;">{{ line.montant|floatformat:0 }}</td>
+      </tr>
+      {% endfor %}
+      {% with empty_rows=proforma.lines.count %}
+      {% for i in "123456789012"|make_list %}
+      {% if forloop.counter > empty_rows and forloop.counter <= 12 %}
+      <tr><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td><td></td></tr>
+      {% endif %}
+      {% endfor %}
+      {% endwith %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3"></td>
+        <td class="lbl">Sous-total HT</td>
+        <td class="val">{{ proforma.sous_total_ht|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td colspan="3"></td>
+        <td class="lbl">Remise globale</td>
+        <td class="val">{{ proforma.remise_globale|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td colspan="3"></td>
+        <td class="lbl">Net HT</td>
+        <td class="val">{{ proforma.net_ht|floatformat:0 }}</td>
+      </tr>
+      <tr>
+        <td colspan="3"></td>
+        <td class="lbl">TVA ({{ proforma.tva_taux }}%)</td>
+        <td class="val">{{ proforma.tva_montant|floatformat:0 }}</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3"></td>
+        <td style="text-align:right;padding-right:16px;">TOTAL TTC</td>
+        <td style="text-align:right;">{{ proforma.total_ttc|floatformat:0 }}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- Footer / Signature -->
+  <div class="footer">
+    <div style="font-size:8pt;color:#6B7280;max-width:240px;line-height:1.6;">
+      Ce devis est valable{% if proforma.date_validite %} jusqu'au {{ proforma.date_validite|date:"d/m/Y" }}{% else %} 30 jours à compter de la date d'émission{% endif %}.<br>
+      Sous réserve d'acceptation expresse du client.
+    </div>
+    <div class="sig-block">
+      <div class="sig-line">Signature &amp; Cachet</div>
+      <div class="sig-sub">M. Savadogo Salif — Gérant CTAMS</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

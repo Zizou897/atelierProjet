@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Facture {{ invoice.numero }} — CTAMS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',system-ui,sans-serif;font-size:10.5pt;color:#111827;background:#f5f5f5;}
+    .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;padding:16mm 14mm 14mm;}
+    .doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:9mm;}
+    .brand{display:flex;align-items:center;gap:8px;}
+    .brand img{width:52px;height:52px;object-fit:contain;border-radius:6px;}
+    .brand-text .name{font-family:'Rajdhani',sans-serif;font-size:18pt;font-weight:700;color:#1B2DA8;line-height:1;}
+    .brand-text .tag{font-size:7.5pt;color:#6B7280;margin-top:2px;}
+    .brand-text .addr{font-size:8pt;color:#374151;margin-top:4px;line-height:1.5;}
+    .doc-id{text-align:right;}
+    .doc-type{font-family:'Rajdhani',sans-serif;font-size:22pt;font-weight:700;color:#1B2DA8;letter-spacing:.05em;}
+    .doc-num{font-size:13pt;font-weight:700;color:#CC1111;margin-top:2px;}
+    .doc-dates{font-size:8.5pt;color:#6B7280;margin-top:6px;line-height:1.7;}
+    .doc-dates b{color:#111827;}
+    .parties{display:grid;grid-template-columns:1fr 1fr;gap:7mm;margin-bottom:7mm;}
+    .party-box{border:1px solid #E5E7EB;border-radius:6px;padding:7px 10px;}
+    .party-label{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#1B2DA8;margin-bottom:5px;padding-bottom:3px;border-bottom:1.5px solid #1B2DA8;}
+    .party-name{font-weight:700;font-size:10.5pt;margin-bottom:2px;}
+    .party-info{font-size:8.5pt;color:#374151;line-height:1.6;}
+    .party-info span{color:#6B7280;margin-right:4px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:5mm;}
+    thead tr{background:#1B2DA8;color:#fff;}
+    thead th{padding:6px 7px;font-size:7.5pt;font-weight:600;text-transform:uppercase;letter-spacing:.05em;text-align:left;}
+    thead th.r{text-align:right;}
+    thead th.c{text-align:center;}
+    tbody tr:nth-child(even){background:#F9FAFB;}
+    tbody td{padding:5px 7px;font-size:9pt;border-bottom:1px solid #F3F4F6;vertical-align:top;}
+    tbody td.r{text-align:right;}
+    tbody td.c{text-align:center;color:#6B7280;}
+    tfoot td{padding:4.5px 7px;font-size:9pt;border-top:1px solid #E5E7EB;}
+    tfoot td.lbl{color:#6B7280;text-align:right;padding-right:14px;}
+    tfoot td.val{text-align:right;font-weight:600;min-width:100px;}
+    .total-row td{border-top:2.5px solid #1B2DA8;font-size:11pt;font-weight:700;color:#1B2DA8;padding-top:6px;}
+    .net-row td{border-top:1px solid #E5E7EB;font-size:11.5pt;font-weight:700;color:#CC1111;padding-top:6px;}
+    .conditions{border:1px solid #E5E7EB;border-radius:6px;padding:7px 10px;margin-bottom:7mm;font-size:8.5pt;}
+    .conditions .ctitle{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6B7280;margin-bottom:5px;}
+    .conditions p{margin-bottom:3px;line-height:1.5;}
+    .footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:8mm;padding-top:5mm;border-top:1px solid #E5E7EB;}
+    .sig-block{text-align:center;width:160px;}
+    .sig-line{border-top:1.5px solid #374151;margin-top:20mm;padding-top:4px;font-size:8.5pt;color:#374151;font-weight:600;}
+    .sig-sub{font-size:7.5pt;color:#6B7280;}
+    @media print{
+      body{background:#fff;}
+      .page{margin:0;padding:12mm 11mm;box-shadow:none;}
+      .no-print{display:none!important;}
+    }
+  </style>
+</head>
+<body>
+<div class="no-print" style="padding:10px;background:#CC1111;color:#fff;text-align:center;font-family:sans-serif;font-size:13px;display:flex;gap:12px;justify-content:center;">
+  <button onclick="window.print()" style="background:#fff;color:#CC1111;border:none;padding:7px 20px;border-radius:5px;font-weight:700;cursor:pointer;">🖨 Imprimer / PDF</button>
+  <button onclick="window.close()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);padding:7px 16px;border-radius:5px;cursor:pointer;">Fermer</button>
+</div>
+
+<div class="page">
+  <div class="doc-header">
+    <div class="brand">
+      <img src="{% static 'app/assets/img/ctams-logo.jpg' %}" alt="CTAMS">
+      <div class="brand-text">
+        <div class="name">CTAMS</div>
+        <div class="tag">Centre Technique Auto & Multi-Services</div>
+        <div class="addr">
+          Angré Nouveau CHU, Abidjan – Côte d'Ivoire<br>
+          Tél : 07 77 90 68 45 / 05 05 21 67 92<br>
+          Email : Sasava221@gmail.com
+        </div>
+      </div>
+    </div>
+    <div class="doc-id">
+      <div class="doc-type">FACTURE</div>
+      <div class="doc-num">{{ invoice.numero }}</div>
+      <div class="doc-dates">
+        Date d'émission : <b>{{ invoice.date_emission|date:"d/m/Y" }}</b><br>
+        {% if invoice.date_echeance %}Date d'échéance : <b>{{ invoice.date_echeance|date:"d/m/Y" }}</b><br>{% endif %}
+        {% if invoice.reference_client %}Réf. client : <b>{{ invoice.reference_client }}</b><br>{% endif %}
+        {% if invoice.bon_de_commande %}Bon de commande : <b>{{ invoice.bon_de_commande }}</b>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="parties">
+    <div class="party-box">
+      <div class="party-label">Émetteur</div>
+      <div class="party-name">CENTRE TECHNIQUE AUTO & MULTI-SERVICES (CTAMS)</div>
+      <div class="party-info">
+        Angré Nouveau CHU, Abidjan – Côte d'Ivoire<br>
+        Tél : 07 77 90 68 45 / 05 05 21 67 92<br>
+        Email : Sasava221@gmail.com
+      </div>
+    </div>
+    <div class="party-box">
+      <div class="party-label">Destinataire</div>
+      <div class="party-name">{{ invoice.destinataire_nom|default:"—" }}</div>
+      <div class="party-info">
+        {% if invoice.destinataire_adresse %}{{ invoice.destinataire_adresse }}<br>{% endif %}
+        {% if invoice.destinataire_tel %}<span>Tél :</span>{{ invoice.destinataire_tel }}<br>{% endif %}
+        {% if invoice.destinataire_email %}<span>Email :</span>{{ invoice.destinataire_email }}<br>{% endif %}
+        {% if invoice.destinataire_rccm_ncc %}<span>RCCM/NCC :</span>{{ invoice.destinataire_rccm_ncc }}{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if invoice.objet %}
+  <div style="margin-bottom:5mm;font-size:9.5pt;"><b>Objet :</b> {{ invoice.objet }}</div>
+  {% endif %}
+
+  <table>
+    <thead>
+      <tr>
+        <th class="c" style="width:28px;">N°</th>
+        <th>Désignation / Description des prestations</th>
+        <th class="r" style="width:45px;">Qté</th>
+        <th style="width:55px;">Unité</th>
+        <th class="r" style="width:120px;">Prix unit. (FCFA)</th>
+        <th class="r" style="width:55px;">Remise</th>
+        <th class="r" style="width:120px;">Montant (FCFA)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for line in invoice.lines.all %}
+      <tr>
+        <td class="c">{{ line.ordre }}</td>
+        <td>{{ line.designation }}</td>
+        <td class="r">{{ line.quantite|floatformat:"-2" }}</td>
+        <td style="color:#6B7280;">{{ line.unite|default:"" }}</td>
+        <td class="r">{{ line.prix_unitaire|floatformat:0 }}</td>
+        <td class="r" style="color:#6B7280;">{% if line.remise_pct %}{{ line.remise_pct }}%{% endif %}</td>
+        <td class="r" style="font-weight:600;">{{ line.montant|floatformat:0 }}</td>
+      </tr>
+      {% endfor %}
+      {% with empty_rows=invoice.lines.count %}
+      {% for i in "123456789012345"|make_list %}
+      {% if forloop.counter > empty_rows and forloop.counter <= 15 %}
+      <tr><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      {% endif %}
+      {% endfor %}
+      {% endwith %}
+    </tbody>
+    <tfoot>
+      <tr><td colspan="5"></td><td class="lbl">Sous-total HT</td><td class="val">{{ invoice.sous_total_ht|floatformat:0 }}</td></tr>
+      <tr><td colspan="5"></td><td class="lbl">Remise globale</td><td class="val">{{ invoice.remise_globale|floatformat:0 }}</td></tr>
+      <tr><td colspan="5"></td><td class="lbl">Net HT</td><td class="val">{{ invoice.net_ht|floatformat:0 }}</td></tr>
+      <tr><td colspan="5"></td><td class="lbl">TVA ({{ invoice.tva_taux }}%)</td><td class="val">{{ invoice.tva_montant|floatformat:0 }}</td></tr>
+      <tr class="total-row"><td colspan="5"></td><td style="text-align:right;padding-right:14px;">TOTAL TTC</td><td style="text-align:right;">{{ invoice.total_ttc|floatformat:0 }}</td></tr>
+      <tr><td colspan="5"></td><td class="lbl">Acompte versé</td><td class="val">{{ invoice.acompte_verse|floatformat:0 }}</td></tr>
+      <tr class="net-row"><td colspan="5"></td><td style="text-align:right;padding-right:14px;">NET À PAYER</td><td style="text-align:right;">{{ invoice.net_a_payer|floatformat:0 }}</td></tr>
+    </tfoot>
+  </table>
+
+  {% if invoice.conditions_paiement or invoice.penalites_retard %}
+  <div class="conditions">
+    <div class="ctitle">Conditions & Mentions légales</div>
+    {% if invoice.conditions_paiement %}<p><b>Conditions de paiement :</b> {{ invoice.conditions_paiement }}</p>{% endif %}
+    {% if invoice.penalites_retard %}<p><b>Pénalités de retard :</b> {{ invoice.penalites_retard }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="footer">
+    <div style="font-size:8pt;color:#6B7280;max-width:220px;line-height:1.6;">
+      {% if invoice.date_echeance %}Paiement dû le {{ invoice.date_echeance|date:"d/m/Y" }}.{% endif %}<br>
+      Merci pour votre confiance.
+    </div>
+    <div class="sig-block">
+      <div class="sig-line">Signature &amp; Cachet</div>
+      <div class="sig-sub">M. Savadogo Salif — Gérant CTAMS</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

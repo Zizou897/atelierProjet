@@ -8,6 +8,10 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 
+from customers.models import Customer
+from vehicles.models import Vehicle
+from workshop.models import Technician, WorkshopVisit
+
 from .forms import PortalUserCreateForm, PortalUserUpdateForm, RoleForm
 from .models import Role, UserProfile
 
@@ -126,7 +130,7 @@ def dashboard(request):
             "name": "Factures",
             "description": "Facturation, suivi des reglements et relances clients.",
             "icon": "fa-file-invoice-dollar",
-            "url": "#",
+            "url": "/factures/dashboard/",
         },
         {
             "name": "Reporting",
@@ -157,6 +161,10 @@ def dashboard(request):
         "role": user_role,
         "modules": modules,
         "is_first_login": is_first_login,
+        "kpi_clients":      Customer.objects.filter(is_active=True).count(),
+        "kpi_vehicles":     Vehicle.objects.count(),
+        "kpi_passages":     WorkshopVisit.objects.count(),
+        "kpi_techniciens":  Technician.objects.count(),
     }
     return render(request, "dashboard.html", context)
 

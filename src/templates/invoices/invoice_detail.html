@@ -1,0 +1,128 @@
+{% extends "invoices/base_invoice.html" %}
+{% load static %}
+
+{% block page_title %}{{ invoice.numero }}{% endblock %}
+{% block topbar_title %}Facture {{ invoice.numero }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="inv-page-header">
+  <div style="display:flex;align-items:center;gap:.75rem;">
+    <a href="{% url 'invoice_list' %}" class="btn btn-sm btn-icon"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+      <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--c-navy-700);">{{ invoice.numero }}</div>
+      <div style="font-size:.85rem;color:var(--c-gray-500);">
+        Facture · {{ invoice.date_emission|date:"d/m/Y" }}
+        {% if invoice.proforma %} · Depuis <a href="{% url 'proforma_detail' invoice.proforma.pk %}" style="color:var(--c-blue-700);">{{ invoice.proforma.numero }}</a>{% endif %}
+      </div>
+    </div>
+    {% include "invoices/_status_badge.html" with status=invoice.status label=invoice.get_status_display %}
+  </div>
+  <div class="inv-actions">
+    <a href="{% url 'invoice_edit' invoice.pk %}" class="btn btn-sm"><i class="fa-solid fa-pen"></i> Modifier</a>
+    <a href="{% url 'invoice_print' invoice.pk %}" class="btn btn-sm" target="_blank"><i class="fa-solid fa-print"></i> Imprimer</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+  <!-- Destinataire -->
+  <div class="inv-section">
+    <div class="inv-section-title"><span><i class="fa-solid fa-user"></i> Destinataire</span></div>
+    <div style="font-weight:600;font-size:1rem;color:var(--c-gray-900);">{{ invoice.destinataire_nom|default:"—" }}</div>
+    {% if invoice.destinataire_adresse %}<div style="color:var(--c-gray-500);font-size:.9rem;margin-top:.3rem;">{{ invoice.destinataire_adresse }}</div>{% endif %}
+    {% if invoice.destinataire_tel %}<div style="font-size:.9rem;margin-top:.4rem;color:var(--c-gray-800);"><i class="fa-solid fa-phone" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ invoice.destinataire_tel }}</div>{% endif %}
+    {% if invoice.destinataire_email %}<div style="font-size:.9rem;margin-top:.2rem;color:var(--c-gray-800);"><i class="fa-solid fa-envelope" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ invoice.destinataire_email }}</div>{% endif %}
+    {% if invoice.destinataire_rccm_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">RCCM/NCC : {{ invoice.destinataire_rccm_ncc }}</div>{% endif %}
+  </div>
+
+  <!-- Méta -->
+  <div class="inv-section">
+    <div class="inv-section-title"><span><i class="fa-solid fa-file-invoice"></i> Informations</span></div>
+    <div class="inv-meta-grid">
+      <span class="inv-meta-label">N° facture</span><span class="inv-meta-value" style="color:var(--c-blue-700);font-weight:700;">{{ invoice.numero }}</span>
+      <span class="inv-meta-label">Date d'émission</span><span class="inv-meta-value">{{ invoice.date_emission|date:"d/m/Y" }}</span>
+      <span class="inv-meta-label">Date d'échéance</span>
+      <span class="inv-meta-value {% if invoice.status == 'OVERDUE' %}style="color:var(--c-red-600);"{% endif %}">{{ invoice.date_echeance|date:"d/m/Y"|default:"—" }}</span>
+      {% if invoice.reference_client %}<span class="inv-meta-label">Réf. client</span><span class="inv-meta-value">{{ invoice.reference_client }}</span>{% endif %}
+      {% if invoice.objet %}<span class="inv-meta-label">Objet</span><span class="inv-meta-value">{{ invoice.objet }}</span>{% endif %}
+      {% if invoice.bon_de_commande %}<span class="inv-meta-label">Bon de commande</span><span class="inv-meta-value">{{ invoice.bon_de_commande }}</span>{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Lignes + Totaux -->
+<div class="inv-section" style="padding:0;overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table class="ctams-table">
+      <thead>
+        <tr>
+          <th style="width:40px;text-align:center;">N°</th>
+          <th>Désignation</th>
+          <th style="text-align:right;width:65px;">Qté</th>
+          <th style="width:65px;">Unité</th>
+          <th style="text-align:right;width:130px;">Prix unitaire</th>
+          <th style="text-align:right;width:65px;">Remise</th>
+          <th style="text-align:right;width:130px;">Montant (FCFA)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in invoice.lines.all %}
+        <tr>
+          <td style="text-align:center;color:var(--c-gray-500);">{{ line.ordre }}</td>
+          <td>{{ line.designation }}</td>
+          <td style="text-align:right;">{{ line.quantite|floatformat:"-2" }}</td>
+          <td style="color:var(--c-gray-500);">{{ line.unite|default:"—" }}</td>
+          <td style="text-align:right;color:var(--c-gray-600);">{{ line.prix_unitaire|floatformat:0 }}</td>
+          <td style="text-align:right;color:var(--c-gray-500);">{% if line.remise_pct %}{{ line.remise_pct }}%{% else %}—{% endif %}</td>
+          <td style="text-align:right;font-weight:600;">{{ line.montant|floatformat:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="table-empty">Aucune ligne</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <!-- Totaux -->
+  <div style="display:flex;justify-content:flex-end;padding:1rem 1.5rem;border-top:1px solid var(--c-gray-150);">
+    <div class="inv-totals">
+      <div class="inv-totals-row muted"><span>Sous-total HT</span><span>{{ invoice.sous_total_ht|floatformat:0 }} FCFA</span></div>
+      {% if invoice.remise_globale %}<div class="inv-totals-row muted"><span>Remise globale</span><span>−{{ invoice.remise_globale|floatformat:0 }} FCFA</span></div>{% endif %}
+      <div class="inv-totals-row"><span>Net HT</span><span>{{ invoice.net_ht|floatformat:0 }} FCFA</span></div>
+      <div class="inv-totals-row muted"><span>TVA ({{ invoice.tva_taux }}%)</span><span>{{ invoice.tva_montant|floatformat:0 }} FCFA</span></div>
+      <div class="inv-totals-row strong"><span>TOTAL TTC</span><span>{{ invoice.total_ttc|floatformat:0 }} FCFA</span></div>
+      {% if invoice.acompte_verse %}<div class="inv-totals-row muted"><span>Acompte versé</span><span>−{{ invoice.acompte_verse|floatformat:0 }} FCFA</span></div>{% endif %}
+      <div class="inv-totals-row net-payer"><span>NET À PAYER</span><span>{{ invoice.net_a_payer|floatformat:0 }} FCFA</span></div>
+    </div>
+  </div>
+</div>
+
+{% if invoice.conditions_paiement or invoice.penalites_retard %}
+<div class="inv-section">
+  <div class="inv-section-title"><span><i class="fa-solid fa-file-contract"></i> Conditions &amp; Mentions</span></div>
+  {% if invoice.conditions_paiement %}<p style="font-size:.9rem;margin-bottom:.5rem;color:var(--c-gray-800);"><strong>Paiement :</strong> {{ invoice.conditions_paiement }}</p>{% endif %}
+  {% if invoice.penalites_retard %}<p style="font-size:.9rem;color:var(--c-gray-500);">{{ invoice.penalites_retard }}</p>{% endif %}
+</div>
+{% endif %}
+
+<!-- Gestion -->
+<div class="inv-section">
+  <div class="inv-section-title"><span><i class="fa-solid fa-sliders"></i> Gestion</span></div>
+  <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+    <form method="post" action="{% url 'invoice_status' invoice.pk %}" style="display:flex;gap:.5rem;align-items:center;">
+      {% csrf_token %}
+      <label style="font-size:.85rem;font-weight:600;color:var(--c-gray-500);">Statut :</label>
+      <select name="status" style="max-width:200px;border:1px solid var(--c-gray-200);border-radius:var(--r-md);padding:.45rem .7rem;font-size:.9rem;background:var(--c-white);color:var(--c-gray-900);">
+        <option value="DRAFT"     {% if invoice.status == 'DRAFT'     %}selected{% endif %}>Brouillon</option>
+        <option value="SENT"      {% if invoice.status == 'SENT'      %}selected{% endif %}>Envoyé</option>
+        <option value="PARTIAL"   {% if invoice.status == 'PARTIAL'   %}selected{% endif %}>Partiellement payé</option>
+        <option value="PAID"      {% if invoice.status == 'PAID'      %}selected{% endif %}>Payé</option>
+        <option value="OVERDUE"   {% if invoice.status == 'OVERDUE'   %}selected{% endif %}>En retard</option>
+        <option value="CANCELLED" {% if invoice.status == 'CANCELLED' %}selected{% endif %}>Annulé</option>
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">Enregistrer</button>
+    </form>
+    <a href="{% url 'invoice_delete' invoice.pk %}" class="btn btn-sm btn-danger" style="margin-left:auto;"
+       onclick="return confirm('Supprimer cette facture ?')"><i class="fa-solid fa-trash-can"></i> Supprimer</a>
+  </div>
+</div>
+{% endblock %}

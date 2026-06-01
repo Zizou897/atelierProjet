@@ -6,6 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CTAMS - Centre Technique Auto & Multiservices">
   <title>CTAMS — {% block page_title %}Tableau de bord{% endblock %}</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="{% static 'app/manifest.json' %}">
+  <meta name="theme-color" content="#1B2DA8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CTAMS">
+  <link rel="apple-touch-icon" href="{% static 'app/assets/img/icons/icon-192x192.png' %}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{% static 'app/assets/img/icons/icon-192x192.png' %}">
+  <link rel="icon" type="image/png" sizes="512x512" href="{% static 'app/assets/img/icons/icon-512x512.png' %}">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{% static 'app/css/ctams.css' %}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -63,6 +75,18 @@
          class="sidebar-link {% if 'technician' in request.resolver_match.url_name|default:'' %}active{% endif %}">
         <i class="fa-solid fa-helmet-safety"></i>
         <span>Techniciens</span>
+      </a>
+
+      <div class="sidebar-section-label">Facturation</div>
+      <a href="{% url 'invoice_dashboard' %}"
+         class="sidebar-link {% if 'invoice' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        <span>Factures</span>
+      </a>
+      <a href="{% url 'proforma_list' %}"
+         class="sidebar-link {% if 'proforma' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Proformas</span>
       </a>
 
       {% if user.is_staff or user.profile.role.code == 'admin' %}
@@ -185,5 +209,14 @@
 </script>
 
 {% block extra_js %}{% endblock %}
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .catch(function (err) { console.warn('[CTAMS] SW registration failed:', err); });
+    });
+  }
+</script>
 </body>
 </html>

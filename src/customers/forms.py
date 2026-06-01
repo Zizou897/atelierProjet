@@ -19,8 +19,21 @@ class CustomerForm(forms.ModelForm):
             "city",
             "country",
             "notes",
-            "is_active",
         ]
+        labels = {
+            "customer_type":  "Type de client",
+            "first_name":     "Prénom",
+            "last_name":      "Nom",
+            "company_name":   "Raison sociale",
+            "email":          "Adresse e-mail",
+            "phone":          "Téléphone",
+            "address_line1":  "Adresse (ligne 1)",
+            "address_line2":  "Adresse (ligne 2)",
+            "postal_code":    "Code postal",
+            "city":           "Ville",
+            "country":        "Pays",
+            "notes":          "Notes internes",
+        }
         widgets = {
             "notes": forms.Textarea(attrs={"rows": 4}),
         }

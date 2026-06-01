@@ -1,0 +1,258 @@
+{% extends "invoices/base_invoice.html" %}
+{% load static %}
+
+{% block page_title %}{{ action }}{% endblock %}
+{% block topbar_title %}{{ action }}{% endblock %}
+
+{% block content %}
+<form method="post" id="invForm">
+{% csrf_token %}
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:0;">
+
+  <!-- Destinataire -->
+  <div class="inv-section">
+    <div class="inv-section-title"><span><i class="fa-solid fa-user"></i> Destinataire</span></div>
+    <div class="inv-field" style="margin-bottom:.875rem;">
+      <label>Client existant</label>
+      <select id="customerSelect" name="customer" class="inv-customer-select">
+        <option value="">— Saisie manuelle —</option>
+        {% for c in customers %}
+          <option value="{{ c.pk }}"
+            data-nom="{{ c.display_name }}"
+            data-tel="{{ c.phone }}"
+            data-email="{{ c.email }}"
+            data-adresse="{{ c.address_line1 }}{% if c.city %}, {{ c.city }}{% endif %}"
+            {% if form.customer.value == c.pk|stringformat:"s" %}selected{% endif %}>
+            {{ c.display_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="inv-form-row">
+      <div class="inv-field" style="grid-column:1/-1;">
+        <label>Nom / Entreprise *</label>
+        <input type="text" name="destinataire_nom" value="{{ form.destinataire_nom.value|default:'' }}" required>
+      </div>
+      <div class="inv-field" style="grid-column:1/-1;">
+        <label>Adresse</label>
+        <input type="text" name="destinataire_adresse" value="{{ form.destinataire_adresse.value|default:'' }}">
+      </div>
+      <div class="inv-field">
+        <label>Téléphone</label>
+        <input type="text" name="destinataire_tel" value="{{ form.destinataire_tel.value|default:'' }}">
+      </div>
+      <div class="inv-field">
+        <label>Email</label>
+        <input type="email" name="destinataire_email" value="{{ form.destinataire_email.value|default:'' }}">
+      </div>
+      <div class="inv-field" style="grid-column:1/-1;">
+        <label>RCCM / NCC</label>
+        <input type="text" name="destinataire_rccm_ncc" value="{{ form.destinataire_rccm_ncc.value|default:'' }}">
+      </div>
+    </div>
+  </div>
+
+  <!-- Infos facture -->
+  <div class="inv-section">
+    <div class="inv-section-title"><span><i class="fa-solid fa-file-invoice"></i> Informations facture</span></div>
+    <div class="inv-form-row">
+      <div class="inv-field">
+        <label>Date d'émission *</label>
+        <input type="date" name="date_emission" value="{{ form.date_emission.value|default:'' }}" required>
+      </div>
+      <div class="inv-field">
+        <label>Date d'échéance</label>
+        <input type="date" name="date_echeance" value="{{ form.date_echeance.value|default:'' }}">
+      </div>
+      <div class="inv-field" style="grid-column:1/-1;">
+        <label>Objet</label>
+        <input type="text" name="objet" value="{{ form.objet.value|default:'' }}" placeholder="Ex: Réparation, vidange…">
+      </div>
+      <div class="inv-field">
+        <label>Référence client</label>
+        <input type="text" name="reference_client" value="{{ form.reference_client.value|default:'' }}">
+      </div>
+      <div class="inv-field">
+        <label>Bon de commande</label>
+        <input type="text" name="bon_de_commande" value="{{ form.bon_de_commande.value|default:'' }}">
+      </div>
+      <div class="inv-field">
+        <label>TVA (%)</label>
+        <input type="number" id="id_tva_taux" name="tva_taux" value="{{ form.tva_taux.value|default:'18' }}" step="0.01" min="0" max="100" style="text-align:right;">
+      </div>
+      <div class="inv-field">
+        <label>Remise globale (FCFA)</label>
+        <input type="number" id="id_remise_globale" name="remise_globale" value="{{ form.remise_globale.value|default:'0' }}" min="0" step="1" style="text-align:right;">
+      </div>
+      <div class="inv-field">
+        <label>Acompte versé (FCFA)</label>
+        <input type="number" id="id_acompte_verse" name="acompte_verse" value="{{ form.acompte_verse.value|default:'0' }}" min="0" step="1" style="text-align:right;">
+      </div>
+      <div class="inv-field">
+        <label>Statut</label>
+        <select name="status">
+          {% for val, label in form.fields.status.choices %}
+            <option value="{{ val }}" {% if form.status.value == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lignes -->
+<div class="inv-section" style="margin-top:1.25rem;">
+  <div class="inv-section-title">
+    <span><i class="fa-solid fa-list"></i> Lignes de prestation</span>
+    <button type="button" id="addLine" class="btn btn-sm"><i class="fa-solid fa-plus"></i> Ajouter une ligne</button>
+  </div>
+  <div class="inv-lines-wrap">
+    <table class="inv-lines-table">
+      <thead>
+        <tr>
+          <th class="inv-col-num">N°</th>
+          <th style="min-width:200px;">Désignation / Description</th>
+          <th style="width:65px;text-align:right;">Qté</th>
+          <th style="width:75px;">Unité</th>
+          <th style="width:130px;text-align:right;">Prix unitaire (FCFA)</th>
+          <th style="width:70px;text-align:right;">Remise %</th>
+          <th class="inv-col-amt">Montant (FCFA)</th>
+          <th class="inv-col-del"></th>
+        </tr>
+      </thead>
+      <tbody id="linesBody">
+        {% if lines %}{% for line in lines %}
+        <tr class="line-row">
+          <td class="inv-col-num line-num">{{ forloop.counter }}</td>
+          <td><input type="text" name="line-{{ forloop.counter0 }}-designation" value="{{ line.designation }}" placeholder="Description…" required></td>
+          <td><input type="number" name="line-{{ forloop.counter0 }}-quantite" value="{{ line.quantite }}" step="0.01" min="0.01" class="qte-input" style="text-align:right;"></td>
+          <td><input type="text" name="line-{{ forloop.counter0 }}-unite" value="{{ line.unite }}" placeholder="u."></td>
+          <td><input type="number" name="line-{{ forloop.counter0 }}-prix_unitaire" value="{{ line.prix_unitaire }}" step="1" min="0" class="pu-input" style="text-align:right;"></td>
+          <td><input type="number" name="line-{{ forloop.counter0 }}-remise_pct" value="{{ line.remise_pct }}" step="0.01" min="0" max="100" class="rem-input" style="text-align:right;"></td>
+          <td class="inv-col-amt line-montant">{{ line.montant|floatformat:0 }}</td>
+          <td class="inv-col-del"><button type="button" class="inv-del-btn" onclick="removeLine(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+        </tr>
+        {% endfor %}{% else %}
+        <tr class="line-row">
+          <td class="inv-col-num line-num">1</td>
+          <td><input type="text" name="line-0-designation" placeholder="Description…" required></td>
+          <td><input type="number" name="line-0-quantite" value="1" step="0.01" min="0.01" class="qte-input" style="text-align:right;"></td>
+          <td><input type="text" name="line-0-unite" placeholder="u."></td>
+          <td><input type="number" name="line-0-prix_unitaire" value="" step="1" min="0" class="pu-input" style="text-align:right;" placeholder="0"></td>
+          <td><input type="number" name="line-0-remise_pct" value="0" step="0.01" min="0" max="100" class="rem-input" style="text-align:right;"></td>
+          <td class="inv-col-amt line-montant">0</td>
+          <td class="inv-col-del"><button type="button" class="inv-del-btn" onclick="removeLine(this)"><i class="fa-solid fa-trash-can"></i></button></td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:1.25rem;">
+    <div class="inv-totals">
+      <div class="inv-totals-row muted"><span>Sous-total HT</span><span id="d-sous">0 FCFA</span></div>
+      <div class="inv-totals-row muted"><span>Remise globale</span><span id="d-remise">0 FCFA</span></div>
+      <div class="inv-totals-row"><span>Net HT</span><span id="d-net">0 FCFA</span></div>
+      <div class="inv-totals-row muted"><span>TVA (<span id="d-tva-pct">18</span>%)</span><span id="d-tva">0 FCFA</span></div>
+      <div class="inv-totals-row strong"><span>TOTAL TTC</span><span id="d-ttc">0 FCFA</span></div>
+      <div class="inv-totals-row muted"><span>Acompte versé</span><span id="d-acompte">0 FCFA</span></div>
+      <div class="inv-totals-row net-payer"><span>NET À PAYER</span><span id="d-net-payer">0 FCFA</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Conditions -->
+<div class="inv-section">
+  <div class="inv-section-title"><span><i class="fa-solid fa-file-contract"></i> Conditions &amp; Mentions</span></div>
+  <div class="inv-form-row">
+    <div class="inv-field" style="grid-column:1/-1;">
+      <label>Conditions de paiement</label>
+      <textarea name="conditions_paiement" rows="2">{{ form.conditions_paiement.value|default:'' }}</textarea>
+    </div>
+    <div class="inv-field" style="grid-column:1/-1;">
+      <label>Pénalités de retard</label>
+      <textarea name="penalites_retard" rows="2">{{ form.penalites_retard.value|default:'' }}</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div style="display:flex;gap:.75rem;justify-content:flex-end;margin-bottom:1.5rem;">
+  {% if invoice %}<a href="{% url 'invoice_detail' invoice.pk %}" class="btn">Annuler</a>
+  {% else %}<a href="{% url 'invoice_list' %}" class="btn">Annuler</a>{% endif %}
+  <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+</div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  var lineCount=document.querySelectorAll('.line-row').length;
+  document.getElementById('customerSelect').addEventListener('change',function(){
+    var o=this.options[this.selectedIndex];
+    document.querySelector('[name=destinataire_nom]').value    =o.dataset.nom    ||'';
+    document.querySelector('[name=destinataire_tel]').value    =o.dataset.tel    ||'';
+    document.querySelector('[name=destinataire_email]').value  =o.dataset.email  ||'';
+    document.querySelector('[name=destinataire_adresse]').value=o.dataset.adresse||'';
+  });
+  function fmt(n){return new Intl.NumberFormat('fr-FR').format(n)+' FCFA';}
+  function recalc(){
+    var sous=0;
+    document.querySelectorAll('.line-row').forEach(function(r,i){
+      var q=parseFloat(r.querySelector('.qte-input').value)||0;
+      var p=parseFloat(r.querySelector('.pu-input').value)||0;
+      var rem=parseFloat(r.querySelector('.rem-input').value)||0;
+      var m=Math.round(q*p*(1-rem/100));
+      r.querySelector('.line-montant').textContent=new Intl.NumberFormat('fr-FR').format(m);
+      r.querySelector('.line-num').textContent=i+1;
+      sous+=m;
+    });
+    var remG=parseFloat(document.getElementById('id_remise_globale').value)||0;
+    var tva =parseFloat(document.getElementById('id_tva_taux').value)||0;
+    var acc =parseFloat(document.getElementById('id_acompte_verse').value)||0;
+    var net =Math.max(sous-remG,0);
+    var t   =Math.round(net*tva/100);
+    var ttc =net+t;
+    document.getElementById('d-sous').textContent     =fmt(sous);
+    document.getElementById('d-remise').textContent   =fmt(remG);
+    document.getElementById('d-net').textContent      =fmt(net);
+    document.getElementById('d-tva-pct').textContent  =tva;
+    document.getElementById('d-tva').textContent      =fmt(t);
+    document.getElementById('d-ttc').textContent      =fmt(ttc);
+    document.getElementById('d-acompte').textContent  =fmt(acc);
+    document.getElementById('d-net-payer').textContent=fmt(Math.max(ttc-acc,0));
+  }
+  function bindRow(r){r.querySelectorAll('input[type=number]').forEach(function(i){i.addEventListener('input',recalc);});}
+  document.querySelectorAll('.line-row').forEach(bindRow);
+  ['id_remise_globale','id_tva_taux','id_acompte_verse'].forEach(function(id){
+    document.getElementById(id).addEventListener('input',recalc);
+  });
+  document.getElementById('addLine').addEventListener('click',function(){
+    var i=lineCount;
+    var tr=document.createElement('tr'); tr.className='line-row';
+    tr.innerHTML='<td class="inv-col-num line-num">'+(i+1)+'</td>'+
+      '<td><input type="text" name="line-'+i+'-designation" placeholder="Description…" required></td>'+
+      '<td><input type="number" name="line-'+i+'-quantite" value="1" step="0.01" min="0.01" class="qte-input" style="text-align:right;"></td>'+
+      '<td><input type="text" name="line-'+i+'-unite" placeholder="u."></td>'+
+      '<td><input type="number" name="line-'+i+'-prix_unitaire" value="" step="1" min="0" class="pu-input" style="text-align:right;" placeholder="0"></td>'+
+      '<td><input type="number" name="line-'+i+'-remise_pct" value="0" step="0.01" min="0" max="100" class="rem-input" style="text-align:right;"></td>'+
+      '<td class="inv-col-amt line-montant">0</td>'+
+      '<td class="inv-col-del"><button type="button" class="inv-del-btn" onclick="removeLine(this)"><i class="fa-solid fa-trash-can"></i></button></td>';
+    document.getElementById('linesBody').appendChild(tr);
+    lineCount++; bindRow(tr); recalc();
+    tr.querySelector('input[type=text]').focus();
+  });
+  window.removeLine=function(btn){
+    if(document.querySelectorAll('.line-row').length<=1)return;
+    btn.closest('tr').remove();
+    document.querySelectorAll('.line-row').forEach(function(r,i){
+      r.querySelectorAll('input').forEach(function(inp){inp.name=inp.name.replace(/line-\d+-/,'line-'+i+'-');});
+    });
+    lineCount=document.querySelectorAll('.line-row').length; recalc();
+  };
+  recalc();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block page_title %}Supprimer{% endblock %}
+{% block topbar_title %}Confirmer la suppression{% endblock %}
+{% block content %}
+<div class="card" style="max-width:460px;margin:2rem auto;padding:2rem;">
+  <div style="font-size:1.1rem;font-weight:700;color:var(--danger,#CC1111);margin-bottom:.75rem;">
+    <i class="fa-solid fa-triangle-exclamation"></i> Supprimer {{ object }}
+  </div>
+  <p style="color:var(--text-muted,#6B7280);font-size:.95rem;margin-bottom:1.5rem;">
+    Cette action est irréversible. Toutes les lignes associées seront supprimées.
+  </p>
+  <form method="post" style="display:flex;gap:.75rem;justify-content:flex-end;">
+    {% csrf_token %}
+    <a href="{% url cancel_url object.pk %}" class="btn btn-outline">Annuler</a>
+    <button type="submit" class="btn btn-danger" style="background:var(--danger,#CC1111);color:#fff;border:none;">
+      <i class="fa-solid fa-trash-can"></i> Supprimer définitivement
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% comment %}Params: status, label{% endcomment %}
+{% if status == 'DRAFT' %}<span class="inv-badge inv-badge--draft">{{ label }}</span>
+{% elif status == 'SENT' %}<span class="inv-badge inv-badge--sent">{{ label }}</span>
+{% elif status == 'ACCEPTED' %}<span class="inv-badge inv-badge--accepted">{{ label }}</span>
+{% elif status == 'REJECTED' %}<span class="inv-badge inv-badge--rejected">{{ label }}</span>
+{% elif status == 'CONVERTED' %}<span class="inv-badge inv-badge--converted">{{ label }}</span>
+{% elif status == 'PAID' %}<span class="inv-badge inv-badge--paid">{{ label }}</span>
+{% elif status == 'PARTIAL' %}<span class="inv-badge inv-badge--partial">{{ label }}</span>
+{% elif status == 'OVERDUE' %}<span class="inv-badge inv-badge--overdue">{{ label }}</span>
+{% elif status == 'CANCELLED' %}<span class="inv-badge inv-badge--cancelled">{{ label }}</span>
+{% else %}<span class="inv-badge inv-badge--draft">{{ label }}</span>
+{% endif %}

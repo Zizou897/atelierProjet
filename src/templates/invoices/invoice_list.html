@@ -1,0 +1,91 @@
+{% extends "invoices/base_invoice.html" %}
+{% load static %}
+
+{% block page_title %}Factures{% endblock %}
+{% block topbar_title %}Factures{% endblock %}
+
+{% block content %}
+<div class="inv-page-header">
+  <div>
+    <h1 class="inv-page-title">Factures</h1>
+    <p class="inv-page-sub">Documents comptables officiels</p>
+  </div>
+  <div class="inv-actions">
+    <a href="{% url 'invoice_dashboard' %}" class="btn btn-sm"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <a href="{% url 'proforma_list' %}" class="btn btn-sm"><i class="fa-solid fa-file-lines"></i> Proformas</a>
+    <a href="{% url 'invoice_create' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nouvelle facture</a>
+  </div>
+</div>
+
+<!-- Filtres -->
+<div class="inv-filters">
+  <form method="get" style="display:contents;">
+    <div style="flex:1;min-width:200px;">
+      <input type="text" name="q" value="{{ search }}" placeholder="Rechercher (n°, client, objet)…" style="width:100%;">
+    </div>
+    <select name="status">
+      <option value="">Tous les statuts</option>
+      {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-sm"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+    {% if search or status_filter %}<a href="{% url 'invoice_list' %}" class="btn btn-sm">Réinitialiser</a>{% endif %}
+  </form>
+</div>
+
+<!-- Table -->
+<div class="inv-section" style="padding:0;overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table class="ctams-table">
+      <thead>
+        <tr>
+          <th>N° Facture</th>
+          <th>Destinataire</th>
+          <th>Objet</th>
+          <th>Émission</th>
+          <th>Échéance</th>
+          <th style="text-align:right;">Net à payer</th>
+          <th style="text-align:center;">Statut</th>
+          <th style="text-align:center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inv in invoices %}
+        <tr>
+          <td>
+            <a href="{% url 'invoice_detail' inv.pk %}" style="font-weight:600;color:var(--c-blue-700);text-decoration:none;">{{ inv.numero }}</a>
+            {% if inv.proforma %}<div style="font-size:.73rem;color:var(--c-gray-500);">Depuis {{ inv.proforma.numero }}</div>{% endif %}
+          </td>
+          <td>{{ inv.destinataire_nom|default:"—" }}</td>
+          <td style="color:var(--c-gray-500);font-size:.9rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ inv.objet|default:"—" }}</td>
+          <td style="white-space:nowrap;">{{ inv.date_emission|date:"d/m/Y" }}</td>
+          <td style="white-space:nowrap;color:{% if inv.status == 'OVERDUE' %}var(--c-red-600){% else %}var(--c-gray-500){% endif %};">
+            {{ inv.date_echeance|date:"d/m/Y"|default:"—" }}
+          </td>
+          <td style="text-align:right;font-weight:600;">{{ inv.net_a_payer|floatformat:0 }} <small style="color:var(--c-gray-500);font-weight:400;">FCFA</small></td>
+          <td style="text-align:center;">
+            {% include "invoices/_status_badge.html" with status=inv.status label=inv.get_status_display %}
+          </td>
+          <td style="text-align:center;">
+            <div style="display:flex;gap:.3rem;justify-content:center;">
+              <a href="{% url 'invoice_detail' inv.pk %}" class="btn btn-sm" style="padding:5px 8px;" title="Voir"><i class="fa-solid fa-eye"></i></a>
+              <a href="{% url 'invoice_edit' inv.pk %}" class="btn btn-sm" style="padding:5px 8px;" title="Modifier"><i class="fa-solid fa-pen"></i></a>
+              <a href="{% url 'invoice_print' inv.pk %}" class="btn btn-sm" style="padding:5px 8px;" title="Imprimer" target="_blank"><i class="fa-solid fa-print"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="table-empty">
+            <i class="fa-solid fa-file-invoice-dollar" style="font-size:2rem;display:block;margin-bottom:.6rem;opacity:.25;"></i>
+            Aucune facture trouvée.
+            <div style="margin-top:.75rem;"><a href="{% url 'invoice_create' %}" class="btn btn-primary btn-sm">Créer la première facture</a></div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
