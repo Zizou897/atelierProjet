@@ -24,6 +24,14 @@ class InvoiceStatus(models.TextChoices):
     CANCELLED = 'CANCELLED', 'Annulé'
 
 
+class DeliveryNoteStatus(models.TextChoices):
+    DRAFT = 'DRAFT', 'Brouillon'
+    PREPARED = 'PREPARED', 'Préparé'
+    DELIVERED = 'DELIVERED', 'Livré'
+    RECEIVED = 'RECEIVED', 'Réceptionné'
+    CANCELLED = 'CANCELLED', 'Annulé'
+
+
 class Proforma(models.Model):
     numero = models.CharField(max_length=20, unique=True, editable=False, verbose_name='N° Proforma')
     customer = models.ForeignKey(
@@ -40,7 +48,7 @@ class Proforma(models.Model):
     date_validite = models.DateField(null=True, blank=True, verbose_name="Valide jusqu'au")
     reference_client = models.CharField(max_length=100, blank=True, verbose_name='Référence client')
     objet = models.CharField(max_length=200, blank=True, verbose_name='Objet')
-    bon_de_commande = models.CharField(max_length=100, blank=True, verbose_name='Bon de commande')
+    bon_de_livraison = models.CharField(max_length=100, blank=True, verbose_name='Bon de livraison')
 
     remise_globale = models.DecimalField(
         max_digits=12, decimal_places=0, default=0, verbose_name='Remise globale (FCFA)',
@@ -145,7 +153,7 @@ class Invoice(models.Model):
     date_echeance = models.DateField(null=True, blank=True, verbose_name="Date d'échéance")
     reference_client = models.CharField(max_length=100, blank=True, verbose_name='Référence client')
     objet = models.CharField(max_length=200, blank=True, verbose_name='Objet')
-    bon_de_commande = models.CharField(max_length=100, blank=True, verbose_name='Bon de commande')
+    bon_de_livraison = models.CharField(max_length=100, blank=True, verbose_name='Bon de livraison')
 
     remise_globale = models.DecimalField(
         max_digits=12, decimal_places=0, default=0, verbose_name='Remise globale (FCFA)',
@@ -251,3 +259,85 @@ class InvoiceLine(models.Model):
 
     def __str__(self):
         return f"{self.invoice.numero} – L{self.ordre}"
+
+
+class DeliveryNote(models.Model):
+    numero = models.CharField(max_length=20, unique=True, editable=False, verbose_name='N° Bon de livraison')
+    invoice = models.ForeignKey(
+        Invoice, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='delivery_notes', verbose_name="Facture liée",
+    )
+    customer = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='delivery_notes', verbose_name='Client',
+    )
+    destinataire_nom = models.CharField(max_length=200, blank=True, verbose_name='Nom / Entreprise')
+    destinataire_adresse = models.CharField(max_length=300, blank=True, verbose_name='Adresse')
+    destinataire_tel = models.CharField(max_length=30, blank=True, verbose_name='Téléphone')
+    destinataire_email = models.EmailField(blank=True, verbose_name='Email')
+    destinataire_rccm_ncc = models.CharField(max_length=100, blank=True, verbose_name='RCCM / NCC')
+
+    date_livraison = models.DateField(default=timezone.now, verbose_name="Date de livraison")
+    lieu_livraison = models.CharField(max_length=300, blank=True, verbose_name='Lieu de livraison')
+    reference_client = models.CharField(max_length=100, blank=True, verbose_name='Référence client')
+    objet = models.CharField(max_length=200, blank=True, verbose_name='Objet')
+    transporteur = models.CharField(max_length=200, blank=True, verbose_name='Transporteur / Livreur')
+    observations = models.TextField(blank=True, verbose_name='Observations')
+
+    status = models.CharField(
+        max_length=20, choices=DeliveryNoteStatus.choices, default=DeliveryNoteStatus.DRAFT,
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        related_name='delivery_notes_created',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-date_livraison', '-id']
+        verbose_name = 'Bon de livraison'
+        verbose_name_plural = 'Bons de livraison'
+
+    def save(self, *args, **kwargs):
+        if not self.numero:
+            self.numero = self._generate_numero()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def _generate_numero(cls):
+        year = timezone.now().year
+        prefix = f"BL-{year}-"
+        last = cls.objects.filter(numero__startswith=prefix).order_by('-id').first()
+        if last:
+            try:
+                n = int(last.numero.rsplit('-', 1)[-1])
+                return f"{prefix}{n + 1:03d}"
+            except ValueError:
+                pass
+        return f"{prefix}001"
+
+    @property
+    def total_quantite(self):
+        return sum((line.quantite for line in self.lines.all()), Decimal('0'))
+
+    @property
+    def nombre_articles(self):
+        return self.lines.count()
+
+    def __str__(self):
+        return self.numero
+
+
+class DeliveryNoteLine(models.Model):
+    delivery_note = models.ForeignKey(DeliveryNote, on_delete=models.CASCADE, related_name='lines')
+    ordre = models.PositiveSmallIntegerField(default=1)
+    designation = models.CharField(max_length=300, verbose_name='Désignation')
+    quantite = models.DecimalField(max_digits=10, decimal_places=2, default=1, verbose_name='Qté')
+    unite = models.CharField(max_length=30, blank=True, verbose_name='Unité')
+
+    class Meta:
+        ordering = ['ordre']
+
+    def __str__(self):
+        return f"{self.delivery_note.numero} – L{self.ordre}"

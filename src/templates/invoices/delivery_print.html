@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Facture {{ invoice.numero }} — {{ brand.name }}</title>
+  <title>Bon de livraison {{ delivery.numero }} — {{ brand.name }}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -17,7 +17,7 @@
     .brand-text .tag{font-size:7.5pt;color:#6B7280;margin-top:2px;}
     .brand-text .addr{font-size:8pt;color:#374151;margin-top:4px;line-height:1.5;}
     .doc-id{text-align:right;}
-    .doc-type{font-family:'Rajdhani',sans-serif;font-size:22pt;font-weight:700;color:#1B2DA8;letter-spacing:.05em;}
+    .doc-type{font-family:'Rajdhani',sans-serif;font-size:20pt;font-weight:700;color:#1B2DA8;letter-spacing:.05em;}
     .doc-num{font-size:13pt;font-weight:700;color:#CC1111;margin-top:2px;}
     .doc-dates{font-size:8.5pt;color:#6B7280;margin-top:6px;line-height:1.7;}
     .doc-dates b{color:#111827;}
@@ -36,18 +36,19 @@
     tbody td{padding:5px 7px;font-size:9pt;border-bottom:1px solid #F3F4F6;vertical-align:top;}
     tbody td.r{text-align:right;}
     tbody td.c{text-align:center;color:#6B7280;}
-    tfoot td{padding:4.5px 7px;font-size:9pt;border-top:1px solid #E5E7EB;}
-    tfoot td.lbl{color:#6B7280;text-align:right;padding-right:14px;}
-    tfoot td.val{text-align:right;font-weight:600;min-width:100px;}
-    .total-row td{border-top:2.5px solid #1B2DA8;font-size:11pt;font-weight:700;color:#1B2DA8;padding-top:6px;}
-    .net-row td{border-top:1px solid #E5E7EB;font-size:11.5pt;font-weight:700;color:#CC1111;padding-top:6px;}
+    .total-bar{display:flex;justify-content:flex-end;gap:10px;font-size:9.5pt;margin-bottom:6mm;}
+    .total-bar .box{border:1px solid #E5E7EB;border-radius:6px;padding:5px 12px;}
+    .total-bar .box b{color:#1B2DA8;}
     .conditions{border:1px solid #E5E7EB;border-radius:6px;padding:7px 10px;margin-bottom:7mm;font-size:8.5pt;}
     .conditions .ctitle{font-size:7pt;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6B7280;margin-bottom:5px;}
     .conditions p{margin-bottom:3px;line-height:1.5;}
-    .footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:8mm;padding-top:5mm;border-top:1px solid #E5E7EB;}
-    .sig-block{text-align:center;width:160px;}
-    .sig-line{border-top:1.5px solid #374151;margin-top:20mm;padding-top:4px;font-size:8.5pt;color:#374151;font-weight:600;}
+    .signatures{display:grid;grid-template-columns:1fr 1fr;gap:14mm;margin-top:10mm;}
+    .sig-block{text-align:center;}
+    .sig-title{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B7280;margin-bottom:2px;}
+    .sig-hint{font-size:7.5pt;color:#9CA3AF;}
+    .sig-line{border-top:1.5px solid #374151;margin-top:18mm;padding-top:4px;font-size:8.5pt;color:#374151;font-weight:600;}
     .sig-sub{font-size:7.5pt;color:#6B7280;}
+    .footer{margin-top:8mm;padding-top:5mm;border-top:1px solid #E5E7EB;font-size:8pt;color:#6B7280;line-height:1.6;}
     @media print{
       body{background:#fff;}
       .page{margin:0;padding:12mm 11mm;box-shadow:none;}
@@ -81,20 +82,19 @@
       </div>
     </div>
     <div class="doc-id">
-      <div class="doc-type">FACTURE</div>
-      <div class="doc-num">{{ invoice.numero }}</div>
+      <div class="doc-type">BON DE LIVRAISON</div>
+      <div class="doc-num">{{ delivery.numero }}</div>
       <div class="doc-dates">
-        Date d'émission : <b>{{ invoice.date_emission|date:"d/m/Y" }}</b><br>
-        {% if invoice.date_echeance %}Date d'échéance : <b>{{ invoice.date_echeance|date:"d/m/Y" }}</b><br>{% endif %}
-        {% if invoice.reference_client %}Réf. client : <b>{{ invoice.reference_client }}</b><br>{% endif %}
-        {% if invoice.bon_de_livraison %}Bon de livraison : <b>{{ invoice.bon_de_livraison }}</b>{% endif %}
+        Date de livraison : <b>{{ delivery.date_livraison|date:"d/m/Y" }}</b><br>
+        {% if delivery.invoice %}Facture liée : <b>{{ delivery.invoice.numero }}</b><br>{% endif %}
+        {% if delivery.reference_client %}Réf. client : <b>{{ delivery.reference_client }}</b>{% endif %}
       </div>
     </div>
   </div>
 
   <div class="parties">
     <div class="party-box">
-      <div class="party-label">Émetteur</div>
+      <div class="party-label">Expéditeur</div>
       <div class="party-name">{{ brand.full_name }}</div>
       <div class="party-info">
         {{ brand.address }}<br>
@@ -103,81 +103,81 @@
       </div>
     </div>
     <div class="party-box">
-      <div class="party-label">Destinataire</div>
-      <div class="party-name">{{ invoice.destinataire_nom|default:"—" }}</div>
+      <div class="party-label">Livré à</div>
+      <div class="party-name">{{ delivery.destinataire_nom|default:"—" }}</div>
       <div class="party-info">
-        {% if invoice.destinataire_adresse %}{{ invoice.destinataire_adresse }}<br>{% endif %}
-        {% if invoice.destinataire_tel %}<span>Tél :</span>{{ invoice.destinataire_tel }}<br>{% endif %}
-        {% if invoice.destinataire_email %}<span>Email :</span>{{ invoice.destinataire_email }}<br>{% endif %}
-        {% if invoice.destinataire_rccm_ncc %}<span>RCCM/NCC :</span>{{ invoice.destinataire_rccm_ncc }}{% endif %}
+        {% if delivery.lieu_livraison %}{{ delivery.lieu_livraison }}<br>
+        {% elif delivery.destinataire_adresse %}{{ delivery.destinataire_adresse }}<br>{% endif %}
+        {% if delivery.destinataire_tel %}<span>Tél :</span>{{ delivery.destinataire_tel }}<br>{% endif %}
+        {% if delivery.destinataire_email %}<span>Email :</span>{{ delivery.destinataire_email }}<br>{% endif %}
+        {% if delivery.destinataire_rccm_ncc %}<span>RCCM/NCC :</span>{{ delivery.destinataire_rccm_ncc }}{% endif %}
       </div>
     </div>
   </div>
 
-  {% if invoice.objet %}
-  <div style="margin-bottom:5mm;font-size:9.5pt;"><b>Objet :</b> {{ invoice.objet }}</div>
+  {% if delivery.objet %}
+  <div style="margin-bottom:5mm;font-size:9.5pt;"><b>Objet :</b> {{ delivery.objet }}</div>
   {% endif %}
 
   <table>
     <thead>
       <tr>
         <th class="c" style="width:28px;">N°</th>
-        <th>Désignation / Description des prestations</th>
-        <th class="r" style="width:45px;">Qté</th>
-        <th style="width:55px;">Unité</th>
-        <th class="r" style="width:120px;">Prix unit. (FCFA)</th>
-        <th class="r" style="width:55px;">Remise</th>
-        <th class="r" style="width:120px;">Montant (FCFA)</th>
+        <th>Désignation / Description des articles</th>
+        <th class="r" style="width:90px;">Quantité</th>
+        <th style="width:90px;">Unité</th>
       </tr>
     </thead>
     <tbody>
-      {% for line in invoice.lines.all %}
+      {% for line in delivery.lines.all %}
       <tr>
         <td class="c">{{ line.ordre }}</td>
         <td>{{ line.designation }}</td>
-        <td class="r">{{ line.quantite|floatformat:"-2" }}</td>
+        <td class="r" style="font-weight:600;">{{ line.quantite|floatformat:"-2" }}</td>
         <td style="color:#6B7280;">{{ line.unite|default:"" }}</td>
-        <td class="r">{{ line.prix_unitaire|floatformat:0 }}</td>
-        <td class="r" style="color:#6B7280;">{% if line.remise_pct %}{{ line.remise_pct }}%{% endif %}</td>
-        <td class="r" style="font-weight:600;">{{ line.montant|floatformat:0 }}</td>
       </tr>
       {% endfor %}
-      {% with empty_rows=invoice.lines.count %}
+      {% with empty_rows=delivery.lines.count %}
       {% for i in "123456789012345"|make_list %}
       {% if forloop.counter > empty_rows and forloop.counter <= 15 %}
-      <tr><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td></tr>
       {% endif %}
       {% endfor %}
       {% endwith %}
     </tbody>
-    <tfoot>
-      <tr><td colspan="5"></td><td class="lbl">Sous-total HT</td><td class="val">{{ invoice.sous_total_ht|floatformat:0 }}</td></tr>
-      <tr><td colspan="5"></td><td class="lbl">Remise globale</td><td class="val">{{ invoice.remise_globale|floatformat:0 }}</td></tr>
-      <tr><td colspan="5"></td><td class="lbl">Net HT</td><td class="val">{{ invoice.net_ht|floatformat:0 }}</td></tr>
-      <tr><td colspan="5"></td><td class="lbl">TVA ({{ invoice.tva_taux }}%)</td><td class="val">{{ invoice.tva_montant|floatformat:0 }}</td></tr>
-      <tr class="total-row"><td colspan="5"></td><td style="text-align:right;padding-right:14px;">TOTAL TTC</td><td style="text-align:right;">{{ invoice.total_ttc|floatformat:0 }}</td></tr>
-      <tr><td colspan="5"></td><td class="lbl">Acompte versé</td><td class="val">{{ invoice.acompte_verse|floatformat:0 }}</td></tr>
-      <tr class="net-row"><td colspan="5"></td><td style="text-align:right;padding-right:14px;">NET À PAYER</td><td style="text-align:right;">{{ invoice.net_a_payer|floatformat:0 }}</td></tr>
-    </tfoot>
   </table>
 
-  {% if invoice.conditions_paiement or invoice.penalites_retard %}
+  <div class="total-bar">
+    <div class="box">Nombre d'articles : <b>{{ delivery.nombre_articles }}</b></div>
+    <div class="box">Quantité totale : <b>{{ delivery.total_quantite|floatformat:"-2" }}</b></div>
+  </div>
+
+  {% if delivery.transporteur or delivery.observations %}
   <div class="conditions">
-    <div class="ctitle">Conditions & Mentions légales</div>
-    {% if invoice.conditions_paiement %}<p><b>Conditions de paiement :</b> {{ invoice.conditions_paiement }}</p>{% endif %}
-    {% if invoice.penalites_retard %}<p><b>Pénalités de retard :</b> {{ invoice.penalites_retard }}</p>{% endif %}
+    <div class="ctitle">Informations complémentaires</div>
+    {% if delivery.transporteur %}<p><b>Transporteur / Livreur :</b> {{ delivery.transporteur }}</p>{% endif %}
+    {% if delivery.observations %}<p><b>Observations :</b> {{ delivery.observations }}</p>{% endif %}
   </div>
   {% endif %}
 
-  <div class="footer">
-    <div style="font-size:8pt;color:#6B7280;max-width:220px;line-height:1.6;">
-      {% if invoice.date_echeance %}Paiement dû le {{ invoice.date_echeance|date:"d/m/Y" }}.{% endif %}<br>
-      Merci pour votre confiance.
-    </div>
+  <div class="signatures">
     <div class="sig-block">
+      <div class="sig-title">L'expéditeur</div>
+      <div class="sig-hint">Pour {{ brand.name }}</div>
       <div class="sig-line">Signature &amp; Cachet</div>
       <div class="sig-sub">{{ brand.signataire }}</div>
     </div>
+    <div class="sig-block">
+      <div class="sig-title">Le client</div>
+      <div class="sig-hint">Marchandises reçues en bon état le ……… / ……… / ………</div>
+      <div class="sig-line">Nom &amp; Signature</div>
+      <div class="sig-sub">{{ delivery.destinataire_nom|default:"" }}</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Ce bon de livraison atteste de la remise des marchandises listées ci-dessus.
+    La signature du client vaut accusé de réception. Merci pour votre confiance.
   </div>
 </div>
 </body>

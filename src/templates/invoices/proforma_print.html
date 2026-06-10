@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Proforma {{ proforma.numero }} — CTAMS</title>
+  <title>Proforma {{ proforma.numero }} — {{ brand.name }}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
     *{box-sizing:border-box;margin:0;padding:0;}
@@ -14,7 +14,7 @@
     /* Header */
     .doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10mm;}
     .brand{display:flex;align-items:center;gap:8px;}
-    .brand img{width:52px;height:52px;object-fit:contain;border-radius:6px;}
+    .brand img{height:52px;width:auto;max-width:135px;object-fit:contain;border-radius:6px;}
     .brand-text .name{font-family:'Rajdhani',sans-serif;font-size:18pt;font-weight:700;color:#1B2DA8;line-height:1;}
     .brand-text .tag{font-size:7.5pt;color:#6B7280;margin-top:2px;}
     .brand-text .addr{font-size:8pt;color:#374151;margin-top:4px;line-height:1.5;}
@@ -70,7 +70,12 @@
   </style>
 </head>
 <body>
-<div class="no-print" style="padding:12px;background:#1B2DA8;color:#fff;text-align:center;font-family:sans-serif;font-size:13px;display:flex;gap:12px;justify-content:center;">
+<div class="no-print" style="padding:12px;background:#1B2DA8;color:#fff;text-align:center;font-family:sans-serif;font-size:13px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;">
+  <span style="display:inline-flex;align-items:center;gap:6px;">
+    <span style="opacity:.85;">En-tête :</span>
+    <a href="?marque=ctams" style="padding:6px 14px;border-radius:5px;text-decoration:none;font-weight:700;{% if brand.key == 'ctams' %}background:#fff;color:#1B2DA8;{% else %}background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);{% endif %}">CTAMS</a>
+    <a href="?marque=cta" style="padding:6px 14px;border-radius:5px;text-decoration:none;font-weight:700;{% if brand.key == 'cta' %}background:#fff;color:#1B2DA8;{% else %}background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);{% endif %}">CTA</a>
+  </span>
   <button onclick="window.print()" style="background:#fff;color:#1B2DA8;border:none;padding:7px 20px;border-radius:5px;font-weight:700;cursor:pointer;">🖨 Imprimer / PDF</button>
   <button onclick="window.close()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);padding:7px 16px;border-radius:5px;cursor:pointer;">Fermer</button>
 </div>
@@ -79,14 +84,14 @@
   <!-- En-tête -->
   <div class="doc-header">
     <div class="brand">
-      <img src="{% static 'app/assets/img/ctams-logo.jpg' %}" alt="CTAMS">
+      <img src="{% static brand.logo %}" alt="{{ brand.name }}">
       <div class="brand-text">
-        <div class="name">CTAMS</div>
-        <div class="tag">Centre Technique Auto & Multi-Services</div>
+        <div class="name">{{ brand.name }}</div>
+        <div class="tag">{{ brand.tag }}</div>
         <div class="addr">
-          Angré Nouveau CHU, Abidjan – Côte d'Ivoire<br>
-          Tél : 07 77 90 68 45 / 05 05 21 67 92<br>
-          Email : Sasava221@gmail.com
+          {{ brand.address }}<br>
+          Tél : {{ brand.tel }}<br>
+          Email : {{ brand.email }}
         </div>
       </div>
     </div>
@@ -97,7 +102,7 @@
         Date d'émission : <b>{{ proforma.date_emission|date:"d/m/Y" }}</b><br>
         {% if proforma.date_validite %}Valide jusqu'au : <b>{{ proforma.date_validite|date:"d/m/Y" }}</b><br>{% endif %}
         {% if proforma.reference_client %}Réf. client : <b>{{ proforma.reference_client }}</b><br>{% endif %}
-        {% if proforma.bon_de_commande %}Bon de commande : <b>{{ proforma.bon_de_commande }}</b>{% endif %}
+        {% if proforma.bon_de_livraison %}Bon de livraison : <b>{{ proforma.bon_de_livraison }}</b>{% endif %}
       </div>
     </div>
   </div>
@@ -108,11 +113,11 @@
   <div class="parties">
     <div class="party-box">
       <div class="party-label">Émetteur</div>
-      <div class="party-name">CENTRE TECHNIQUE AUTO & MULTI-SERVICES (CTAMS)</div>
+      <div class="party-name">{{ brand.full_name }}</div>
       <div class="party-info">
-        Angré Nouveau CHU, Abidjan – Côte d'Ivoire<br>
-        Tél : 07 77 90 68 45 / 05 05 21 67 92<br>
-        Email : Sasava221@gmail.com
+        {{ brand.address }}<br>
+        Tél : {{ brand.tel }}<br>
+        Email : {{ brand.email }}
       </div>
     </div>
     <div class="party-box">
@@ -197,7 +202,7 @@
     </div>
     <div class="sig-block">
       <div class="sig-line">Signature &amp; Cachet</div>
-      <div class="sig-sub">M. Savadogo Salif — Gérant CTAMS</div>
+      <div class="sig-sub">{{ brand.signataire }}</div>
     </div>
   </div>
 </div>

@@ -88,6 +88,11 @@
         <i class="fa-solid fa-file-lines"></i>
         <span>Proformas</span>
       </a>
+      <a href="{% url 'delivery_list' %}"
+         class="sidebar-link {% if 'delivery' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-truck-fast"></i>
+        <span>Bons de livraison</span>
+      </a>
 
       {% if user.is_staff or user.profile.role.code == 'admin' %}
       <div class="sidebar-section-label">Administration</div>

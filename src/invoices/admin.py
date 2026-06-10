@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Invoice, InvoiceLine, Proforma, ProformaLine
+from .models import (
+    DeliveryNote, DeliveryNoteLine, Invoice, InvoiceLine, Proforma, ProformaLine,
+)
 
 
 class ProformaLineInline(admin.TabularInline):
@@ -25,6 +27,21 @@ class ProformaAdmin(admin.ModelAdmin):
     def total_ttc(self, obj):
         return f"{obj.total_ttc:,} FCFA"
     total_ttc.short_description = 'Total TTC'
+
+
+class DeliveryNoteLineInline(admin.TabularInline):
+    model = DeliveryNoteLine
+    extra = 1
+    fields = ['ordre', 'designation', 'quantite', 'unite']
+
+
+@admin.register(DeliveryNote)
+class DeliveryNoteAdmin(admin.ModelAdmin):
+    list_display = ['numero', 'destinataire_nom', 'date_livraison', 'status', 'invoice']
+    list_filter = ['status', 'date_livraison']
+    search_fields = ['numero', 'destinataire_nom', 'objet']
+    inlines = [DeliveryNoteLineInline]
+    readonly_fields = ['numero', 'created_at', 'updated_at']
 
 
 @admin.register(Invoice)

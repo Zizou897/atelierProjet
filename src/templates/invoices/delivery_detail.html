@@ -1,0 +1,111 @@
+{% extends "invoices/base_invoice.html" %}
+{% load static %}
+
+{% block page_title %}{{ delivery.numero }}{% endblock %}
+{% block topbar_title %}Bon de livraison {{ delivery.numero }}{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="inv-page-header">
+  <div style="display:flex;align-items:center;gap:.75rem;">
+    <a href="{% url 'delivery_list' %}" class="btn btn-sm btn-icon"><i class="fa-solid fa-arrow-left"></i></a>
+    <div>
+      <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--c-navy-700);">{{ delivery.numero }}</div>
+      <div style="font-size:.85rem;color:var(--c-gray-500);">
+        Bon de livraison · {{ delivery.date_livraison|date:"d/m/Y" }}
+        {% if delivery.invoice %} · Facture <a href="{% url 'invoice_detail' delivery.invoice.pk %}" style="color:var(--c-blue-700);">{{ delivery.invoice.numero }}</a>{% endif %}
+      </div>
+    </div>
+    {% include "invoices/_status_badge.html" with status=delivery.status label=delivery.get_status_display %}
+  </div>
+  <div class="inv-actions">
+    <a href="{% url 'delivery_edit' delivery.pk %}" class="btn btn-sm"><i class="fa-solid fa-pen"></i> Modifier</a>
+    <a href="{% url 'delivery_print' delivery.pk %}" class="btn btn-sm" target="_blank"><i class="fa-solid fa-print"></i> Imprimer</a>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+  <!-- Destinataire -->
+  <div class="inv-section">
+    <div class="inv-section-title"><span><i class="fa-solid fa-user"></i> Destinataire</span></div>
+    <div style="font-weight:600;font-size:1rem;color:var(--c-gray-900);">{{ delivery.destinataire_nom|default:"—" }}</div>
+    {% if delivery.destinataire_adresse %}<div style="color:var(--c-gray-500);font-size:.9rem;margin-top:.3rem;">{{ delivery.destinataire_adresse }}</div>{% endif %}
+    {% if delivery.destinataire_tel %}<div style="font-size:.9rem;margin-top:.4rem;color:var(--c-gray-800);"><i class="fa-solid fa-phone" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ delivery.destinataire_tel }}</div>{% endif %}
+    {% if delivery.destinataire_email %}<div style="font-size:.9rem;margin-top:.2rem;color:var(--c-gray-800);"><i class="fa-solid fa-envelope" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ delivery.destinataire_email }}</div>{% endif %}
+    {% if delivery.destinataire_rccm_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">RCCM/NCC : {{ delivery.destinataire_rccm_ncc }}</div>{% endif %}
+  </div>
+
+  <!-- Méta -->
+  <div class="inv-section">
+    <div class="inv-section-title"><span><i class="fa-solid fa-truck-fast"></i> Informations</span></div>
+    <div class="inv-meta-grid">
+      <span class="inv-meta-label">N° bon</span><span class="inv-meta-value" style="color:var(--c-blue-700);font-weight:700;">{{ delivery.numero }}</span>
+      <span class="inv-meta-label">Date de livraison</span><span class="inv-meta-value">{{ delivery.date_livraison|date:"d/m/Y" }}</span>
+      {% if delivery.lieu_livraison %}<span class="inv-meta-label">Lieu de livraison</span><span class="inv-meta-value">{{ delivery.lieu_livraison }}</span>{% endif %}
+      {% if delivery.reference_client %}<span class="inv-meta-label">Réf. client</span><span class="inv-meta-value">{{ delivery.reference_client }}</span>{% endif %}
+      {% if delivery.objet %}<span class="inv-meta-label">Objet</span><span class="inv-meta-value">{{ delivery.objet }}</span>{% endif %}
+      {% if delivery.transporteur %}<span class="inv-meta-label">Transporteur</span><span class="inv-meta-value">{{ delivery.transporteur }}</span>{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Articles livrés -->
+<div class="inv-section" style="padding:0;overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table class="ctams-table">
+      <thead>
+        <tr>
+          <th style="width:40px;text-align:center;">N°</th>
+          <th>Désignation</th>
+          <th style="text-align:right;width:90px;">Qté</th>
+          <th style="width:90px;">Unité</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in delivery.lines.all %}
+        <tr>
+          <td style="text-align:center;color:var(--c-gray-500);">{{ line.ordre }}</td>
+          <td>{{ line.designation }}</td>
+          <td style="text-align:right;font-weight:600;">{{ line.quantite|floatformat:"-2" }}</td>
+          <td style="color:var(--c-gray-500);">{{ line.unite|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="table-empty">Aucun article</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div style="display:flex;justify-content:flex-end;padding:.75rem 1.5rem;border-top:1px solid var(--c-gray-150);color:var(--c-gray-600);font-size:.9rem;">
+    {{ delivery.nombre_articles }} article{{ delivery.nombre_articles|pluralize }} ·
+    quantité totale&nbsp;: <strong style="color:var(--c-gray-900);margin-left:.3rem;">{{ delivery.total_quantite|floatformat:"-2" }}</strong>
+  </div>
+</div>
+
+{% if delivery.observations %}
+<div class="inv-section">
+  <div class="inv-section-title"><span><i class="fa-solid fa-note-sticky"></i> Observations</span></div>
+  <p style="font-size:.9rem;color:var(--c-gray-800);">{{ delivery.observations|linebreaksbr }}</p>
+</div>
+{% endif %}
+
+<!-- Gestion -->
+<div class="inv-section">
+  <div class="inv-section-title"><span><i class="fa-solid fa-sliders"></i> Gestion</span></div>
+  <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+    <form method="post" action="{% url 'delivery_status' delivery.pk %}" style="display:flex;gap:.5rem;align-items:center;">
+      {% csrf_token %}
+      <label style="font-size:.85rem;font-weight:600;color:var(--c-gray-500);">Statut :</label>
+      <select name="status" style="max-width:200px;border:1px solid var(--c-gray-200);border-radius:var(--r-md);padding:.45rem .7rem;font-size:.9rem;background:var(--c-white);color:var(--c-gray-900);">
+        <option value="DRAFT"     {% if delivery.status == 'DRAFT'     %}selected{% endif %}>Brouillon</option>
+        <option value="PREPARED"  {% if delivery.status == 'PREPARED'  %}selected{% endif %}>Préparé</option>
+        <option value="DELIVERED" {% if delivery.status == 'DELIVERED' %}selected{% endif %}>Livré</option>
+        <option value="RECEIVED"  {% if delivery.status == 'RECEIVED'  %}selected{% endif %}>Réceptionné</option>
+        <option value="CANCELLED" {% if delivery.status == 'CANCELLED' %}selected{% endif %}>Annulé</option>
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary">Enregistrer</button>
+    </form>
+    <a href="{% url 'delivery_delete' delivery.pk %}" class="btn btn-sm btn-danger" style="margin-left:auto;"
+       onclick="return confirm('Supprimer ce bon de livraison ?')"><i class="fa-solid fa-trash-can"></i> Supprimer</a>
+  </div>
+</div>
+{% endblock %}

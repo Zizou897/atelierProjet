@@ -6,8 +6,13 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from customers.models import Customer
-from .forms import InvoiceForm, ProformaForm
-from .models import Invoice, InvoiceLine, InvoiceStatus, Proforma, ProformaLine, ProformaStatus
+from .branding import get_brand
+from .forms import DeliveryNoteForm, InvoiceForm, ProformaForm
+from .models import (
+    DeliveryNote, DeliveryNoteLine, DeliveryNoteStatus,
+    Invoice, InvoiceLine, InvoiceStatus,
+    Proforma, ProformaLine, ProformaStatus,
+)
 
 
 # ─────────────────────────────────────────────
@@ -18,6 +23,7 @@ from .models import Invoice, InvoiceLine, InvoiceStatus, Proforma, ProformaLine,
 def invoice_dashboard(request):
     invoices_qs  = list(Invoice.objects.prefetch_related('lines').select_related('customer', 'proforma'))
     proformas_qs = list(Proforma.objects.prefetch_related('lines').select_related('customer'))
+    deliveries_qs = list(DeliveryNote.objects.prefetch_related('lines').select_related('customer', 'invoice'))
 
     # Financials (computed in Python — amounts are derived from line items)
     total_facture   = sum(inv.total_ttc for inv in invoices_qs)
@@ -45,19 +51,27 @@ def invoice_dashboard(request):
         for v, l in ProformaStatus.choices
     ]
 
+    dn_by_status = {}
+    for dn in deliveries_qs:
+        dn_by_status[dn.status] = dn_by_status.get(dn.status, 0) + 1
+
     context = {
         'total_invoices':   len(invoices_qs),
         'total_proformas':  len(proformas_qs),
+        'total_deliveries': len(deliveries_qs),
         'total_facture':    total_facture,
         'total_en_attente': total_en_attente,
         'inv_paid':     inv_by_status.get(InvoiceStatus.PAID, 0),
         'inv_overdue':  inv_by_status.get(InvoiceStatus.OVERDUE, 0),
         'pf_accepted':  pf_by_status.get(ProformaStatus.ACCEPTED, 0),
         'pf_converted': pf_by_status.get(ProformaStatus.CONVERTED, 0),
+        'dn_delivered': dn_by_status.get(DeliveryNoteStatus.DELIVERED, 0),
+        'dn_received':  dn_by_status.get(DeliveryNoteStatus.RECEIVED, 0),
         'inv_status_rows': inv_status_rows,
         'pf_status_rows':  pf_status_rows,
         'recent_invoices':  sorted(invoices_qs,  key=lambda x: x.created_at, reverse=True)[:6],
         'recent_proformas': sorted(proformas_qs, key=lambda x: x.created_at, reverse=True)[:6],
+        'recent_deliveries': sorted(deliveries_qs, key=lambda x: x.created_at, reverse=True)[:6],
     }
     return render(request, 'invoices/invoice_dashboard.html', context)
 
@@ -103,6 +117,22 @@ def _save_invoice_lines(invoice, post):
                 unite=post.get(f'line-{i}-unite', '').strip(),
                 prix_unitaire=_parse_decimal(post.get(f'line-{i}-prix_unitaire', '0'), 0),
                 remise_pct=_parse_decimal(post.get(f'line-{i}-remise_pct', '0'), 0),
+            )
+        i += 1
+
+
+def _save_delivery_lines(delivery_note, post):
+    delivery_note.lines.all().delete()
+    i = 0
+    while f'line-{i}-designation' in post:
+        designation = post.get(f'line-{i}-designation', '').strip()
+        if designation:
+            DeliveryNoteLine.objects.create(
+                delivery_note=delivery_note,
+                ordre=i + 1,
+                designation=designation,
+                quantite=_parse_decimal(post.get(f'line-{i}-quantite', '1'), 1),
+                unite=post.get(f'line-{i}-unite', '').strip(),
             )
         i += 1
 
@@ -195,7 +225,9 @@ def proforma_delete(request, pk):
 @login_required
 def proforma_print(request, pk):
     proforma = get_object_or_404(Proforma.objects.prefetch_related('lines'), pk=pk)
-    return render(request, 'invoices/proforma_print.html', {'proforma': proforma})
+    return render(request, 'invoices/proforma_print.html', {
+        'proforma': proforma, 'brand': get_brand(request),
+    })
 
 
 @login_required
@@ -216,7 +248,7 @@ def proforma_to_invoice(request, pk):
             date_emission=proforma.date_emission,
             reference_client=proforma.reference_client,
             objet=proforma.objet,
-            bon_de_commande=proforma.bon_de_commande,
+            bon_de_livraison=proforma.bon_de_livraison,
             remise_globale=proforma.remise_globale,
             tva_taux=proforma.tva_taux,
             created_by=request.user,
@@ -336,7 +368,9 @@ def invoice_delete(request, pk):
 @login_required
 def invoice_print(request, pk):
     invoice = get_object_or_404(Invoice.objects.prefetch_related('lines'), pk=pk)
-    return render(request, 'invoices/invoice_print.html', {'invoice': invoice})
+    return render(request, 'invoices/invoice_print.html', {
+        'invoice': invoice, 'brand': get_brand(request),
+    })
 
 
 @login_required
@@ -349,3 +383,139 @@ def invoice_status(request, pk):
             invoice.save()
             messages.success(request, f"Statut mis à jour : {invoice.get_status_display()}.")
     return redirect('invoice_detail', pk=pk)
+
+
+@login_required
+def invoice_to_delivery(request, pk):
+    invoice = get_object_or_404(Invoice.objects.prefetch_related('lines'), pk=pk)
+    if request.method == 'POST':
+        delivery = DeliveryNote.objects.create(
+            invoice=invoice,
+            customer=invoice.customer,
+            destinataire_nom=invoice.destinataire_nom,
+            destinataire_adresse=invoice.destinataire_adresse,
+            destinataire_tel=invoice.destinataire_tel,
+            destinataire_email=invoice.destinataire_email,
+            destinataire_rccm_ncc=invoice.destinataire_rccm_ncc,
+            lieu_livraison=invoice.destinataire_adresse,
+            reference_client=invoice.reference_client,
+            objet=invoice.objet,
+            created_by=request.user,
+        )
+        for line in invoice.lines.all():
+            DeliveryNoteLine.objects.create(
+                delivery_note=delivery,
+                ordre=line.ordre,
+                designation=line.designation,
+                quantite=line.quantite,
+                unite=line.unite,
+            )
+        messages.success(request, f"Bon de livraison {delivery.numero} créé depuis la facture {invoice.numero}.")
+        return redirect('delivery_detail', pk=delivery.pk)
+    return render(request, 'invoices/delivery_from_invoice_confirm.html', {'invoice': invoice})
+
+
+# ─────────────────────────────────────────────
+# Delivery note (Bon de livraison) views
+# ─────────────────────────────────────────────
+
+@login_required
+def delivery_list(request):
+    qs = DeliveryNote.objects.prefetch_related('lines').select_related('customer', 'invoice')
+
+    status_filter = request.GET.get('status', '')
+    search = request.GET.get('q', '').strip()
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    if search:
+        qs = qs.filter(
+            destinataire_nom__icontains=search,
+        ) | qs.filter(numero__icontains=search) | qs.filter(objet__icontains=search)
+
+    context = {
+        'delivery_notes': qs,
+        'status_choices': DeliveryNoteStatus.choices,
+        'status_filter': status_filter,
+        'search': search,
+    }
+    return render(request, 'invoices/delivery_list.html', context)
+
+
+@login_required
+def delivery_create(request):
+    customers = Customer.objects.filter(is_active=True).order_by('company_name', 'last_name')
+    if request.method == 'POST':
+        form = DeliveryNoteForm(request.POST)
+        if form.is_valid():
+            delivery = form.save(commit=False)
+            delivery.created_by = request.user
+            delivery.save()
+            _save_delivery_lines(delivery, request.POST)
+            messages.success(request, f"Bon de livraison {delivery.numero} créé avec succès.")
+            return redirect('delivery_detail', pk=delivery.pk)
+    else:
+        form = DeliveryNoteForm()
+    return render(request, 'invoices/delivery_form.html', {
+        'form': form, 'customers': customers, 'action': 'Nouveau bon de livraison',
+    })
+
+
+@login_required
+def delivery_detail(request, pk):
+    delivery = get_object_or_404(
+        DeliveryNote.objects.prefetch_related('lines').select_related('customer', 'invoice'), pk=pk)
+    return render(request, 'invoices/delivery_detail.html', {'delivery': delivery})
+
+
+@login_required
+def delivery_edit(request, pk):
+    delivery = get_object_or_404(DeliveryNote, pk=pk)
+    customers = Customer.objects.filter(is_active=True).order_by('company_name', 'last_name')
+    if request.method == 'POST':
+        form = DeliveryNoteForm(request.POST, instance=delivery)
+        if form.is_valid():
+            form.save()
+            _save_delivery_lines(delivery, request.POST)
+            messages.success(request, f"Bon de livraison {delivery.numero} mis à jour.")
+            return redirect('delivery_detail', pk=delivery.pk)
+    else:
+        form = DeliveryNoteForm(instance=delivery)
+    lines = list(delivery.lines.all())
+    return render(request, 'invoices/delivery_form.html', {
+        'form': form, 'delivery': delivery, 'customers': customers,
+        'lines': lines, 'action': f'Modifier {delivery.numero}',
+    })
+
+
+@login_required
+def delivery_delete(request, pk):
+    delivery = get_object_or_404(DeliveryNote, pk=pk)
+    if request.method == 'POST':
+        numero = delivery.numero
+        delivery.delete()
+        messages.success(request, f"Bon de livraison {numero} supprimé.")
+        return redirect('delivery_list')
+    return render(request, 'invoices/confirm_delete.html', {
+        'object': delivery, 'type': 'delivery',
+        'cancel_url': 'delivery_detail',
+    })
+
+
+@login_required
+def delivery_print(request, pk):
+    delivery = get_object_or_404(DeliveryNote.objects.prefetch_related('lines'), pk=pk)
+    return render(request, 'invoices/delivery_print.html', {
+        'delivery': delivery, 'brand': get_brand(request),
+    })
+
+
+@login_required
+def delivery_status(request, pk):
+    delivery = get_object_or_404(DeliveryNote, pk=pk)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(DeliveryNoteStatus.choices):
+            delivery.status = new_status
+            delivery.save()
+            messages.success(request, f"Statut mis à jour : {delivery.get_status_display()}.")
+    return redirect('delivery_detail', pk=pk)

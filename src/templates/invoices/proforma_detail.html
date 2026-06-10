@@ -48,7 +48,7 @@
       <span class="inv-meta-label">Valide jusqu'au</span><span class="inv-meta-value">{{ proforma.date_validite|date:"d/m/Y"|default:"—" }}</span>
       {% if proforma.reference_client %}<span class="inv-meta-label">Réf. client</span><span class="inv-meta-value">{{ proforma.reference_client }}</span>{% endif %}
       {% if proforma.objet %}<span class="inv-meta-label">Objet</span><span class="inv-meta-value">{{ proforma.objet }}</span>{% endif %}
-      {% if proforma.bon_de_commande %}<span class="inv-meta-label">Bon de commande</span><span class="inv-meta-value">{{ proforma.bon_de_commande }}</span>{% endif %}
+      {% if proforma.bon_de_livraison %}<span class="inv-meta-label">Bon de livraison</span><span class="inv-meta-value">{{ proforma.bon_de_livraison }}</span>{% endif %}
     </div>
   </div>
 </div>

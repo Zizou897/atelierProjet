@@ -5,8 +5,8 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-change-me-in-production'
-#DEBUG = True
-#ALLOWED_HOSTS = ['*']
+# DEBUG = True
+# ALLOWED_HOSTS = ['*']
 DEBUG = False
 ALLOWED_HOSTS = ['187.124.222.161', 'ctams.online', 'www.ctams.online']
 CSRF_TRUSTED_ORIGINS = ['https://ctams.online','https://www.ctams.online']

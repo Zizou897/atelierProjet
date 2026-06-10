@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block page_title %}Créer un bon de livraison{% endblock %}
+{% block topbar_title %}Bon de livraison depuis {{ invoice.numero }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:520px;margin:2rem auto;padding:2rem;">
+  <div style="font-size:1.1rem;font-weight:700;color:var(--primary,#1B2DA8);margin-bottom:.75rem;">
+    <i class="fa-solid fa-truck-fast"></i> Créer un bon de livraison
+  </div>
+  <p style="color:var(--text-muted,#6B7280);font-size:.95rem;margin-bottom:1.5rem;">
+    Un <strong>bon de livraison</strong> sera créé à partir de la facture <strong>{{ invoice.numero }}</strong>
+    ({{ invoice.destinataire_nom }}). Les articles et le destinataire seront repris automatiquement ;
+    vous pourrez ensuite ajuster les quantités livrées et les informations de livraison.
+  </p>
+  <form method="post" style="display:flex;gap:.75rem;justify-content:flex-end;">
+    {% csrf_token %}
+    <a href="{% url 'invoice_detail' invoice.pk %}" class="btn btn-outline">Annuler</a>
+    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Créer le bon de livraison</button>
+  </form>
+</div>
+{% endblock %}

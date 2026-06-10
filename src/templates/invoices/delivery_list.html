@@ -1,0 +1,87 @@
+{% extends "invoices/base_invoice.html" %}
+{% load static %}
+
+{% block page_title %}Bons de livraison{% endblock %}
+{% block topbar_title %}Bons de livraison{% endblock %}
+
+{% block content %}
+<div class="inv-page-header">
+  <div>
+    <h1 class="inv-page-title">Bons de livraison</h1>
+    <p class="inv-page-sub">Documents de livraison remis à la clientèle</p>
+  </div>
+  <div class="inv-actions">
+    <a href="{% url 'invoice_dashboard' %}" class="btn btn-sm"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <a href="{% url 'invoice_list' %}" class="btn btn-sm"><i class="fa-solid fa-file-invoice-dollar"></i> Factures</a>
+    <a href="{% url 'delivery_create' %}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Nouveau bon de livraison</a>
+  </div>
+</div>
+
+<!-- Filtres -->
+<div class="inv-filters">
+  <form method="get" style="display:contents;">
+    <div style="flex:1;min-width:200px;">
+      <input type="text" name="q" value="{{ search }}" placeholder="Rechercher (n°, client, objet)…" style="width:100%;">
+    </div>
+    <select name="status">
+      <option value="">Tous les statuts</option>
+      {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-sm"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+    {% if search or status_filter %}<a href="{% url 'delivery_list' %}" class="btn btn-sm">Réinitialiser</a>{% endif %}
+  </form>
+</div>
+
+<!-- Table -->
+<div class="inv-section" style="padding:0;overflow:hidden;">
+  <div style="overflow-x:auto;">
+    <table class="ctams-table">
+      <thead>
+        <tr>
+          <th>N° Bon</th>
+          <th>Destinataire</th>
+          <th>Objet</th>
+          <th>Livraison</th>
+          <th style="text-align:center;">Articles</th>
+          <th style="text-align:center;">Statut</th>
+          <th style="text-align:center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dn in delivery_notes %}
+        <tr>
+          <td>
+            <a href="{% url 'delivery_detail' dn.pk %}" style="font-weight:600;color:var(--c-blue-700);text-decoration:none;">{{ dn.numero }}</a>
+            {% if dn.invoice %}<div style="font-size:.73rem;color:var(--c-gray-500);">Facture {{ dn.invoice.numero }}</div>{% endif %}
+          </td>
+          <td>{{ dn.destinataire_nom|default:"—" }}</td>
+          <td style="color:var(--c-gray-500);font-size:.9rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ dn.objet|default:"—" }}</td>
+          <td style="white-space:nowrap;">{{ dn.date_livraison|date:"d/m/Y" }}</td>
+          <td style="text-align:center;color:var(--c-gray-600);">{{ dn.nombre_articles }}</td>
+          <td style="text-align:center;">
+            {% include "invoices/_status_badge.html" with status=dn.status label=dn.get_status_display %}
+          </td>
+          <td style="text-align:center;">
+            <div style="display:flex;gap:.3rem;justify-content:center;">
+              <a href="{% url 'delivery_detail' dn.pk %}" class="btn btn-sm" style="padding:5px 8px;" title="Voir"><i class="fa-solid fa-eye"></i></a>
+              <a href="{% url 'delivery_edit' dn.pk %}" class="btn btn-sm" style="padding:5px 8px;" title="Modifier"><i class="fa-solid fa-pen"></i></a>
+              <a href="{% url 'delivery_print' dn.pk %}" class="btn btn-sm" style="padding:5px 8px;" title="Imprimer" target="_blank"><i class="fa-solid fa-print"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="table-empty">
+            <i class="fa-solid fa-truck-fast" style="font-size:2rem;display:block;margin-bottom:.6rem;opacity:.25;"></i>
+            Aucun bon de livraison trouvé.
+            <div style="margin-top:.75rem;"><a href="{% url 'delivery_create' %}" class="btn btn-primary btn-sm">Créer le premier bon de livraison</a></div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

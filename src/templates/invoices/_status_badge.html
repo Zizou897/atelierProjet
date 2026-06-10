@@ -8,5 +8,8 @@
 {% elif status == 'PARTIAL' %}<span class="inv-badge inv-badge--partial">{{ label }}</span>
 {% elif status == 'OVERDUE' %}<span class="inv-badge inv-badge--overdue">{{ label }}</span>
 {% elif status == 'CANCELLED' %}<span class="inv-badge inv-badge--cancelled">{{ label }}</span>
+{% elif status == 'PREPARED' %}<span class="inv-badge inv-badge--prepared">{{ label }}</span>
+{% elif status == 'DELIVERED' %}<span class="inv-badge inv-badge--delivered">{{ label }}</span>
+{% elif status == 'RECEIVED' %}<span class="inv-badge inv-badge--received">{{ label }}</span>
 {% else %}<span class="inv-badge inv-badge--draft">{{ label }}</span>
 {% endif %}

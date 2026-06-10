@@ -20,6 +20,7 @@
   </div>
   <div class="inv-actions">
     <a href="{% url 'invoice_edit' invoice.pk %}" class="btn btn-sm"><i class="fa-solid fa-pen"></i> Modifier</a>
+    <a href="{% url 'invoice_to_delivery' invoice.pk %}" class="btn btn-sm"><i class="fa-solid fa-truck-fast"></i> Bon de livraison</a>
     <a href="{% url 'invoice_print' invoice.pk %}" class="btn btn-sm" target="_blank"><i class="fa-solid fa-print"></i> Imprimer</a>
   </div>
 </div>
@@ -45,7 +46,7 @@
       <span class="inv-meta-value {% if invoice.status == 'OVERDUE' %}style="color:var(--c-red-600);"{% endif %}">{{ invoice.date_echeance|date:"d/m/Y"|default:"—" }}</span>
       {% if invoice.reference_client %}<span class="inv-meta-label">Réf. client</span><span class="inv-meta-value">{{ invoice.reference_client }}</span>{% endif %}
       {% if invoice.objet %}<span class="inv-meta-label">Objet</span><span class="inv-meta-value">{{ invoice.objet }}</span>{% endif %}
-      {% if invoice.bon_de_commande %}<span class="inv-meta-label">Bon de commande</span><span class="inv-meta-value">{{ invoice.bon_de_commande }}</span>{% endif %}
+      {% if invoice.bon_de_livraison %}<span class="inv-meta-label">Bon de livraison</span><span class="inv-meta-value">{{ invoice.bon_de_livraison }}</span>{% endif %}
     </div>
   </div>
 </div>
