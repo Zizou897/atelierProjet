@@ -332,9 +332,14 @@ class DeliveryNote(models.Model):
 class DeliveryNoteLine(models.Model):
     delivery_note = models.ForeignKey(DeliveryNote, on_delete=models.CASCADE, related_name='lines')
     ordre = models.PositiveSmallIntegerField(default=1)
-    designation = models.CharField(max_length=300, verbose_name='Désignation')
-    quantite = models.DecimalField(max_digits=10, decimal_places=2, default=1, verbose_name='Qté')
+    reference = models.CharField(max_length=100, blank=True, verbose_name='Référence')
+    designation = models.CharField(max_length=300, verbose_name='Désignation / Description')
+    quantite_commandee = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0, verbose_name='Qté commandée',
+    )
+    quantite = models.DecimalField(max_digits=10, decimal_places=2, default=1, verbose_name='Qté livrée')
     unite = models.CharField(max_length=30, blank=True, verbose_name='Unité')
+    observation = models.CharField(max_length=300, blank=True, verbose_name='Observations')
 
     class Meta:
         ordering = ['ordre']

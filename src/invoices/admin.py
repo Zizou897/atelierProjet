@@ -32,7 +32,7 @@ class ProformaAdmin(admin.ModelAdmin):
 class DeliveryNoteLineInline(admin.TabularInline):
     model = DeliveryNoteLine
     extra = 1
-    fields = ['ordre', 'designation', 'quantite', 'unite']
+    fields = ['ordre', 'reference', 'designation', 'quantite_commandee', 'quantite', 'unite', 'observation']
 
 
 @admin.register(DeliveryNote)

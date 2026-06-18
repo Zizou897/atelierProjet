@@ -122,25 +122,31 @@
   <table>
     <thead>
       <tr>
-        <th class="c" style="width:28px;">N°</th>
-        <th>Désignation / Description des articles</th>
-        <th class="r" style="width:90px;">Quantité</th>
-        <th style="width:90px;">Unité</th>
+        <th class="c" style="width:26px;">N°</th>
+        <th style="width:80px;">Référence</th>
+        <th>Désignation / Description</th>
+        <th class="r" style="width:62px;">Qté cmdée</th>
+        <th class="r" style="width:62px;">Qté livrée</th>
+        <th style="width:46px;">Unité</th>
+        <th style="width:110px;">Observations</th>
       </tr>
     </thead>
     <tbody>
       {% for line in delivery.lines.all %}
       <tr>
         <td class="c">{{ line.ordre }}</td>
+        <td>{{ line.reference|default:"" }}</td>
         <td>{{ line.designation }}</td>
+        <td class="r">{{ line.quantite_commandee|floatformat:"-2" }}</td>
         <td class="r" style="font-weight:600;">{{ line.quantite|floatformat:"-2" }}</td>
         <td style="color:#6B7280;">{{ line.unite|default:"" }}</td>
+        <td style="color:#6B7280;">{{ line.observation|default:"" }}</td>
       </tr>
       {% endfor %}
       {% with empty_rows=delivery.lines.count %}
       {% for i in "123456789012345"|make_list %}
       {% if forloop.counter > empty_rows and forloop.counter <= 15 %}
-      <tr><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td></tr>
+      <tr><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       {% endif %}
       {% endfor %}
       {% endwith %}

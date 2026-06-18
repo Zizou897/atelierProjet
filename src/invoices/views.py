@@ -130,9 +130,12 @@ def _save_delivery_lines(delivery_note, post):
             DeliveryNoteLine.objects.create(
                 delivery_note=delivery_note,
                 ordre=i + 1,
+                reference=post.get(f'line-{i}-reference', '').strip(),
                 designation=designation,
+                quantite_commandee=_parse_decimal(post.get(f'line-{i}-quantite_commandee', '0'), 0),
                 quantite=_parse_decimal(post.get(f'line-{i}-quantite', '1'), 1),
                 unite=post.get(f'line-{i}-unite', '').strip(),
+                observation=post.get(f'line-{i}-observation', '').strip(),
             )
         i += 1
 
@@ -407,6 +410,7 @@ def invoice_to_delivery(request, pk):
                 delivery_note=delivery,
                 ordre=line.ordre,
                 designation=line.designation,
+                quantite_commandee=line.quantite,
                 quantite=line.quantite,
                 unite=line.unite,
             )
