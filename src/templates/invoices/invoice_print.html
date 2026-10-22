@@ -62,6 +62,12 @@
     <a href="?marque=ctams" style="padding:6px 14px;border-radius:5px;text-decoration:none;font-weight:700;{% if brand.key == 'ctams' %}background:#fff;color:#CC1111;{% else %}background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);{% endif %}">CTAMS</a>
     <a href="?marque=cta" style="padding:6px 14px;border-radius:5px;text-decoration:none;font-weight:700;{% if brand.key == 'cta' %}background:#fff;color:#CC1111;{% else %}background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);{% endif %}">CTA</a>
   </span>
+  <span style="display:inline-flex;align-items:center;gap:6px;">
+    <label for="edit-tel" style="opacity:.85;">Tél :</label>
+    <input id="edit-tel" type="text" value="{{ brand.tel }}" data-target="brand-tel" style="padding:6px 8px;border-radius:5px;border:none;width:210px;font-size:13px;">
+    <label for="edit-email" style="opacity:.85;">Email :</label>
+    <input id="edit-email" type="email" value="{{ brand.email }}" data-target="brand-email" style="padding:6px 8px;border-radius:5px;border:none;width:220px;font-size:13px;">
+  </span>
   <button onclick="window.print()" style="background:#fff;color:#CC1111;border:none;padding:7px 20px;border-radius:5px;font-weight:700;cursor:pointer;">🖨 Imprimer / PDF</button>
   <button onclick="window.close()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);padding:7px 16px;border-radius:5px;cursor:pointer;">Fermer</button>
 </div>
@@ -75,8 +81,8 @@
         <div class="tag">{{ brand.tag }}</div>
         <div class="addr">
           {{ brand.address }}<br>
-          Tél : {{ brand.tel }}<br>
-          Email : {{ brand.email }}
+          Tél : <span class="brand-tel">{{ brand.tel }}</span><br>
+          Email : <span class="brand-email">{{ brand.email }}</span>
         </div>
       </div>
     </div>
@@ -98,8 +104,8 @@
       <div class="party-name">{{ brand.full_name }}</div>
       <div class="party-info">
         {{ brand.address }}<br>
-        Tél : {{ brand.tel }}<br>
-        Email : {{ brand.email }}
+        Tél : <span class="brand-tel">{{ brand.tel }}</span><br>
+        Email : <span class="brand-email">{{ brand.email }}</span>
       </div>
     </div>
     <div class="party-box">
@@ -180,5 +186,14 @@
     </div>
   </div>
 </div>
+<script>
+  document.querySelectorAll('input[data-target]').forEach(function (input) {
+    input.addEventListener('input', function () {
+      document.querySelectorAll('.' + input.dataset.target).forEach(function (el) {
+        el.textContent = input.value;
+      });
+    });
+  });
+</script>
 </body>
 </html>
