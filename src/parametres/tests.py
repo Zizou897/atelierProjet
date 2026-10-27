@@ -28,6 +28,7 @@ class SeedDataTests(TestCase):
         self.assertEqual(first.pk, second.pk)
         self.assertEqual(first.tva_taux, 18)
         self.assertEqual(second.tva_taux, 18)
+        self.assertEqual(DocumentDefaults.objects.count(), 1)
 
     def test_logo_url_falls_back_to_static_file(self):
         cta = CompanyProfile.objects.get(key='cta')
