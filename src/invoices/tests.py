@@ -76,6 +76,15 @@ class PrintTemplatesTests(TestCase):
             # 'NCC :' seul matcherait aussi la ligne destinataire « RCCM/NCC : »
             self.assertNotRegex(html, r'(?<![/C])NCC :', f'NCC affiché sur {name}')
 
+    def test_site_link_in_footer_and_contacts_not_in_header(self):
+        for name, url in self.urls.items():
+            html = self.client.get(url).content.decode()
+            self.assertIn('href="https://www.ctams.net/"', html, name)
+            header = html.split('<div class="doc-header">')[1].split('<div class="parties">')[0]
+            self.assertNotIn('@', header, f"email dans l'en-tête de {name}")
+            for field_id in ('edit-tel', 'edit-email'):
+                self.assertNotIn(field_id, html, f'{field_id} encore présent dans {name}')
+
     def test_issuer_values_are_html_escaped(self):
         CompanyProfile.objects.filter(key='ctams').update(bank_name='<b>x</b>')
         html = self.client.get(self.urls['invoice']).content.decode()

@@ -16,7 +16,7 @@
     .brand{display:flex;align-items:center;gap:8px;}
     .brand img{height:52px;width:auto;max-width:135px;object-fit:contain;border-radius:6px;}
     .brand-text .name{font-family:'Rajdhani',sans-serif;font-size:18pt;font-weight:700;color:#1B2DA8;line-height:1;}
-    .brand-text .tag{font-size:7.5pt;color:#6B7280;margin-top:2px;}
+    .brand-text .tag{font-size:9pt;color:#6B7280;margin-top:2px;}
     .brand-text .addr{font-size:8pt;color:#374151;margin-top:4px;line-height:1.5;}
     .doc-id{text-align:right;}
     .doc-type{font-family:'Rajdhani',sans-serif;font-size:22pt;font-weight:700;color:#1B2DA8;letter-spacing:.05em;}
@@ -76,12 +76,6 @@
     <a href="?marque=ctams" style="padding:6px 14px;border-radius:5px;text-decoration:none;font-weight:700;{% if brand.key == 'ctams' %}background:#fff;color:#1B2DA8;{% else %}background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);{% endif %}">CTAMS</a>
     <a href="?marque=cta" style="padding:6px 14px;border-radius:5px;text-decoration:none;font-weight:700;{% if brand.key == 'cta' %}background:#fff;color:#1B2DA8;{% else %}background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);{% endif %}">CTA</a>
   </span>
-  <span style="display:inline-flex;align-items:center;gap:6px;">
-    <label for="edit-tel" style="opacity:.85;">Tél :</label>
-    <input id="edit-tel" type="text" value="{{ brand.tel }}" data-target="brand-tel" style="padding:6px 8px;border-radius:5px;border:none;width:210px;font-size:13px;">
-    <label for="edit-email" style="opacity:.85;">Email :</label>
-    <input id="edit-email" type="email" value="{{ brand.email }}" data-target="brand-email" style="padding:6px 8px;border-radius:5px;border:none;width:220px;font-size:13px;">
-  </span>
   <button onclick="window.print()" style="background:#fff;color:#1B2DA8;border:none;padding:7px 20px;border-radius:5px;font-weight:700;cursor:pointer;">🖨 Imprimer / PDF</button>
   <button onclick="window.close()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);padding:7px 16px;border-radius:5px;cursor:pointer;">Fermer</button>
 </div>
@@ -94,11 +88,6 @@
       <div class="brand-text">
         <div class="name">{{ brand.name }}</div>
         <div class="tag">{{ brand.tag }}</div>
-        <div class="addr">
-          {{ brand.address }}<br>
-          Tél : <span class="brand-tel">{{ brand.tel }}</span><br>
-          Email : <span class="brand-email">{{ brand.email }}</span>
-        </div>
       </div>
     </div>
     <div class="doc-id">
@@ -122,8 +111,8 @@
       <div class="party-name">{{ brand.full_name }}</div>
       <div class="party-info">
         {{ brand.address }}<br>
-        Tél : <span class="brand-tel">{{ brand.tel }}</span><br>
-        Email : <span class="brand-email">{{ brand.email }}</span>
+        Tél : {{ brand.tel }}<br>
+        Email : {{ brand.email }}
         {% if brand.rccm %}<br>RCCM : {{ brand.rccm }}{% endif %}
         {% if brand.ncc %}<br>NCC : {{ brand.ncc }}{% endif %}
         {% if brand.bank_name %}<br>Banque : {{ brand.bank_name }}{% endif %}
@@ -216,15 +205,9 @@
       <div class="sig-sub">{{ brand.signataire }}</div>
     </div>
   </div>
+  <div style="text-align:center;font-size:8pt;margin-top:5mm;">
+    <a href="https://www.ctams.net/" style="color:#1B2DA8;text-decoration:none;">https://www.ctams.net/</a>
+  </div>
 </div>
-<script>
-  document.querySelectorAll('input[data-target]').forEach(function (input) {
-    input.addEventListener('input', function () {
-      document.querySelectorAll('.' + input.dataset.target).forEach(function (el) {
-        el.textContent = input.value;
-      });
-    });
-  });
-</script>
 </body>
 </html>
