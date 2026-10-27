@@ -43,6 +43,7 @@ LOCAL_APPS = [
     'reporting.apps.ReportingConfig',
     'audit.apps.AuditConfig',
     'users.apps.UsersConfig',
+    'parametres.apps.ParametresConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
