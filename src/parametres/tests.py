@@ -3,11 +3,15 @@ import shutil
 import tempfile
 
 from PIL import Image
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from .forms import CompanyProfileForm, DocumentDefaultsForm
 from .models import CompanyProfile, DocumentDefaults
+
+User = get_user_model()
 
 
 class SeedDataTests(TestCase):
@@ -129,6 +133,22 @@ class CompanyProfileFormTests(TestCase):
         form = CompanyProfileForm(company_data(), {'logo': big}, instance=self.profile)
         self.assertFalse(form.is_valid())
         self.assertIn('logo', form.errors)
+        self.assertIn('2 Mo', str(form.errors['logo']))
+
+    def test_gif_renamed_png_is_rejected(self):
+        form = CompanyProfileForm(company_data(), {'logo': make_image('logo.png', 'GIF')}, instance=self.profile)
+        self.assertFalse(form.is_valid())
+        self.assertIn('logo', form.errors)
+
+    def test_upload_wins_over_remove_checkbox(self):
+        self.profile.logo = 'logos/old.png'
+        self.profile.save()
+        form = CompanyProfileForm(company_data(remove_logo='on'), {'logo': make_image()}, instance=self.profile)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.profile.refresh_from_db()
+        self.assertTrue(self.profile.logo.name.startswith('logos/'))
+        self.assertNotEqual(self.profile.logo.name, 'logos/old.png')
 
     def test_remove_logo_checkbox_restores_default(self):
         self.profile.logo = 'logos/old.png'
@@ -159,3 +179,59 @@ class DocumentDefaultsFormTests(TestCase):
             )
             self.assertFalse(form.is_valid(), bad)
             self.assertIn('tva_taux', form.errors)
+
+
+class SettingsViewTests(TestCase):
+    def setUp(self):
+        self.url = reverse('settings_home')
+        self.admin = User.objects.create_superuser(username='boss', password='pass12345')
+        self.user = User.objects.create_user(username='simple', password='pass12345')
+
+    def test_anonymous_is_redirected_to_login(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('login', response.url)
+
+    def test_non_admin_gets_403(self):
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(self.url).status_code, 403)
+        self.assertEqual(self.client.post(self.url, company_data()).status_code, 403)
+
+    def test_admin_sees_each_tab(self):
+        self.client.force_login(self.admin)
+        for tab in ('ctams', 'cta', 'documents'):
+            response = self.client.get(self.url, {'onglet': tab})
+            self.assertEqual(response.status_code, 200, tab)
+        self.assertEqual(self.client.get(self.url, {'onglet': 'inconnu'}).status_code, 200)
+
+    def test_admin_saves_company_tab(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            self.url + '?onglet=cta', company_data(rccm='CI-ABJ-2020-B-77', ncc='9999 Z'),
+        )
+        self.assertRedirects(response, self.url + '?onglet=cta')
+        cta = CompanyProfile.objects.get(key='cta')
+        self.assertEqual(cta.rccm, 'CI-ABJ-2020-B-77')
+        self.assertEqual(CompanyProfile.objects.get(key='ctams').rccm, '')
+
+    def test_invalid_company_form_is_not_saved(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(self.url + '?onglet=cta', company_data(email='nope'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(CompanyProfile.objects.get(key='cta').email, 'centretechniqueauto@outlook.com')
+
+    def test_admin_saves_documents_tab(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            self.url + '?onglet=documents',
+            {'tva_taux': '10', 'conditions_paiement': 'Comptant', 'penalites_retard': 'Aucune'},
+        )
+        self.assertRedirects(response, self.url + '?onglet=documents')
+        defaults = DocumentDefaults.load()
+        self.assertEqual(defaults.tva_taux, 10)
+        self.assertEqual(defaults.conditions_paiement, 'Comptant')
+
+    def test_menu_link_visible_for_admin(self):
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse('dashboard'))
+        self.assertContains(response, self.url)

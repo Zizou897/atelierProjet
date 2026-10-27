@@ -4,6 +4,7 @@ from django.core.files.uploadedfile import UploadedFile
 from .models import CompanyProfile, DocumentDefaults
 
 MAX_LOGO_SIZE = 2 * 1024 * 1024
+ALLOWED_LOGO_FORMATS = {'JPEG', 'PNG', 'WEBP'}
 
 
 class CompanyProfileForm(forms.ModelForm):
@@ -25,11 +26,13 @@ class CompanyProfileForm(forms.ModelForm):
         logo = self.cleaned_data.get('logo')
         if isinstance(logo, UploadedFile) and logo.size > MAX_LOGO_SIZE:
             raise forms.ValidationError('Le logo ne doit pas dépasser 2 Mo.')
+        if isinstance(logo, UploadedFile) and logo.image.format not in ALLOWED_LOGO_FORMATS:
+            raise forms.ValidationError('Le logo doit être une image JPG, PNG ou WEBP.')
         return logo
 
     def save(self, commit=True):
         profile = super().save(commit=False)
-        if self.cleaned_data.get('remove_logo') and 'logo' not in self.files:
+        if self.cleaned_data.get('remove_logo') and not isinstance(self.cleaned_data.get('logo'), UploadedFile):
             profile.logo = ''
         if commit:
             profile.save()

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Paramètres{% endblock %}
+{% block topbar_title %}Paramètres{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Paramètres</h1>
+    <p class="page-subtitle">Informations des entreprises et valeurs par défaut des documents.</p>
+  </div>
+</div>
+
+<div class="tab-nav">
+  {% for key, label in tabs %}
+    <a href="?onglet={{ key }}" class="tab-btn {% if key == tab %}active{% endif %}" style="text-decoration:none">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="form-card">
+
+  {% if form.non_field_errors %}
+    <div class="form-error-banner mt-0" style="margin:20px 20px 0">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <form method="post" action="?onglet={{ tab }}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-body">
+      <div class="form-grid">
+        {% for field in form %}
+          {% if field.name == 'name' %}
+            <h3 class="form-full" style="margin:0;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-gray-500)">Identité</h3>
+          {% elif field.name == 'rccm' %}
+            <h3 class="form-full" style="margin:12px 0 0;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-gray-500)">Informations légales</h3>
+          {% elif field.name == 'bank_name' %}
+            <h3 class="form-full" style="margin:12px 0 0;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-gray-500)">Paiement</h3>
+          {% elif field.name == 'logo' %}
+            <h3 class="form-full" style="margin:12px 0 0;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--c-gray-500)">Logo</h3>
+          {% endif %}
+
+          {% if field.name == 'logo' %}
+            <div class="field form-full">
+              <img src="{{ profile.logo_url }}" alt="Logo actuel" style="height:64px;width:auto;max-width:200px;object-fit:contain;border:1px solid var(--c-gray-200);border-radius:6px;padding:4px;margin-bottom:8px">
+              <label for="{{ field.id_for_label }}">{{ field.label }} (JPG, PNG ou WEBP, 2 Mo max)</label>
+              {{ field }}
+              {% if field.errors %}<span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ field.errors|striptags }}</span>{% endif %}
+            </div>
+          {% elif field.name == 'remove_logo' %}
+            <div class="field form-full">
+              <label style="display:flex;align-items:center;gap:8px;font-weight:400">
+                {{ field }} {{ field.label }}
+              </label>
+            </div>
+          {% else %}
+            <div class="field {% if field.name == 'full_name' or field.name == 'address' or field.name == 'conditions_paiement' or field.name == 'penalites_retard' %}form-full{% endif %}">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ field.errors|striptags }}</span>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i> Enregistrer
+      </button>
+    </div>
+  </form>
+
+</div>
+
+{% endblock %}
