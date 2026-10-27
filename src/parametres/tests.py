@@ -1,5 +1,12 @@
-from django.test import TestCase
+import io
+import shutil
+import tempfile
 
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
+
+from .forms import CompanyProfileForm, DocumentDefaultsForm
 from .models import CompanyProfile, DocumentDefaults
 
 
@@ -53,3 +60,102 @@ class SeedDataTests(TestCase):
         self.assertEqual(brand['name'], profile.name)
         self.assertEqual(brand['email'], profile.email)
         self.assertEqual(brand['logo_url'], profile.logo_url)
+
+
+def make_image(name='logo.png', fmt='PNG', size=(10, 10)):
+    buf = io.BytesIO()
+    Image.new('RGB', size, 'red').save(buf, fmt)
+    return SimpleUploadedFile(name, buf.getvalue(), content_type=f'image/{fmt.lower()}')
+
+
+def company_data(**overrides):
+    data = {
+        'name': 'CTA', 'tag': '', 'full_name': 'CENTRE TECHNIQUE AUTO (CTA)',
+        'address': 'Riviera', 'tel': '01 02', 'email': 'cta@example.com', 'signataire': '',
+        'rccm': 'CI-1', 'ncc': '123', 'bank_name': '', 'bank_account': '', 'mobile_money': '',
+    }
+    data.update(overrides)
+    return data
+
+
+class CompanyProfileFormTests(TestCase):
+    def setUp(self):
+        self.media = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.media, ignore_errors=True)
+        override = override_settings(MEDIA_ROOT=self.media)
+        override.enable()
+        self.addCleanup(override.disable)
+        self.profile = CompanyProfile.objects.get(key='cta')
+
+    def test_saves_valid_data(self):
+        form = CompanyProfileForm(company_data(), instance=self.profile)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.profile.refresh_from_db()
+        self.assertEqual(self.profile.rccm, 'CI-1')
+        self.assertEqual(self.profile.ncc, '123')
+
+    def test_required_fields(self):
+        form = CompanyProfileForm(company_data(email='', tel='', address=''), instance=self.profile)
+        self.assertFalse(form.is_valid())
+        for field in ('email', 'tel', 'address'):
+            self.assertIn(field, form.errors)
+
+    def test_rejects_invalid_email(self):
+        form = CompanyProfileForm(company_data(email='pas-un-email'), instance=self.profile)
+        self.assertFalse(form.is_valid())
+        self.assertIn('email', form.errors)
+
+    def test_accepts_png_logo(self):
+        form = CompanyProfileForm(company_data(), {'logo': make_image()}, instance=self.profile)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.profile.refresh_from_db()
+        self.assertTrue(self.profile.logo.name.startswith('logos/'))
+
+    def test_rejects_non_image_logo(self):
+        fake = SimpleUploadedFile('logo.png', b'pas une image', content_type='image/png')
+        form = CompanyProfileForm(company_data(), {'logo': fake}, instance=self.profile)
+        self.assertFalse(form.is_valid())
+        self.assertIn('logo', form.errors)
+
+    def test_rejects_wrong_extension(self):
+        form = CompanyProfileForm(company_data(), {'logo': make_image('logo.gif', 'GIF')}, instance=self.profile)
+        self.assertFalse(form.is_valid())
+        self.assertIn('logo', form.errors)
+
+    def test_rejects_logo_over_2mb(self):
+        big = SimpleUploadedFile('logo.png', make_image().read() + b'0' * (2 * 1024 * 1024), content_type='image/png')
+        form = CompanyProfileForm(company_data(), {'logo': big}, instance=self.profile)
+        self.assertFalse(form.is_valid())
+        self.assertIn('logo', form.errors)
+
+    def test_remove_logo_checkbox_restores_default(self):
+        self.profile.logo = 'logos/old.png'
+        self.profile.save()
+        form = CompanyProfileForm(company_data(remove_logo='on'), instance=self.profile)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.profile.refresh_from_db()
+        self.assertFalse(self.profile.logo)
+        self.assertTrue(self.profile.logo_url.endswith('cta-logo.png'))
+
+
+class DocumentDefaultsFormTests(TestCase):
+    def test_saves_valid_data(self):
+        form = DocumentDefaultsForm(
+            {'tva_taux': '10', 'conditions_paiement': 'Comptant', 'penalites_retard': ''},
+            instance=DocumentDefaults.load(),
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        self.assertEqual(DocumentDefaults.load().tva_taux, 10)
+
+    def test_tva_must_be_between_0_and_100(self):
+        for bad in ('-1', '101'):
+            form = DocumentDefaultsForm(
+                {'tva_taux': bad, 'conditions_paiement': '', 'penalites_retard': ''},
+                instance=DocumentDefaults.load(),
+            )
+            self.assertFalse(form.is_valid(), bad)
+            self.assertIn('tva_taux', form.errors)
