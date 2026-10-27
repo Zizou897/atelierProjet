@@ -1,0 +1,40 @@
+<!-- Véhicule -->
+<div class="inv-section" style="margin-top:1.25rem;">
+  <div class="inv-section-title"><span><i class="fa-solid fa-car-side"></i> Véhicule</span></div>
+  <div class="inv-field" style="margin-bottom:.875rem;">
+    <label>Véhicule existant</label>
+    <select id="vehicleSelect" class="inv-customer-select">
+      <option value="">— Saisie manuelle —</option>
+      {% for v in vehicles %}
+        <option value="{{ v.pk }}"
+          data-marque="{{ v.make }} {{ v.model }}"
+          data-immat="{{ v.registration_number }}"
+          data-km="{{ v.mileage }}">
+          {{ v.registration_number }} — {{ v.make }} {{ v.model }}{% if v.customer %} ({{ v.customer.display_name }}){% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="inv-form-row">
+    <div class="inv-field">
+      <label>Marque / Modèle</label>
+      <input type="text" name="vehicule_marque_modele" value="{{ form.vehicule_marque_modele.value|default:'' }}">
+    </div>
+    <div class="inv-field">
+      <label>Immatriculation</label>
+      <input type="text" name="vehicule_immatriculation" value="{{ form.vehicule_immatriculation.value|default:'' }}">
+    </div>
+    <div class="inv-field">
+      <label>Kilométrage (km)</label>
+      <input type="number" name="vehicule_kilometrage" value="{{ form.vehicule_kilometrage.value|default_if_none:'' }}" min="0" step="1">
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById('vehicleSelect').addEventListener('change', function () {
+    var o = this.options[this.selectedIndex];
+    document.querySelector('[name=vehicule_marque_modele]').value = o.dataset.marque || '';
+    document.querySelector('[name=vehicule_immatriculation]').value = o.dataset.immat || '';
+    document.querySelector('[name=vehicule_kilometrage]').value = o.dataset.km || '';
+  });
+</script>

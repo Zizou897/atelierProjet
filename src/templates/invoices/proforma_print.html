@@ -96,6 +96,9 @@
       <div class="doc-dates">
         Date d'émission : <b>{{ proforma.date_emission|date:"d/m/Y" }}</b><br>
         {% if proforma.date_validite %}Valide jusqu'au : <b>{{ proforma.date_validite|date:"d/m/Y" }}</b><br>{% endif %}
+        {% if proforma.vehicule_marque_modele %}Véhicule : <b>{{ proforma.vehicule_marque_modele }}</b><br>{% endif %}
+        {% if proforma.vehicule_immatriculation %}Immatriculation : <b>{{ proforma.vehicule_immatriculation }}</b><br>{% endif %}
+        {% if proforma.vehicule_kilometrage is not None %}Kilométrage : <b>{{ proforma.vehicule_kilometrage }} km</b><br>{% endif %}
         {% if proforma.reference_client %}Réf. client : <b>{{ proforma.reference_client }}</b><br>{% endif %}
         {% if proforma.bon_de_livraison %}Bon de livraison : <b>{{ proforma.bon_de_livraison }}</b>{% endif %}
       </div>
@@ -197,7 +200,7 @@
   <!-- Footer / Signature -->
   <div class="footer">
     <div style="font-size:8pt;color:#6B7280;max-width:240px;line-height:1.6;">
-      Ce devis est valable{% if proforma.date_validite %} jusqu'au {{ proforma.date_validite|date:"d/m/Y" }}{% else %} 30 jours à compter de la date d'émission{% endif %}.<br>
+      Ce devis est valable{% if proforma.date_validite %} jusqu'au {{ proforma.date_validite|date:"d/m/Y" }}{% else %} 7 jours à compter de la date de création{% endif %}.<br>
       Sous réserve d'acceptation expresse du client.
     </div>
     <div class="sig-block">

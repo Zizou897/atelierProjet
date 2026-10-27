@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.conf import settings
@@ -5,6 +6,17 @@ from django.db import models
 from django.utils import timezone
 
 from customers.models import Customer
+
+
+class VehiculeInfo(models.Model):
+    """Véhicule concerné par le document (copié à l'émission : le kilométrage évolue)."""
+
+    vehicule_marque_modele = models.CharField(max_length=160, blank=True, verbose_name='Marque / Modèle')
+    vehicule_immatriculation = models.CharField(max_length=20, blank=True, verbose_name='Immatriculation')
+    vehicule_kilometrage = models.PositiveIntegerField(null=True, blank=True, verbose_name='Kilométrage (km)')
+
+    class Meta:
+        abstract = True
 
 
 class ProformaStatus(models.TextChoices):
@@ -32,7 +44,10 @@ class DeliveryNoteStatus(models.TextChoices):
     CANCELLED = 'CANCELLED', 'Annulé'
 
 
-class Proforma(models.Model):
+class Proforma(VehiculeInfo):
+    # Un proforma est valable 7 jours à compter de sa création (date_validite, calculée à la création).
+    VALIDITE_JOURS = 7
+
     numero = models.CharField(max_length=20, unique=True, editable=False, verbose_name='N° Proforma')
     customer = models.ForeignKey(
         Customer, on_delete=models.SET_NULL, null=True, blank=True,
@@ -45,7 +60,7 @@ class Proforma(models.Model):
     destinataire_rccm_ncc = models.CharField(max_length=100, blank=True, verbose_name='RCCM / NCC')
 
     date_emission = models.DateField(default=timezone.now, verbose_name="Date d'émission")
-    date_validite = models.DateField(null=True, blank=True, verbose_name="Valide jusqu'au")
+    date_validite = models.DateField(null=True, blank=True, editable=False, verbose_name="Valide jusqu'au")
     reference_client = models.CharField(max_length=100, blank=True, verbose_name='Référence client')
     objet = models.CharField(max_length=200, blank=True, verbose_name='Objet')
     bon_de_livraison = models.CharField(max_length=100, blank=True, verbose_name='Bon de livraison')
@@ -74,6 +89,8 @@ class Proforma(models.Model):
     def save(self, *args, **kwargs):
         if not self.numero:
             self.numero = self._generate_numero()
+        if self._state.adding:
+            self.date_validite = timezone.localdate() + timedelta(days=self.VALIDITE_JOURS)
         super().save(*args, **kwargs)
 
     @classmethod
@@ -133,7 +150,7 @@ class ProformaLine(models.Model):
         return f"{self.proforma.numero} – L{self.ordre}"
 
 
-class Invoice(models.Model):
+class Invoice(VehiculeInfo):
     numero = models.CharField(max_length=20, unique=True, editable=False, verbose_name='N° Facture')
     proforma = models.ForeignKey(
         Proforma, on_delete=models.SET_NULL, null=True, blank=True,
@@ -261,7 +278,7 @@ class InvoiceLine(models.Model):
         return f"{self.invoice.numero} – L{self.ordre}"
 
 
-class DeliveryNote(models.Model):
+class DeliveryNote(VehiculeInfo):
     numero = models.CharField(max_length=20, unique=True, editable=False, verbose_name='N° Bon de livraison')
     invoice = models.ForeignKey(
         Invoice, on_delete=models.SET_NULL, null=True, blank=True,

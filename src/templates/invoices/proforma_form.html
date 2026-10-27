@@ -72,7 +72,7 @@
       </div>
       <div class="inv-field">
         <label>Valide jusqu'au</label>
-        <input type="date" name="date_validite" value="{{ form.date_validite.value|default:'' }}">
+        <input type="text" value="{% if proforma %}{{ proforma.date_validite|date:'d/m/Y' }}{% else %}7 jours après la création{% endif %}" readonly disabled>
       </div>
       <div class="inv-field" style="grid-column:1/-1;">
         <label>Objet</label>
@@ -105,6 +105,8 @@
     </div>
   </div>
 </div>
+
+{% include 'invoices/_vehicle_fields.html' %}
 
 <!-- Lignes -->
 <div class="inv-section" style="margin-top:1.25rem;">

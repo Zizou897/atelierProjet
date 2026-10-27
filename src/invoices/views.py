@@ -6,6 +6,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from customers.models import Customer
+from vehicles.models import Vehicle
 from parametres.models import DocumentDefaults
 from .branding import get_brand
 from .forms import DeliveryNoteForm, InvoiceForm, ProformaForm
@@ -14,6 +15,11 @@ from .models import (
     Invoice, InvoiceLine, InvoiceStatus,
     Proforma, ProformaLine, ProformaStatus,
 )
+
+
+def _vehicles():
+    """Véhicules proposés dans les formulaires de documents (pré-remplissage)."""
+    return Vehicle.objects.select_related('customer').order_by('registration_number')
 
 
 # ─────────────────────────────────────────────
@@ -182,7 +188,7 @@ def proforma_create(request):
     else:
         form = ProformaForm(initial={'tva_taux': DocumentDefaults.load().tva_taux})
     return render(request, 'invoices/proforma_form.html', {
-        'form': form, 'customers': customers, 'action': 'Nouveau proforma',
+        'form': form, 'customers': customers, 'vehicles': _vehicles(), 'action': 'Nouveau proforma',
     })
 
 
@@ -207,7 +213,7 @@ def proforma_edit(request, pk):
         form = ProformaForm(instance=proforma)
     lines = list(proforma.lines.all())
     return render(request, 'invoices/proforma_form.html', {
-        'form': form, 'proforma': proforma, 'customers': customers,
+        'form': form, 'proforma': proforma, 'customers': customers, 'vehicles': _vehicles(),
         'lines': lines, 'action': f'Modifier {proforma.numero}',
     })
 
@@ -249,6 +255,9 @@ def proforma_to_invoice(request, pk):
             destinataire_tel=proforma.destinataire_tel,
             destinataire_email=proforma.destinataire_email,
             destinataire_rccm_ncc=proforma.destinataire_rccm_ncc,
+            vehicule_marque_modele=proforma.vehicule_marque_modele,
+            vehicule_immatriculation=proforma.vehicule_immatriculation,
+            vehicule_kilometrage=proforma.vehicule_kilometrage,
             date_emission=proforma.date_emission,
             reference_client=proforma.reference_client,
             objet=proforma.objet,
@@ -330,7 +339,7 @@ def invoice_create(request):
             'penalites_retard': defaults.penalites_retard,
         })
     return render(request, 'invoices/invoice_form.html', {
-        'form': form, 'customers': customers, 'action': 'Nouvelle facture',
+        'form': form, 'customers': customers, 'vehicles': _vehicles(), 'action': 'Nouvelle facture',
     })
 
 
@@ -355,7 +364,7 @@ def invoice_edit(request, pk):
         form = InvoiceForm(instance=invoice)
     lines = list(invoice.lines.all())
     return render(request, 'invoices/invoice_form.html', {
-        'form': form, 'invoice': invoice, 'customers': customers,
+        'form': form, 'invoice': invoice, 'customers': customers, 'vehicles': _vehicles(),
         'lines': lines, 'action': f'Modifier {invoice.numero}',
     })
 
@@ -406,6 +415,9 @@ def invoice_to_delivery(request, pk):
             destinataire_tel=invoice.destinataire_tel,
             destinataire_email=invoice.destinataire_email,
             destinataire_rccm_ncc=invoice.destinataire_rccm_ncc,
+            vehicule_marque_modele=invoice.vehicule_marque_modele,
+            vehicule_immatriculation=invoice.vehicule_immatriculation,
+            vehicule_kilometrage=invoice.vehicule_kilometrage,
             lieu_livraison=invoice.destinataire_adresse,
             reference_client=invoice.reference_client,
             objet=invoice.objet,
@@ -466,7 +478,7 @@ def delivery_create(request):
     else:
         form = DeliveryNoteForm()
     return render(request, 'invoices/delivery_form.html', {
-        'form': form, 'customers': customers, 'action': 'Nouveau bon de livraison',
+        'form': form, 'customers': customers, 'vehicles': _vehicles(), 'action': 'Nouveau bon de livraison',
     })
 
 
@@ -492,7 +504,7 @@ def delivery_edit(request, pk):
         form = DeliveryNoteForm(instance=delivery)
     lines = list(delivery.lines.all())
     return render(request, 'invoices/delivery_form.html', {
-        'form': form, 'delivery': delivery, 'customers': customers,
+        'form': form, 'delivery': delivery, 'customers': customers, 'vehicles': _vehicles(),
         'lines': lines, 'action': f'Modifier {delivery.numero}',
     })
 

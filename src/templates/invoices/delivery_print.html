@@ -81,6 +81,9 @@
       <div class="doc-num">{{ delivery.numero }}</div>
       <div class="doc-dates">
         Date de livraison : <b>{{ delivery.date_livraison|date:"d/m/Y" }}</b><br>
+        {% if delivery.vehicule_marque_modele %}Véhicule : <b>{{ delivery.vehicule_marque_modele }}</b><br>{% endif %}
+        {% if delivery.vehicule_immatriculation %}Immatriculation : <b>{{ delivery.vehicule_immatriculation }}</b><br>{% endif %}
+        {% if delivery.vehicule_kilometrage is not None %}Kilométrage : <b>{{ delivery.vehicule_kilometrage }} km</b><br>{% endif %}
         {% if delivery.invoice %}Facture liée : <b>{{ delivery.invoice.numero }}</b><br>{% endif %}
         {% if delivery.reference_client %}Réf. client : <b>{{ delivery.reference_client }}</b>{% endif %}
       </div>

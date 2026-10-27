@@ -81,6 +81,9 @@
       <div class="doc-dates">
         Date d'émission : <b>{{ invoice.date_emission|date:"d/m/Y" }}</b><br>
         {% if invoice.date_echeance %}Date d'échéance : <b>{{ invoice.date_echeance|date:"d/m/Y" }}</b><br>{% endif %}
+        {% if invoice.vehicule_marque_modele %}Véhicule : <b>{{ invoice.vehicule_marque_modele }}</b><br>{% endif %}
+        {% if invoice.vehicule_immatriculation %}Immatriculation : <b>{{ invoice.vehicule_immatriculation }}</b><br>{% endif %}
+        {% if invoice.vehicule_kilometrage is not None %}Kilométrage : <b>{{ invoice.vehicule_kilometrage }} km</b><br>{% endif %}
         {% if invoice.reference_client %}Réf. client : <b>{{ invoice.reference_client }}</b><br>{% endif %}
         {% if invoice.bon_de_livraison %}Bon de livraison : <b>{{ invoice.bon_de_livraison }}</b>{% endif %}
       </div>

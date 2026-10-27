@@ -9,13 +9,13 @@ class ProformaForm(forms.ModelForm):
             'customer',
             'destinataire_nom', 'destinataire_adresse', 'destinataire_tel',
             'destinataire_email', 'destinataire_rccm_ncc',
-            'date_emission', 'date_validite',
+            'vehicule_marque_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
+            'date_emission',
             'reference_client', 'objet', 'bon_de_livraison',
             'remise_globale', 'tva_taux', 'status',
         ]
         widgets = {
             'date_emission': forms.DateInput(attrs={'type': 'date'}),
-            'date_validite': forms.DateInput(attrs={'type': 'date'}),
         }
 
 
@@ -26,6 +26,7 @@ class InvoiceForm(forms.ModelForm):
             'customer',
             'destinataire_nom', 'destinataire_adresse', 'destinataire_tel',
             'destinataire_email', 'destinataire_rccm_ncc',
+            'vehicule_marque_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
             'date_emission', 'date_echeance',
             'reference_client', 'objet', 'bon_de_livraison',
             'remise_globale', 'tva_taux', 'acompte_verse',
@@ -46,6 +47,7 @@ class DeliveryNoteForm(forms.ModelForm):
             'customer', 'invoice',
             'destinataire_nom', 'destinataire_adresse', 'destinataire_tel',
             'destinataire_email', 'destinataire_rccm_ncc',
+            'vehicule_marque_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
             'date_livraison', 'lieu_livraison',
             'reference_client', 'objet',
             'transporteur', 'observations', 'status',
