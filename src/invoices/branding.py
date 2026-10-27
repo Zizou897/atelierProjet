@@ -1,9 +1,14 @@
 """Profils de marque pour l'impression des documents (facture, proforma, bon de livraison).
 
-CTAMS et CTA partagent le même gérant (mêmes numéros de téléphone) mais ont un
-logo, une dénomination et des coordonnées distincts. L'utilisateur choisit la
-marque au moment de l'impression via le paramètre GET ``?marque=ctams|cta``.
+Les valeurs sont modifiables dans Paramètres (modèle ``parametres.CompanyProfile``). Le
+dictionnaire ``BRANDS`` ci-dessous n'est qu'un repli utilisé si la base ne contient pas
+la ligne demandée. L'utilisateur choisit la marque au moment de l'impression via le
+paramètre GET ``?marque=ctams|cta``.
 """
+
+from django.templatetags.static import static
+
+from parametres.models import CompanyProfile
 
 BRANDS = {
     'ctams': {
@@ -33,7 +38,20 @@ BRANDS = {
 DEFAULT_BRAND = 'ctams'
 
 
+def _fallback_brand(key):
+    data = dict(BRANDS.get(key, BRANDS[DEFAULT_BRAND]))
+    data.update(
+        rccm='', ncc='', bank_name='', bank_account='', mobile_money='',
+        logo_url=static(data['logo']),
+    )
+    return data
+
+
 def get_brand(request):
     """Retourne le profil de marque demandé (défaut : CTAMS)."""
     key = (request.GET.get('marque') or DEFAULT_BRAND).lower()
-    return BRANDS.get(key, BRANDS[DEFAULT_BRAND])
+    profile = (
+        CompanyProfile.objects.filter(key=key).first()
+        or CompanyProfile.objects.filter(key=DEFAULT_BRAND).first()
+    )
+    return profile.as_brand() if profile else _fallback_brand(key)
