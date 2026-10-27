@@ -26,12 +26,12 @@ Nouvelle app Django `parametres` (`src/parametres/`), ajoutée à `LOCAL_APPS`.
 |---|---|---|
 | `key` | slug, unique | `ctams` ou `cta`, clé utilisée par `?marque=` |
 | `name` | char 80 | « CTAMS » |
-| `tag` | char 150 | slogan sous le nom |
+| `tag` | char 150, vide autorisé | slogan sous le nom |
 | `full_name` | char 200 | nom complet de l'émetteur |
 | `address` | char 255 | |
 | `tel` | char 100 | un ou plusieurs numéros |
 | `email` | email | |
-| `signataire` | char 150 | texte sous la signature |
+| `signataire` | char 150, vide autorisé | texte sous la signature |
 | `rccm` | char 100, vide autorisé | |
 | `ncc` | char 100, vide autorisé | |
 | `bank_name` | char 100, vide autorisé | |
@@ -49,7 +49,7 @@ Historique des modifications via `simple_history` (`HistoricalRecords`), déjà 
 
 Une migration de données crée :
 - les deux `CompanyProfile` avec exactement les valeurs actuelles de `branding.py` ;
-- la ligne `DocumentDefaults` avec TVA 18 % et les textes vides.
+- la ligne `DocumentDefaults` avec TVA 18 % et les conditions de paiement / pénalités actuelles du modèle `Invoice`.
 
 Tant que personne ne modifie rien, les documents imprimés sont identiques à aujourd'hui.
 
@@ -67,8 +67,9 @@ Tant que personne ne modifie rien, les documents imprimés sont identiques à au
   « Émetteur », afficher RCCM et NCC, puis banque / compte / Mobile Money, chacun seulement s'il est
   renseigné. Les champs Tél et Email modifiables avant impression restent, initialisés avec les
   valeurs des réglages.
-- Création d'une facture ou d'un proforma : `tva_taux`, `conditions_paiement` et `penalites_retard`
-  sont pré-remplis depuis `DocumentDefaults`. L'édition d'un document existant ne change rien.
+- Création d'une facture : `tva_taux`, `conditions_paiement` et `penalites_retard` sont pré-remplis
+  depuis `DocumentDefaults`. Création d'un proforma : seulement `tva_taux` (le proforma n'a pas de
+  conditions). L'édition d'un document existant ne change rien.
 
 ## Interface
 
