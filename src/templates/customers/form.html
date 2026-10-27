@@ -34,7 +34,7 @@
     <div class="form-body">
       <div class="form-grid">
         {% for field in form %}
-          <div class="field {% if field.name == 'notes' %}form-full{% endif %}">
+          <div class="field {% if field.name == 'notes' %}form-full{% endif %}" id="wrap-{{ field.name }}">
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}
             {% if field.errors %}
@@ -62,4 +62,19 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    var type = document.getElementById('id_customer_type');
+    var rccm = document.getElementById('wrap-rccm_ncc');
+    if (!type || !rccm) return;
+    function toggleRccm() {
+      rccm.style.display = type.value === 'COMPANY' ? '' : 'none';
+    }
+    type.addEventListener('change', toggleRccm);
+    toggleRccm();
+  })();
+</script>
 {% endblock %}

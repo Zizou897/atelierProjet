@@ -14,6 +14,7 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=80, blank=True)
     last_name = models.CharField(max_length=80, blank=True)
     company_name = models.CharField(max_length=150, blank=True)
+    rccm_ncc = models.CharField(max_length=100, blank=True, verbose_name="RCCM / NCC")
 
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)

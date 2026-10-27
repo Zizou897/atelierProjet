@@ -23,6 +23,7 @@
             data-tel="{{ c.phone }}"
             data-email="{{ c.email }}"
             data-adresse="{{ c.address_line1 }}{% if c.city %}, {{ c.city }}{% endif %}"
+            data-rccm="{{ c.rccm_ncc }}"
             {% if form.customer.value == c.pk|stringformat:"s" %}selected{% endif %}>
             {{ c.display_name }}
           </option>
@@ -168,6 +169,7 @@
     document.querySelector('[name=destinataire_tel]').value    =o.dataset.tel    ||'';
     document.querySelector('[name=destinataire_email]').value  =o.dataset.email  ||'';
     document.querySelector('[name=destinataire_adresse]').value=o.dataset.adresse||'';
+    document.querySelector('[name=destinataire_rccm_ncc]').value=o.dataset.rccm  ||'';
   });
   function renumber(){
     document.querySelectorAll('.line-row').forEach(function(r,i){

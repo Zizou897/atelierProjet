@@ -57,6 +57,12 @@
           <div class="info-label">Type</div>
           <div class="info-value">{{ customer.get_customer_type_display }}</div>
         </div>
+        {% if customer.customer_type == 'COMPANY' %}
+        <div class="info-item">
+          <div class="info-label">RCCM / NCC</div>
+          <div class="info-value">{{ customer.rccm_ncc|default:"—" }}</div>
+        </div>
+        {% endif %}
         <div class="info-item">
           <div class="info-label">Email</div>
           <div class="info-value">{{ customer.email|default:"—" }}</div>

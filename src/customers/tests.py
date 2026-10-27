@@ -35,6 +35,31 @@ class CustomerFlowTests(TestCase):
         self.assertEqual(detail.status_code, 200)
         self.assertContains(detail, "Jean Martin")
 
+    def test_rccm_ncc_saved_for_company_only(self):
+        self.client.force_login(self.user)
+
+        self.client.post(
+            reverse("customer_create"),
+            {
+                "customer_type": "COMPANY",
+                "company_name": "Garage Elite",
+                "rccm_ncc": "CI-ABJ-2020-B-1234",
+                "country": "Côte d'Ivoire",
+            },
+        )
+        self.assertEqual(Customer.objects.get(company_name="Garage Elite").rccm_ncc, "CI-ABJ-2020-B-1234")
+
+        self.client.post(
+            reverse("customer_create"),
+            {
+                "customer_type": "INDIVIDUAL",
+                "first_name": "Awa",
+                "rccm_ncc": "CI-ABJ-2020-B-9999",
+                "country": "Côte d'Ivoire",
+            },
+        )
+        self.assertEqual(Customer.objects.get(first_name="Awa").rccm_ncc, "")
+
     def test_filter_customer_list_by_type(self):
         Customer.objects.create(
             customer_type="COMPANY",

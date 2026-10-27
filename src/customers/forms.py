@@ -11,6 +11,7 @@ class CustomerForm(forms.ModelForm):
             "first_name",
             "last_name",
             "company_name",
+            "rccm_ncc",
             "email",
             "phone",
             "address_line1",
@@ -25,6 +26,7 @@ class CustomerForm(forms.ModelForm):
             "first_name":     "Prénom",
             "last_name":      "Nom",
             "company_name":   "Raison sociale",
+            "rccm_ncc":       "RCCM / NCC",
             "email":          "Adresse e-mail",
             "phone":          "Téléphone",
             "address_line1":  "Adresse (ligne 1)",
@@ -52,5 +54,8 @@ class CustomerForm(forms.ModelForm):
 
         if customer_type == Customer.CustomerType.COMPANY and not company_name:
             self.add_error("company_name", "Le nom de l'entreprise est obligatoire.")
+
+        if customer_type != Customer.CustomerType.COMPANY:
+            cleaned_data["rccm_ncc"] = ""
 
         return cleaned_data
