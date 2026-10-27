@@ -45,7 +45,7 @@
 
           {% if field.name == 'logo' %}
             <div class="field form-full">
-              <img src="{{ profile.logo_url }}" alt="Logo actuel" style="height:64px;width:auto;max-width:200px;object-fit:contain;border:1px solid var(--c-gray-200);border-radius:6px;padding:4px;margin-bottom:8px">
+              <img src="{{ logo_preview_url }}" alt="Logo actuel" style="height:64px;width:auto;max-width:200px;object-fit:contain;border:1px solid var(--c-gray-200);border-radius:6px;padding:4px;margin-bottom:8px">
               <label for="{{ field.id_for_label }}">{{ field.label }} (JPG, PNG ou WEBP, 2 Mo max)</label>
               {{ field }}
               {% if field.errors %}<span class="field-error"><i class="fa-solid fa-circle-exclamation"></i> {{ field.errors|striptags }}</span>{% endif %}

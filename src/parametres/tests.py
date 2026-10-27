@@ -4,6 +4,7 @@ import tempfile
 
 from PIL import Image
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -230,6 +231,31 @@ class SettingsViewTests(TestCase):
         defaults = DocumentDefaults.load()
         self.assertEqual(defaults.tva_taux, 10)
         self.assertEqual(defaults.conditions_paiement, 'Comptant')
+
+    def test_user_with_manage_users_permission_gets_200(self):
+        self.user.user_permissions.add(Permission.objects.get(codename='manage_users'))
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.get(self.url).status_code, 200)
+
+    def test_failed_save_with_logo_upload_keeps_stored_logo_preview(self):
+        media = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, media, ignore_errors=True)
+        override = override_settings(MEDIA_ROOT=media)
+        override.enable()
+        self.addCleanup(override.disable)
+
+        self.client.force_login(self.admin)
+        response = self.client.post(
+            self.url + '?onglet=cta',
+            company_data(email='nope', logo=make_image()),
+        )
+        self.assertEqual(response.status_code, 200)
+        cta = CompanyProfile.objects.get(key='cta')
+        self.assertFalse(cta.logo)
+        self.assertEqual(cta.email, 'centretechniqueauto@outlook.com')
+        self.assertNotContains(response, 'logos/')
+        self.assertNotContains(response, '/media/logo.png')
+        self.assertContains(response, 'cta-logo.png')
 
     def test_menu_link_visible_for_admin(self):
         self.client.force_login(self.admin)

@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from parametres.models import CompanyProfile
+from parametres.models import CompanyProfile, DocumentDefaults
 
 from .branding import get_brand
 from .models import DeliveryNote, Invoice, Proforma
@@ -87,3 +87,24 @@ class PrintTemplatesTests(TestCase):
         for name, url in self.urls.items():
             html = self.client.get(url).content.decode()
             self.assertIn(settings.MEDIA_URL + 'logos/test.png', html, name)
+
+
+class DocumentDefaultsPrefillTests(TestCase):
+    def setUp(self):
+        user = get_user_model().objects.create_user(username='creator', password='pass12345')
+        self.client.force_login(user)
+        defaults = DocumentDefaults.load()
+        defaults.tva_taux = 10
+        defaults.conditions_paiement = 'Comptant'
+        defaults.penalites_retard = 'Aucune'
+        defaults.save()
+
+    def test_new_invoice_form_uses_defaults(self):
+        form = self.client.get(reverse('invoice_create')).context['form']
+        self.assertEqual(form['tva_taux'].value(), 10)
+        self.assertEqual(form['conditions_paiement'].value(), 'Comptant')
+        self.assertEqual(form['penalites_retard'].value(), 'Aucune')
+
+    def test_new_proforma_form_uses_default_tva(self):
+        form = self.client.get(reverse('proforma_create')).context['form']
+        self.assertEqual(form['tva_taux'].value(), 10)

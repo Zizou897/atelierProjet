@@ -25,8 +25,12 @@ def settings_home(request):
 
     if tab == 'documents':
         form_class, instance, profile = DocumentDefaultsForm, DocumentDefaults.load(), None
+        logo_preview_url = None
     else:
         profile = get_object_or_404(CompanyProfile, key=tab)
+        # Calculé avant de construire le formulaire : un formulaire invalide
+        # laisse sur l'instance le fichier téléversé, qui n'existe pas encore.
+        logo_preview_url = profile.logo_url
         form_class, instance = CompanyProfileForm, profile
 
     if request.method == 'POST':
@@ -43,4 +47,5 @@ def settings_home(request):
         'tab': tab,
         'form': form,
         'profile': profile,
+        'logo_preview_url': logo_preview_url,
     })

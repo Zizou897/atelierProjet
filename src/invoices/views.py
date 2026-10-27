@@ -6,6 +6,7 @@ from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from customers.models import Customer
+from parametres.models import DocumentDefaults
 from .branding import get_brand
 from .forms import DeliveryNoteForm, InvoiceForm, ProformaForm
 from .models import (
@@ -179,7 +180,7 @@ def proforma_create(request):
             messages.success(request, f"Proforma {proforma.numero} créé avec succès.")
             return redirect('proforma_detail', pk=proforma.pk)
     else:
-        form = ProformaForm()
+        form = ProformaForm(initial={'tva_taux': DocumentDefaults.load().tva_taux})
     return render(request, 'invoices/proforma_form.html', {
         'form': form, 'customers': customers, 'action': 'Nouveau proforma',
     })
@@ -322,7 +323,12 @@ def invoice_create(request):
             messages.success(request, f"Facture {invoice.numero} créée avec succès.")
             return redirect('invoice_detail', pk=invoice.pk)
     else:
-        form = InvoiceForm()
+        defaults = DocumentDefaults.load()
+        form = InvoiceForm(initial={
+            'tva_taux': defaults.tva_taux,
+            'conditions_paiement': defaults.conditions_paiement,
+            'penalites_retard': defaults.penalites_retard,
+        })
     return render(request, 'invoices/invoice_form.html', {
         'form': form, 'customers': customers, 'action': 'Nouvelle facture',
     })
