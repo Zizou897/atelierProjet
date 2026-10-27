@@ -186,6 +186,8 @@ staticfiles/
 logs/
 src/db.sqlite3
 media/
+src/media_cdn/*
+!src/media_cdn/.gitkeep
 *.log
 
 .claude/

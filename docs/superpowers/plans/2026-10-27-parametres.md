@@ -1140,6 +1140,7 @@ Dans `/etc/nginx/sites-available/app`, dans le bloc `server` du port 443 (celui 
 location /media/ {
 
 alias /var/www/project/atelierProjet/src/media_cdn/;
+add_header X-Content-Type-Options nosniff;
 
 }
 ```
