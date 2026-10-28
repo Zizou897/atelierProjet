@@ -1,0 +1,7 @@
+{% if doc.vehicule_marque or doc.vehicule_modele or doc.vehicule_immatriculation %}
+<div class="vehicle-box">
+  {% if doc.vehicule_marque %}<span>Marque :</span><b>{{ doc.vehicule_marque }}</b><br>{% endif %}
+  {% if doc.vehicule_modele %}<span>Modèle :</span><b>{{ doc.vehicule_modele }}</b><br>{% endif %}
+  {% if doc.vehicule_immatriculation %}<span>Immatriculation :</span><b>{{ doc.vehicule_immatriculation }}</b>{% endif %}
+</div>
+{% endif %}

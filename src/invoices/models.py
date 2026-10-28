@@ -11,7 +11,8 @@ from customers.models import Customer
 class VehiculeInfo(models.Model):
     """Véhicule concerné par le document (copié à l'émission : le kilométrage évolue)."""
 
-    vehicule_marque_modele = models.CharField(max_length=160, blank=True, verbose_name='Marque / Modèle')
+    vehicule_marque = models.CharField(max_length=80, blank=True, verbose_name='Marque')
+    vehicule_modele = models.CharField(max_length=80, blank=True, verbose_name='Modèle')
     vehicule_immatriculation = models.CharField(max_length=20, blank=True, verbose_name='Immatriculation')
     vehicule_kilometrage = models.PositiveIntegerField(null=True, blank=True, verbose_name='Kilométrage (km)')
 
@@ -57,7 +58,8 @@ class Proforma(VehiculeInfo):
     destinataire_adresse = models.CharField(max_length=300, blank=True, verbose_name='Adresse')
     destinataire_tel = models.CharField(max_length=30, blank=True, verbose_name='Téléphone')
     destinataire_email = models.EmailField(blank=True, verbose_name='Email')
-    destinataire_rccm_ncc = models.CharField(max_length=100, blank=True, verbose_name='RCCM / NCC')
+    destinataire_rccm = models.CharField(max_length=100, blank=True, verbose_name='RCCM')
+    destinataire_ncc = models.CharField(max_length=100, blank=True, verbose_name='NCC')
 
     date_emission = models.DateField(default=timezone.now, verbose_name="Date d'émission")
     date_validite = models.DateField(null=True, blank=True, editable=False, verbose_name="Valide jusqu'au")
@@ -164,7 +166,8 @@ class Invoice(VehiculeInfo):
     destinataire_adresse = models.CharField(max_length=300, blank=True, verbose_name='Adresse')
     destinataire_tel = models.CharField(max_length=30, blank=True, verbose_name='Téléphone')
     destinataire_email = models.EmailField(blank=True, verbose_name='Email')
-    destinataire_rccm_ncc = models.CharField(max_length=100, blank=True, verbose_name='RCCM / NCC')
+    destinataire_rccm = models.CharField(max_length=100, blank=True, verbose_name='RCCM')
+    destinataire_ncc = models.CharField(max_length=100, blank=True, verbose_name='NCC')
 
     date_emission = models.DateField(default=timezone.now, verbose_name="Date d'émission")
     date_echeance = models.DateField(null=True, blank=True, verbose_name="Date d'échéance")
@@ -292,7 +295,8 @@ class DeliveryNote(VehiculeInfo):
     destinataire_adresse = models.CharField(max_length=300, blank=True, verbose_name='Adresse')
     destinataire_tel = models.CharField(max_length=30, blank=True, verbose_name='Téléphone')
     destinataire_email = models.EmailField(blank=True, verbose_name='Email')
-    destinataire_rccm_ncc = models.CharField(max_length=100, blank=True, verbose_name='RCCM / NCC')
+    destinataire_rccm = models.CharField(max_length=100, blank=True, verbose_name='RCCM')
+    destinataire_ncc = models.CharField(max_length=100, blank=True, verbose_name='NCC')
 
     date_livraison = models.DateField(default=timezone.now, verbose_name="Date de livraison")
     lieu_livraison = models.CharField(max_length=300, blank=True, verbose_name='Lieu de livraison')

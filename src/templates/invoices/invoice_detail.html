@@ -33,7 +33,7 @@
     {% if invoice.destinataire_adresse %}<div style="color:var(--c-gray-500);font-size:.9rem;margin-top:.3rem;">{{ invoice.destinataire_adresse }}</div>{% endif %}
     {% if invoice.destinataire_tel %}<div style="font-size:.9rem;margin-top:.4rem;color:var(--c-gray-800);"><i class="fa-solid fa-phone" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ invoice.destinataire_tel }}</div>{% endif %}
     {% if invoice.destinataire_email %}<div style="font-size:.9rem;margin-top:.2rem;color:var(--c-gray-800);"><i class="fa-solid fa-envelope" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ invoice.destinataire_email }}</div>{% endif %}
-    {% if invoice.destinataire_rccm_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">RCCM/NCC : {{ invoice.destinataire_rccm_ncc }}</div>{% endif %}
+    {% if invoice.destinataire_rccm or invoice.destinataire_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">{% if invoice.destinataire_rccm %}RCCM : {{ invoice.destinataire_rccm }}{% endif %}{% if invoice.destinataire_rccm and invoice.destinataire_ncc %} · {% endif %}{% if invoice.destinataire_ncc %}NCC : {{ invoice.destinataire_ncc }}{% endif %}</div>{% endif %}
   </div>
 
   <!-- Méta -->

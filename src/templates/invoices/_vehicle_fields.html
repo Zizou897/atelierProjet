@@ -7,7 +7,8 @@
       <option value="">— Saisie manuelle —</option>
       {% for v in vehicles %}
         <option value="{{ v.pk }}"
-          data-marque="{{ v.make }} {{ v.model }}"
+          data-marque="{{ v.make }}"
+          data-modele="{{ v.model }}"
           data-immat="{{ v.registration_number }}"
           data-km="{{ v.mileage }}">
           {{ v.registration_number }} — {{ v.make }} {{ v.model }}{% if v.customer %} ({{ v.customer.display_name }}){% endif %}
@@ -17,8 +18,12 @@
   </div>
   <div class="inv-form-row">
     <div class="inv-field">
-      <label>Marque / Modèle</label>
-      <input type="text" name="vehicule_marque_modele" value="{{ form.vehicule_marque_modele.value|default:'' }}">
+      <label>Marque</label>
+      <input type="text" name="vehicule_marque" value="{{ form.vehicule_marque.value|default:'' }}">
+    </div>
+    <div class="inv-field">
+      <label>Modèle</label>
+      <input type="text" name="vehicule_modele" value="{{ form.vehicule_modele.value|default:'' }}">
     </div>
     <div class="inv-field">
       <label>Immatriculation</label>
@@ -33,7 +38,8 @@
 <script>
   document.getElementById('vehicleSelect').addEventListener('change', function () {
     var o = this.options[this.selectedIndex];
-    document.querySelector('[name=vehicule_marque_modele]').value = o.dataset.marque || '';
+    document.querySelector('[name=vehicule_marque]').value = o.dataset.marque || '';
+    document.querySelector('[name=vehicule_modele]').value = o.dataset.modele || '';
     document.querySelector('[name=vehicule_immatriculation]').value = o.dataset.immat || '';
     document.querySelector('[name=vehicule_kilometrage]').value = o.dataset.km || '';
   });

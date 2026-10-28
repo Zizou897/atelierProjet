@@ -27,6 +27,9 @@
     .party-name{font-weight:700;font-size:10.5pt;margin-bottom:2px;}
     .party-info{font-size:8.5pt;color:#374151;line-height:1.6;}
     .party-info span{color:#6B7280;margin-right:4px;}
+    .vehicle-box{display:inline-block;text-align:left;margin-top:6px;padding:5px 9px;border:1.5px solid #1B2DA8;border-radius:8px;background:#EEF2FF;font-size:8.5pt;line-height:1.6;color:#374151;}
+    .vehicle-box span{color:#6B7280;margin-right:4px;}
+    .vehicle-box b{color:#111827;}
     table{width:100%;border-collapse:collapse;margin-bottom:5mm;}
     thead tr{background:#1B2DA8;color:#fff;}
     thead th{padding:6px 7px;font-size:7.5pt;font-weight:600;text-transform:uppercase;letter-spacing:.05em;text-align:left;}
@@ -81,12 +84,10 @@
       <div class="doc-dates">
         Date d'émission : <b>{{ invoice.date_emission|date:"d/m/Y" }}</b><br>
         {% if invoice.date_echeance %}Date d'échéance : <b>{{ invoice.date_echeance|date:"d/m/Y" }}</b><br>{% endif %}
-        {% if invoice.vehicule_marque_modele %}Véhicule : <b>{{ invoice.vehicule_marque_modele }}</b><br>{% endif %}
-        {% if invoice.vehicule_immatriculation %}Immatriculation : <b>{{ invoice.vehicule_immatriculation }}</b><br>{% endif %}
-        {% if invoice.vehicule_kilometrage is not None %}Kilométrage : <b>{{ invoice.vehicule_kilometrage }} km</b><br>{% endif %}
         {% if invoice.reference_client %}Réf. client : <b>{{ invoice.reference_client }}</b><br>{% endif %}
         {% if invoice.bon_de_livraison %}Bon de livraison : <b>{{ invoice.bon_de_livraison }}</b>{% endif %}
       </div>
+      {% include 'invoices/_print_vehicle.html' with doc=invoice %}
     </div>
   </div>
 
@@ -98,8 +99,8 @@
         {{ brand.address }}<br>
         Tél : {{ brand.tel }}<br>
         Email : {{ brand.email }}
-        {% if brand.rccm %}<br>RCCM : {{ brand.rccm }}{% endif %}
-        {% if brand.ncc %}<br>NCC : {{ brand.ncc }}{% endif %}
+        <br>RCCM : {{ brand.rccm|default:"—" }}
+        <br>NCC : {{ brand.ncc|default:"—" }}
         {% if brand.bank_name %}<br>Banque : {{ brand.bank_name }}{% endif %}
         {% if brand.bank_account %}<br>IBAN / RIB : {{ brand.bank_account }}{% endif %}
         {% if brand.mobile_money %}<br>Mobile Money : {{ brand.mobile_money }}{% endif %}
@@ -107,13 +108,7 @@
     </div>
     <div class="party-box">
       <div class="party-label">Destinataire</div>
-      <div class="party-name">{{ invoice.destinataire_nom|default:"—" }}</div>
-      <div class="party-info">
-        {% if invoice.destinataire_adresse %}{{ invoice.destinataire_adresse }}<br>{% endif %}
-        {% if invoice.destinataire_tel %}<span>Tél :</span>{{ invoice.destinataire_tel }}<br>{% endif %}
-        {% if invoice.destinataire_email %}<span>Email :</span>{{ invoice.destinataire_email }}<br>{% endif %}
-        {% if invoice.destinataire_rccm_ncc %}<span>RCCM/NCC :</span>{{ invoice.destinataire_rccm_ncc }}{% endif %}
-      </div>
+      {% include 'invoices/_print_destinataire.html' with doc=invoice adresse=invoice.destinataire_adresse %}
     </div>
   </div>
 

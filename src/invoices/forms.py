@@ -8,8 +8,8 @@ class ProformaForm(forms.ModelForm):
         fields = [
             'customer',
             'destinataire_nom', 'destinataire_adresse', 'destinataire_tel',
-            'destinataire_email', 'destinataire_rccm_ncc',
-            'vehicule_marque_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
+            'destinataire_email', 'destinataire_rccm', 'destinataire_ncc',
+            'vehicule_marque', 'vehicule_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
             'date_emission',
             'reference_client', 'objet', 'bon_de_livraison',
             'remise_globale', 'tva_taux', 'status',
@@ -25,8 +25,8 @@ class InvoiceForm(forms.ModelForm):
         fields = [
             'customer',
             'destinataire_nom', 'destinataire_adresse', 'destinataire_tel',
-            'destinataire_email', 'destinataire_rccm_ncc',
-            'vehicule_marque_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
+            'destinataire_email', 'destinataire_rccm', 'destinataire_ncc',
+            'vehicule_marque', 'vehicule_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
             'date_emission', 'date_echeance',
             'reference_client', 'objet', 'bon_de_livraison',
             'remise_globale', 'tva_taux', 'acompte_verse',
@@ -46,8 +46,8 @@ class DeliveryNoteForm(forms.ModelForm):
         fields = [
             'customer', 'invoice',
             'destinataire_nom', 'destinataire_adresse', 'destinataire_tel',
-            'destinataire_email', 'destinataire_rccm_ncc',
-            'vehicule_marque_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
+            'destinataire_email', 'destinataire_rccm', 'destinataire_ncc',
+            'vehicule_marque', 'vehicule_modele', 'vehicule_immatriculation', 'vehicule_kilometrage',
             'date_livraison', 'lieu_livraison',
             'reference_client', 'objet',
             'transporteur', 'observations', 'status',

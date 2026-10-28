@@ -23,7 +23,8 @@
             data-tel="{{ c.phone }}"
             data-email="{{ c.email }}"
             data-adresse="{{ c.address_line1 }}{% if c.city %}, {{ c.city }}{% endif %}"
-            data-rccm="{{ c.rccm_ncc }}"
+            data-rccm="{{ c.rccm }}"
+            data-ncc="{{ c.ncc }}"
             {% if form.customer.value == c.pk|stringformat:"s" %}selected{% endif %}>
             {{ c.display_name }}
           </option>
@@ -47,9 +48,13 @@
         <label>Email</label>
         <input type="email" name="destinataire_email" value="{{ form.destinataire_email.value|default:'' }}">
       </div>
-      <div class="inv-field" style="grid-column:1/-1;">
-        <label>RCCM / NCC</label>
-        <input type="text" name="destinataire_rccm_ncc" value="{{ form.destinataire_rccm_ncc.value|default:'' }}">
+      <div class="inv-field">
+        <label>RCCM</label>
+        <input type="text" name="destinataire_rccm" value="{{ form.destinataire_rccm.value|default:'' }}">
+      </div>
+      <div class="inv-field">
+        <label>NCC</label>
+        <input type="text" name="destinataire_ncc" value="{{ form.destinataire_ncc.value|default:'' }}">
       </div>
     </div>
   </div>
@@ -199,7 +204,8 @@
     document.querySelector('[name=destinataire_tel]').value    =o.dataset.tel    ||'';
     document.querySelector('[name=destinataire_email]').value  =o.dataset.email  ||'';
     document.querySelector('[name=destinataire_adresse]').value=o.dataset.adresse||'';
-    document.querySelector('[name=destinataire_rccm_ncc]').value=o.dataset.rccm  ||'';
+    document.querySelector('[name=destinataire_rccm]').value=o.dataset.rccm  ||'';
+    document.querySelector('[name=destinataire_ncc]').value=o.dataset.ncc  ||'';
   });
   function fmt(n){return new Intl.NumberFormat('fr-FR').format(n)+' FCFA';}
   function recalc(){

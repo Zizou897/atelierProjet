@@ -32,7 +32,7 @@
     {% if delivery.destinataire_adresse %}<div style="color:var(--c-gray-500);font-size:.9rem;margin-top:.3rem;">{{ delivery.destinataire_adresse }}</div>{% endif %}
     {% if delivery.destinataire_tel %}<div style="font-size:.9rem;margin-top:.4rem;color:var(--c-gray-800);"><i class="fa-solid fa-phone" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ delivery.destinataire_tel }}</div>{% endif %}
     {% if delivery.destinataire_email %}<div style="font-size:.9rem;margin-top:.2rem;color:var(--c-gray-800);"><i class="fa-solid fa-envelope" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ delivery.destinataire_email }}</div>{% endif %}
-    {% if delivery.destinataire_rccm_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">RCCM/NCC : {{ delivery.destinataire_rccm_ncc }}</div>{% endif %}
+    {% if delivery.destinataire_rccm or delivery.destinataire_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">{% if delivery.destinataire_rccm %}RCCM : {{ delivery.destinataire_rccm }}{% endif %}{% if delivery.destinataire_rccm and delivery.destinataire_ncc %} · {% endif %}{% if delivery.destinataire_ncc %}NCC : {{ delivery.destinataire_ncc }}{% endif %}</div>{% endif %}
   </div>
 
   <!-- Méta -->

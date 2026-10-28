@@ -59,8 +59,12 @@
         </div>
         {% if customer.customer_type == 'COMPANY' %}
         <div class="info-item">
-          <div class="info-label">RCCM / NCC</div>
-          <div class="info-value">{{ customer.rccm_ncc|default:"—" }}</div>
+          <div class="info-label">RCCM</div>
+          <div class="info-value">{{ customer.rccm|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">NCC</div>
+          <div class="info-value">{{ customer.ncc|default:"—" }}</div>
         </div>
         {% endif %}
         <div class="info-item">

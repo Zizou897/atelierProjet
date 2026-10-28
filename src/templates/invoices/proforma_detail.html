@@ -36,7 +36,7 @@
     {% if proforma.destinataire_adresse %}<div style="color:var(--c-gray-500);font-size:.9rem;margin-top:.3rem;">{{ proforma.destinataire_adresse }}</div>{% endif %}
     {% if proforma.destinataire_tel %}<div style="font-size:.9rem;margin-top:.4rem;color:var(--c-gray-800);"><i class="fa-solid fa-phone" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ proforma.destinataire_tel }}</div>{% endif %}
     {% if proforma.destinataire_email %}<div style="font-size:.9rem;margin-top:.2rem;color:var(--c-gray-800);"><i class="fa-solid fa-envelope" style="color:var(--c-gray-400);margin-right:.3rem;"></i>{{ proforma.destinataire_email }}</div>{% endif %}
-    {% if proforma.destinataire_rccm_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">RCCM/NCC : {{ proforma.destinataire_rccm_ncc }}</div>{% endif %}
+    {% if proforma.destinataire_rccm or proforma.destinataire_ncc %}<div style="font-size:.85rem;color:var(--c-gray-500);margin-top:.4rem;">{% if proforma.destinataire_rccm %}RCCM : {{ proforma.destinataire_rccm }}{% endif %}{% if proforma.destinataire_rccm and proforma.destinataire_ncc %} · {% endif %}{% if proforma.destinataire_ncc %}NCC : {{ proforma.destinataire_ncc }}{% endif %}</div>{% endif %}
   </div>
 
   <!-- Méta -->

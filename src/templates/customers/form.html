@@ -68,10 +68,13 @@
 <script>
   (function () {
     var type = document.getElementById('id_customer_type');
-    var rccm = document.getElementById('wrap-rccm_ncc');
-    if (!type || !rccm) return;
+    var rccm = document.getElementById('wrap-rccm');
+    var ncc = document.getElementById('wrap-ncc');
+    if (!type || !rccm || !ncc) return;
     function toggleRccm() {
-      rccm.style.display = type.value === 'COMPANY' ? '' : 'none';
+      var d = type.value === 'COMPANY' ? '' : 'none';
+      rccm.style.display = d;
+      ncc.style.display = d;
     }
     type.addEventListener('change', toggleRccm);
     toggleRccm();

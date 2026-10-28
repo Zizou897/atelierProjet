@@ -67,15 +67,16 @@ class PrintTemplatesTests(TestCase):
                          'IBAN / RIB : CI93 0000', 'Mobile Money : Wave 07 00 00 00 00'):
                 self.assertIn(text, html, f'{text} absent de {name}')
 
-    def test_nothing_shown_when_empty(self):
+    def test_rccm_ncc_always_listed_in_emitter(self):
         CompanyProfile.objects.filter(key='ctams').update(
             rccm='', ncc='', bank_name='', bank_account='', mobile_money='')
         for name, url in self.urls.items():
             html = self.client.get(url).content.decode()
-            for label in ('RCCM :', 'Banque :', 'IBAN / RIB :', 'Mobile Money :'):
+            emitter = html.split('<div class="party-info">')[1].split('</div>')[0]
+            self.assertIn('RCCM : —', emitter, name)
+            self.assertIn('NCC : —', emitter, name)
+            for label in ('Banque :', 'IBAN / RIB :', 'Mobile Money :'):
                 self.assertNotIn(label, html, f'{label} affiché sur {name}')
-            # 'NCC :' seul matcherait aussi la ligne destinataire « RCCM/NCC : »
-            self.assertNotRegex(html, r'(?<![/C])NCC :', f'NCC affiché sur {name}')
 
     def test_site_link_in_footer_and_contacts_not_in_header(self):
         for name, url in self.urls.items():
@@ -166,7 +167,8 @@ class ProformaValiditeTests(TestCase):
 
 class VehicleOnDocumentsTests(TestCase):
     VEHICLE = {
-        'vehicule_marque_modele': 'Toyota Corolla',
+        'vehicule_marque': 'Toyota',
+        'vehicule_modele': 'Corolla',
         'vehicule_immatriculation': '1234 AB 01',
         'vehicule_kilometrage': 125000,
     }
@@ -184,27 +186,36 @@ class VehicleOnDocumentsTests(TestCase):
     def print_html(self, name):
         return self.client.get(reverse(f'{name}_print', args=[self.docs[name].pk])).content.decode()
 
-    def test_vehicle_shown_in_top_right_block_under_the_dates(self):
+    def test_vehicle_blue_box_top_right_under_dates(self):
         for name in self.docs:
             html = self.print_html(name)
+            self.assertIn('.vehicle-box{', html, name)
+            box = html.split('<div class="vehicle-box">')[1].split('</div>')[0]
+            for text in ('Marque :</span><b>Toyota</b>', 'Modèle :</span><b>Corolla</b>',
+                         'Immatriculation :</span><b>1234 AB 01</b>'):
+                self.assertIn(text, box, f'{text} absent de {name}')
             dates = html.split('<div class="doc-dates">')[1].split('</div>')[0]
-            for text in ('Véhicule : <b>Toyota Corolla</b>', 'Immatriculation : <b>1234 AB 01</b>',
-                         'Kilométrage : <b>125000 km</b>'):
-                self.assertIn(text, dates, f'{text} absent de {name}')
-            first_date_label = 'Date de livraison' if name == 'delivery' else "Date d'émission"
-            self.assertLess(dates.index(first_date_label), dates.index('Véhicule'), name)
+            self.assertNotIn('Immatriculation', dates, name)
+            self.assertIn('class="doc-id"', html.split('<div class="vehicle-box">')[0], name)
+            self.assertEqual(html.count('<div class="vehicle-box">'), 1, name)
+            box_at = html.index('<div class="vehicle-box">')
+            self.assertGreater(box_at, html.index('<div class="doc-dates">'), name)
+            self.assertLess(box_at, html.index('class="parties"'), name)
 
     def test_nothing_shown_without_vehicle(self):
         Invoice.objects.filter(pk=self.docs['invoice'].pk).update(
-            vehicule_marque_modele='', vehicule_immatriculation='', vehicule_kilometrage=None,
+            vehicule_marque='', vehicule_modele='', vehicule_immatriculation='', vehicule_kilometrage=None,
         )
         html = self.print_html('invoice')
-        for label in ('Véhicule :', 'Immatriculation :', 'Kilométrage :'):
+        self.assertNotIn('<div class="vehicle-box">', html)
+        for label in ('Marque :', 'Modèle :', 'Immatriculation :'):
             self.assertNotIn(label, html)
 
-    def test_zero_mileage_is_shown(self):
-        Invoice.objects.filter(pk=self.docs['invoice'].pk).update(vehicule_kilometrage=0)
-        self.assertIn('Kilométrage : <b>0 km</b>', self.print_html('invoice'))
+    def test_mileage_not_printed(self):
+        for name in self.docs:
+            html = self.print_html(name)
+            self.assertNotIn('Kilométrage', html, name)
+            self.assertNotIn('125000', html, name)
 
     def test_forms_offer_existing_vehicles_and_save_fields(self):
         from customers.models import Customer
@@ -222,13 +233,13 @@ class VehicleOnDocumentsTests(TestCase):
         response = self.client.post(reverse('invoice_create'), {
             'date_emission': date.today().isoformat(), 'tva_taux': '18', 'remise_globale': '0',
             'acompte_verse': '0', 'status': 'DRAFT', 'destinataire_nom': 'Awa',
-            'vehicule_marque_modele': 'Peugeot 206', 'vehicule_immatriculation': '9999 ZZ 01',
+            'vehicule_marque': 'Peugeot', 'vehicule_modele': '206', 'vehicule_immatriculation': '9999 ZZ 01',
             'vehicule_kilometrage': '88000',
             'line-0-designation': 'Vidange', 'line-0-quantite': '1', 'line-0-prix_unitaire': '10000',
         })
         self.assertEqual(response.status_code, 302)
         invoice = Invoice.objects.exclude(pk=self.docs['invoice'].pk).get()
-        self.assertEqual(invoice.vehicule_marque_modele, 'Peugeot 206')
+        self.assertEqual((invoice.vehicule_marque, invoice.vehicule_modele), ('Peugeot', '206'))
         self.assertEqual(invoice.vehicule_kilometrage, 88000)
 
     def test_vehicle_copied_on_proforma_to_invoice_and_invoice_to_delivery(self):
@@ -239,5 +250,24 @@ class VehicleOnDocumentsTests(TestCase):
 
         self.client.post(reverse('invoice_to_delivery', args=[self.docs['invoice'].pk]))
         delivery = DeliveryNote.objects.get(invoice=self.docs['invoice'])
-        self.assertEqual(delivery.vehicule_marque_modele, 'Toyota Corolla')
+        self.assertEqual((delivery.vehicule_marque, delivery.vehicule_modele), ('Toyota', 'Corolla'))
         self.assertEqual(delivery.vehicule_kilometrage, 125000)
+
+
+class DestinataireRccmNccTests(TestCase):
+    def test_rccm_and_ncc_on_separate_lines_on_every_print(self):
+        user = get_user_model().objects.create_user(username='dest', password='pass12345')
+        self.client.force_login(user)
+        today = date.today()
+        common = dict(destinataire_nom='Garage Elite', destinataire_adresse='Cocody', destinataire_tel='01 02',
+                      destinataire_rccm='CI-ABJ-2020-B-1234', destinataire_ncc='1234567 A')
+        docs = {
+            'invoice': Invoice.objects.create(date_emission=today, **common),
+            'proforma': Proforma.objects.create(date_emission=today, **common),
+            'delivery': DeliveryNote.objects.create(date_livraison=today, **common),
+        }
+        for name, doc in docs.items():
+            html = self.client.get(reverse(f'{name}_print', args=[doc.pk])).content.decode()
+            for text in ('<span>Adresse :</span>Cocody', '<span>Tél :</span>01 02',
+                         '<span>RCCM :</span>CI-ABJ-2020-B-1234', '<span>NCC :</span>1234567 A'):
+                self.assertIn(text, html, f'{text} absent de {name}')
