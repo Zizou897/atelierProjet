@@ -67,6 +67,24 @@ class PrintTemplatesTests(TestCase):
                          'IBAN / RIB : CI93 0000', 'Mobile Money : Wave 07 00 00 00 00'):
                 self.assertIn(text, html, f'{text} absent de {name}')
 
+    def test_emitter_address_is_labelled(self):
+        for name, url in self.urls.items():
+            html = self.client.get(url).content.decode()
+            emitter = html.split('<div class="party-info">')[1].split('</div>')[0]
+            self.assertRegex(emitter, r'^\s*Adresse : \S', name)
+
+    def test_landline_listed_right_under_tel_in_emitter(self):
+        CompanyProfile.objects.filter(key='ctams').update(tel_fixe='27 21 00 00 00')
+        for name, url in self.urls.items():
+            html = self.client.get(url).content.decode()
+            emitter = html.split('<div class="party-info">')[1].split('</div>')[0]
+            tel, fixe = emitter.index('Tél :'), emitter.index('Tél fixe : 27 21 00 00 00')
+            self.assertLess(tel, fixe, name)
+            self.assertLess(fixe, emitter.index('Email :'), name)
+        CompanyProfile.objects.filter(key='ctams').update(tel_fixe='')
+        for name, url in self.urls.items():
+            self.assertNotIn('Tél fixe', self.client.get(url).content.decode(), name)
+
     def test_rccm_ncc_always_listed_in_emitter(self):
         CompanyProfile.objects.filter(key='ctams').update(
             rccm='', ncc='', bank_name='', bank_account='', mobile_money='')
@@ -268,6 +286,6 @@ class DestinataireRccmNccTests(TestCase):
         }
         for name, doc in docs.items():
             html = self.client.get(reverse(f'{name}_print', args=[doc.pk])).content.decode()
-            for text in ('<span>Adresse :</span>Cocody', '<span>Tél :</span>01 02',
+            for text in ('Nom/Entreprise :</span>Garage Elite</div>', '<span>Adresse :</span>Cocody', '<span>Tél :</span>01 02',
                          '<span>RCCM :</span>CI-ABJ-2020-B-1234', '<span>NCC :</span>1234567 A'):
                 self.assertIn(text, html, f'{text} absent de {name}')

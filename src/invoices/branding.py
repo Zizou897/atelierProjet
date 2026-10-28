@@ -41,7 +41,7 @@ DEFAULT_BRAND = 'ctams'
 def _fallback_brand(key):
     data = dict(BRANDS.get(key, BRANDS[DEFAULT_BRAND]))
     data.update(
-        rccm='', ncc='', bank_name='', bank_account='', mobile_money='',
+        tel_fixe='', rccm='', ncc='', bank_name='', bank_account='', mobile_money='',
         logo_url=static(data['logo']),
     )
     return data

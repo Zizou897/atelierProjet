@@ -50,7 +50,7 @@ class SeedDataTests(TestCase):
 
     def test_as_brand_exposes_all_template_keys(self):
         brand = CompanyProfile.objects.get(key='cta').as_brand()
-        for key in ('key', 'name', 'tag', 'full_name', 'address', 'tel', 'email', 'signataire',
+        for key in ('key', 'name', 'tag', 'full_name', 'address', 'tel', 'tel_fixe', 'email', 'signataire',
                     'rccm', 'ncc', 'bank_name', 'bank_account', 'mobile_money', 'logo_url'):
             self.assertIn(key, brand)
 

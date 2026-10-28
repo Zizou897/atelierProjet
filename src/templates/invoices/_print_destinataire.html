@@ -1,4 +1,4 @@
-<div class="party-name">{{ doc.destinataire_nom|default:"—" }}</div>
+<div class="party-name"><span style="font-weight:400;color:#6B7280;margin-right:4px;">Nom/Entreprise :</span>{{ doc.destinataire_nom|default:"—" }}</div>
 <div class="party-info">
   {% if adresse %}<span>Adresse :</span>{{ adresse }}<br>{% endif %}
   {% if doc.destinataire_tel %}<span>Tél :</span>{{ doc.destinataire_tel }}<br>{% endif %}

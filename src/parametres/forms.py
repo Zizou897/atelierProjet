@@ -13,7 +13,7 @@ class CompanyProfileForm(forms.ModelForm):
     class Meta:
         model = CompanyProfile
         fields = [
-            'name', 'tag', 'full_name', 'address', 'tel', 'email', 'signataire',
+            'name', 'tag', 'full_name', 'address', 'tel', 'tel_fixe', 'email', 'signataire',
             'rccm', 'ncc',
             'bank_name', 'bank_account', 'mobile_money',
             'logo',

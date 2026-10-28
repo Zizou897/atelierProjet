@@ -22,6 +22,7 @@ class CompanyProfile(models.Model):
     full_name = models.CharField(max_length=200, verbose_name='Nom complet')
     address = models.CharField(max_length=255, verbose_name='Adresse')
     tel = models.CharField(max_length=100, verbose_name='Téléphone(s)')
+    tel_fixe = models.CharField(max_length=50, blank=True, verbose_name='Téléphone fixe')
     email = models.EmailField(verbose_name='Email')
     signataire = models.CharField(max_length=150, blank=True, verbose_name='Signataire')
 
@@ -60,6 +61,7 @@ class CompanyProfile(models.Model):
             'full_name': self.full_name,
             'address': self.address,
             'tel': self.tel,
+            'tel_fixe': self.tel_fixe,
             'email': self.email,
             'signataire': self.signataire,
             'rccm': self.rccm,
