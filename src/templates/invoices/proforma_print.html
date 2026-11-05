@@ -72,6 +72,7 @@
       .no-print{display:none!important;}
     }
   </style>
+  <link rel="stylesheet" href="{% static 'app/css/document-print.css' %}">
 </head>
 <body>
 <div class="no-print" style="padding:12px;background:#1B2DA8;color:#fff;text-align:center;font-family:sans-serif;font-size:13px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap;">
@@ -160,9 +161,9 @@
       </tr>
       {% endfor %}
       {% with empty_rows=proforma.lines.count %}
-      {% for i in "123456789012"|make_list %}
-      {% if forloop.counter > empty_rows and forloop.counter <= 12 %}
-      <tr><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td><td></td></tr>
+      {% for i in "12345678901234"|make_list %}
+      {% if forloop.counter > empty_rows and forloop.counter <= 14 %}
+      <tr class="print-fill-row"><td class="c" style="color:#E5E7EB;">{{ forloop.counter }}</td><td></td><td></td><td></td><td></td></tr>
       {% endif %}
       {% endfor %}
       {% endwith %}
@@ -211,5 +212,6 @@
     <a href="https://www.ctams.net/" style="color:#1B2DA8;text-decoration:none;">https://www.ctams.net/</a>
   </div>
 </div>
+<script src="{% static 'app/js/document-print.js' %}"></script>
 </body>
 </html>

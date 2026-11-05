@@ -67,6 +67,12 @@ class PrintTemplatesTests(TestCase):
                          'IBAN / RIB : CI93 0000', 'Mobile Money : Wave 07 00 00 00 00'):
                 self.assertIn(text, html, f'{text} absent de {name}')
 
+    def test_print_tables_are_padded_to_fourteen_rows(self):
+        for name, url in self.urls.items():
+            html = self.client.get(url).content.decode()
+            body = html.split('<tbody>', 1)[1].split('</tbody>', 1)[0]
+            self.assertEqual(body.count('<tr'), 14, name)
+
     def test_emitter_address_is_labelled(self):
         for name, url in self.urls.items():
             html = self.client.get(url).content.decode()

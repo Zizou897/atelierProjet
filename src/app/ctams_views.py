@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.utils.dateparse import parse_datetime
 
+from .ctams_pagination import paginate_newest_first
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,8 +48,9 @@ def contact_message_list(request):
             logger.warning("Could not retrieve CTAMS contact messages: %s", type(exc).__name__)
             api_error = "Impossible de joindre le site CTAMS pour le moment. Réessayez plus tard."
 
+    page_obj = paginate_newest_first(messages, request.GET.get("page", 1))
     return render(
         request,
         "contact_messages/list.html",
-        {"contact_messages": messages, "api_error": api_error},
+        {"contact_messages": page_obj.object_list, "page_obj": page_obj, "api_error": api_error},
     )

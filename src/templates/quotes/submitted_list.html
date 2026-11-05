@@ -12,7 +12,7 @@
   <div class="page-actions">
     <span class="badge badge-blue">
       <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
-      {{ quotes|length }} demande{{ quotes|length|pluralize:"s" }}
+      {{ page_obj.paginator.count }} demande{{ page_obj.paginator.count|pluralize:"s" }}
     </span>
   </div>
 </header>
@@ -83,5 +83,18 @@
       </tbody>
     </table>
   </div>
+  {% if page_obj.paginator.num_pages > 1 %}
+  <p class="table-cell-sub" style="text-align:center;margin:14px 0 0;">
+    Affichage {{ page_obj.start_index }}–{{ page_obj.end_index }} sur {{ page_obj.paginator.count }} demandes
+  </p>
+  <nav class="pagination" aria-label="Pagination des demandes de devis">
+    {% if page_obj.has_previous %}<a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Page précédente"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></a>{% endif %}
+    {% for number in page_obj.paginator.page_range %}
+      {% if number == page_obj.number %}<span class="page-link active" aria-current="page">{{ number }}</span>
+      {% else %}<a class="page-link" href="?page={{ number }}">{{ number }}</a>{% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Page suivante"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>{% endif %}
+  </nav>
+  {% endif %}
 {% endif %}
 {% endblock %}

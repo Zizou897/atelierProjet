@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.utils.dateparse import parse_datetime
 
+from app.ctams_pagination import paginate_newest_first
+
 logger = logging.getLogger(__name__)
 
 
@@ -46,8 +48,9 @@ def submitted_quote_list(request):
             logger.warning("Could not retrieve CTAMS quote requests: %s", type(exc).__name__)
             api_error = "Impossible de joindre le site CTAMS pour le moment. Réessayez plus tard."
 
+    page_obj = paginate_newest_first(quotes, request.GET.get("page", 1))
     return render(
         request,
         "quotes/submitted_list.html",
-        {"quotes": quotes, "api_error": api_error},
+        {"quotes": page_obj.object_list, "page_obj": page_obj, "api_error": api_error},
     )
