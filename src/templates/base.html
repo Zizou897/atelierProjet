@@ -93,7 +93,17 @@
         <i class="fa-solid fa-truck-fast"></i>
         <span>Bons de livraison</span>
       </a>
-
+      <div class="sidebar-section-label">Site CTAMS</div>
+      <a href="{% url 'submitted_quote_list' %}"
+         class="sidebar-link {% if 'quote' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-file-circle-question"></i>
+        <span>Devis du site CTAMS</span>
+      </a>
+      <a href="{% url 'submitted_contact_message_list' %}"
+         class="sidebar-link {% if 'contact_message' in request.resolver_match.url_name|default:'' %}active{% endif %}">
+        <i class="fa-solid fa-envelope"></i>
+        <span>Messages de contact</span>
+      </a>
       {% if user.is_staff or user.profile.role.code == 'admin' %}
       <div class="sidebar-section-label">Administration</div>
       <a href="{% url 'user_list' %}"

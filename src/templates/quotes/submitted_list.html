@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block page_title %}Demandes de devis CTAMS{% endblock %}
+{% block topbar_title %}Demandes de devis du site{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Demandes de devis</h1>
+    <p class="page-subtitle">Demandes reçues depuis le formulaire du site CTAMS.</p>
+  </div>
+  <div class="page-actions">
+    <span class="badge badge-blue">
+      <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+      {{ quotes|length }} demande{{ quotes|length|pluralize:"s" }}
+    </span>
+  </div>
+</header>
+
+{% if api_error %}
+  <div class="alert alert-warning" role="alert">
+    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    <div>{{ api_error }}</div>
+  </div>
+{% elif not quotes %}
+  <div class="table-wrap" role="status">
+    <div class="table-empty">
+      <i class="fa-solid fa-file-circle-question" aria-hidden="true" style="font-size:28px;display:block;margin-bottom:10px;opacity:.35"></i>
+      <strong>Aucune demande pour le moment</strong>
+      <p class="table-cell-sub">Les demandes reçues depuis le site apparaîtront ici.</p>
+    </div>
+  </div>
+{% else %}
+  <div class="table-wrap">
+    <table class="ctams-table" style="min-width:960px">
+      <thead>
+        <tr>
+          <th scope="col">Référence</th>
+          <th scope="col">Entreprise</th>
+          <th scope="col">Contact</th>
+          <th scope="col">Besoin</th>
+          <th scope="col">Véhicules</th>
+          <th scope="col">Réception</th>
+          <th scope="col">Suivi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for quote in quotes %}
+        <tr>
+          <td><span class="cell-mono">#{{ quote.id }}</span></td>
+          <td><div class="table-cell-main">{{ quote.company_name|default:"—" }}</div></td>
+          <td>
+            <div class="table-cell-main">{{ quote.contact_name|default:"—" }}</div>
+            {% if quote.phone %}<a class="table-cell-sub" href="tel:{{ quote.phone }}" style="color:var(--c-blue-700)">{{ quote.phone }}</a>{% endif %}
+            {% if quote.email %}<a class="table-cell-sub" href="mailto:{{ quote.email }}" style="display:block;color:var(--c-blue-700)">{{ quote.email }}</a>{% endif %}
+          </td>
+          <td>
+            <span class="badge badge-blue">{% firstof quote.service_type_label quote.service_type "Autre" %}</span>
+            {% if quote.message %}
+              {% if quote.message|length > 110 %}
+                <details style="margin-top:6px;max-width:320px">
+                  <summary style="cursor:pointer;color:var(--c-blue-700);font-size:12px;font-weight:600;line-height:1.45;overflow-wrap:anywhere">
+                    {{ quote.message|truncatechars:110 }} <span>Lire le message complet <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span>
+                  </summary>
+                  <div style="margin-top:8px;padding:10px 12px;background:var(--c-gray-50);border-radius:var(--r-md);white-space:normal;overflow-wrap:anywhere;line-height:1.5;color:var(--c-gray-700)">{{ quote.message|linebreaksbr }}</div>
+                </details>
+              {% else %}
+                <div class="table-cell-sub" style="white-space:normal;min-width:180px;max-width:320px;overflow-wrap:anywhere;line-height:1.45">{{ quote.message|linebreaksbr }}</div>
+              {% endif %}
+            {% endif %}
+          </td>
+          <td>{{ quote.vehicle_count|default:"—" }}</td>
+          <td style="white-space:nowrap">{% if quote.created_at_datetime %}{{ quote.created_at_datetime|date:"d/m/Y H:i" }}{% else %}—{% endif %}</td>
+          <td>
+            {% if quote.is_processed %}
+              <span class="badge status-done">Traitée</span>
+            {% else %}
+              <span class="badge status-open">À traiter</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

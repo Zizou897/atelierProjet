@@ -156,6 +156,12 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 
+# CTAMS public-site quote requests API (read-only, authenticated with X-API-Key).
+CTAMS_QUOTES_API_URL = config('CTAMS_QUOTES_API_URL', default='').strip()
+CTAMS_QUOTES_API_KEY = config('CTAMS_QUOTES_API_KEY', default='')
+CTAMS_CONTACT_MESSAGES_API_URL = config('CTAMS_CONTACT_MESSAGES_API_URL', default='').strip()
+CTAMS_CONTACT_MESSAGES_API_KEY = config('CTAMS_CONTACT_MESSAGES_API_KEY', default=CTAMS_QUOTES_API_KEY)
+
 # ---------------------------------------------------------------------------
 # Jazzmin (admin)
 # ---------------------------------------------------------------------------

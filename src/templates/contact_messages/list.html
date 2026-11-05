@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block page_title %}Messages de contact CTAMS{% endblock %}
+{% block topbar_title %}Messages de contact{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header-left">
+    <h1 class="page-title">Messages de contact</h1>
+    <p class="page-subtitle">Messages reçus depuis le formulaire de contact du site CTAMS.</p>
+  </div>
+  <div class="page-actions">
+    <span class="badge badge-blue">
+      <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+      {{ contact_messages|length }} message{{ contact_messages|length|pluralize:"s" }}
+    </span>
+  </div>
+</header>
+
+{% if api_error %}
+  <div class="alert alert-warning" role="alert">
+    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    <div>{{ api_error }}</div>
+  </div>
+{% elif not contact_messages %}
+  <div class="table-wrap" role="status">
+    <div class="table-empty">
+      <i class="fa-solid fa-inbox" aria-hidden="true" style="font-size:28px;display:block;margin-bottom:10px;opacity:.35"></i>
+      <strong>Aucun message pour le moment</strong>
+      <p class="table-cell-sub">Les messages reçus depuis le site apparaîtront ici.</p>
+    </div>
+  </div>
+{% else %}
+  <div class="table-wrap">
+    <table class="ctams-table" style="min-width:900px">
+      <thead>
+        <tr>
+          <th scope="col">Réception</th>
+          <th scope="col">Expéditeur</th>
+          <th scope="col">Coordonnées</th>
+          <th scope="col">Message</th>
+          <th scope="col">État sur CTAMS</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contact in contact_messages %}
+        <tr>
+          <td style="white-space:nowrap">{% if contact.created_at_datetime %}{{ contact.created_at_datetime|date:"d/m/Y H:i" }}{% else %}—{% endif %}</td>
+          <td>
+            <div class="table-cell-user">
+              <div class="avatar-initials">{{ contact.name|slice:":2"|upper }}</div>
+              <div class="table-cell-main">{{ contact.name|default:"—" }}</div>
+            </div>
+          </td>
+          <td>
+            {% if contact.phone %}<a href="tel:{{ contact.phone }}" style="color:var(--c-blue-700)">{{ contact.phone }}</a>{% endif %}
+            {% if contact.email %}<a class="table-cell-sub" href="mailto:{{ contact.email }}" style="display:block;color:var(--c-blue-700)">{{ contact.email }}</a>{% endif %}
+            {% if not contact.phone and not contact.email %}—{% endif %}
+          </td>
+          <td style="white-space:normal;min-width:260px;max-width:480px;overflow-wrap:anywhere;line-height:1.5">
+            {% if contact.message|length > 140 %}
+              <details style="max-width:480px">
+                <summary style="cursor:pointer;color:var(--c-blue-700);font-size:12px;font-weight:600;line-height:1.45;overflow-wrap:anywhere">
+                  {{ contact.message|truncatechars:140 }} <span>Lire le message complet <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span>
+                </summary>
+                <div style="margin-top:8px;padding:10px 12px;background:var(--c-gray-50);border-radius:var(--r-md);white-space:normal;overflow-wrap:anywhere;line-height:1.55;color:var(--c-gray-700)">{{ contact.message|linebreaksbr }}</div>
+              </details>
+            {% else %}
+              {{ contact.message|linebreaksbr }}
+            {% endif %}
+          </td>
+          <td>
+            {% if contact.is_read %}
+              <span class="badge badge-gray">Lu sur le site</span>
+            {% else %}
+              <span class="badge status-open">Nouveau</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}
